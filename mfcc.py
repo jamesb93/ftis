@@ -1,7 +1,7 @@
 import os, sys, time, tempfile, argparse, subprocess
 import multiprocessing as mp
 from shutil import copyfile, rmtree
-from ftis.utils import bufspill, write_json, printp
+from ftis.common.utils import bufspill, write_json, printp
 
 parser = argparse.ArgumentParser(description='Slice a folder of audio files using fluid-noveltyslice.')
 parser.add_argument('-i', '--infolder', required=True, type=str,               help='The input folder to analyse')
