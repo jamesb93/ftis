@@ -1,0 +1,18 @@
+source: ~/testfiles
+folder: ~/ftisoutput
+
+analysers:
+    mfcc:
+        fftsettings: "4096 1024 4096"
+        numcoeffs: 13
+        numbands : 40
+
+    stats:
+        numderivs: 3
+
+    dr:
+        algorithm: UMAP
+
+    cluster:
+        algorithm: HDBSCAN
+
