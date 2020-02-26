@@ -1,0 +1,1 @@
+#-- All the input/output types that are checked against for each analyser --#
