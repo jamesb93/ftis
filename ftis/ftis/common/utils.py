@@ -1,13 +1,17 @@
-import os
-import yaml
-import csv
+import os, yaml, csv
 import soundfile as sf
 import simpleaudio as sa
+from importlib import import_module
 # JSON importing
 try:
     import rapidjson as rj
 except ImportError:
     import json as rj
+
+def import_analyser(class_name: str):
+    path = f"ftis.analysers.{class_name}"
+    module = import_module(path)
+    return module.main
 
 def lines_to_list(input_file: str) -> list:
     """Take the lines of a file and return it as a list"""
@@ -86,6 +90,7 @@ def get_path() -> str:
     """returns path of script being run"""
     return os.path.dirname(os.path.realpath(__file__))
 
+# TODO Fix the parameter inputs naming (I think its backwards with ms2smaps)
 def samps2ms(ms: float, sr: int) -> float:
     '''
     convert samples to milliseconds given a sampling rate
