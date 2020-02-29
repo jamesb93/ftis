@@ -71,5 +71,5 @@ class FTISProcess():
         # So we make sure that the output folder exists
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
+        self.create_metadata()
         self.run_analysers()
-
