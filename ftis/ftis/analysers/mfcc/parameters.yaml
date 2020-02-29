@@ -1,0 +1,11 @@
+fftsettings:
+    default: "4096 1024 4096"
+    type: string
+
+numbands:
+    default: 40
+    type: int
+
+numcoeffs:
+    default: 13
+    type: int
