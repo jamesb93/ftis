@@ -3,9 +3,9 @@ folder: ~/ftisoutput
 
 analysers:
     mfcc:
-        fftsettings: "4096 1024 4096"
+        fftsettings: "2048 1024 2048"
         numcoeffs: 13
-        numbands : 40
+        numbands : 20
 
     stats:
         numderivs: 3
