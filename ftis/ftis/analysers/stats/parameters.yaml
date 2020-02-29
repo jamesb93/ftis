@@ -1,0 +1,7 @@
+numderivs:
+    default: 0
+    type: int
+
+flatten:
+    default: False
+    type: bool
