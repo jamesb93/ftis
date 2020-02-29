@@ -1,0 +1,17 @@
+scaling:
+    default: standardise
+    type: string
+
+components:
+    default: 2
+    type: int
+
+mindist:
+    default: 0.1
+    type: float
+
+neighbours:
+      default: 7
+      type: int
+
+
