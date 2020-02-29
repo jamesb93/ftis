@@ -1,32 +1,39 @@
-from ftis.common.exceptions import InvalidYamlError, AnalyserNotFound
-from ftis.common.utils import import_analyser
-from importlib import import_module
 import os
+import datetime
+from ftis.common.exceptions import InvalidYamlError, AnalyserNotFound, NotYetImplemented
+from ftis.common.utils import import_analyser, read_yaml, expand_tilde, write_json
 
-class FTISProcess():
+#TODO: If folder exists prompt the user or make a has or sumting mon
+
+class FTISProcess:
     """
-    I am a class that represents the life cycle of an 'ftis' execution.
-    I contain all of the necessary information and classes as well as validating their inputs, outputs and parameters.
+    Class that represents the life cycle of an 'ftis' execution.
     """
-    
-    def __init__(self):
+
+    def __init__(self, config_path):
+        self.config_path = config_path
+        self.config = read_yaml(self.config_path)
+        self.source = ""
         self.base_dir = ""
-        self.config = {}
         self.chain = []
 
     def validate_config(self):
-        """
-        I validate the configuration file
-        """
-        try:
-            keys = self.config.keys()
-        except AttributeError:
-            raise InvalidYamlError("There are no sections configuring analysis and processing stages. Your config file may be empty or incorrectly structured.")
-        try:
-            values = self.config.values()
-        except AttributeError:
-            raise InvalidYamlError("There is no configuration for the analysis and processing sections. Your config file may be empty or incorrectly structured.")
+        """I validate the configuration file"""
 
+        try:
+            self.config.keys()
+        except AttributeError:
+            raise InvalidYamlError(
+                "No sections configuring analysis and processing stages"
+            )
+        try:
+            self.config.values()
+        except AttributeError:
+            raise InvalidYamlError(
+                "No configuration for the analysis and processing sections"
+            )
+
+        keys = self.config.keys()
         if "source" not in keys:
             raise InvalidYamlError("No source is specified")
         if "analysers" not in keys:
@@ -38,35 +45,61 @@ class FTISProcess():
             # Test that all of the analysers can be imported without error
             try:
                 import_analyser(analyser)
-            except:
+            except ImportError:
                 raise AnalyserNotFound(f"{analyser} is not a valid analyser")
 
-    def process_config(self):
+    def parse_config(self):
+        self.base_dir = expand_tilde(self.config["folder"])
+        self.source = expand_tilde(self.config["source"])
+
+    def build_processing_chain(self):
         """
-        I process the configuration file into usuable bits.
-        I will create instances of every class required and store and pass each class the right parameters/inputs/outputs
-        I then call run() for each class in order
+        Builds the processing chain in the right order
         """
         for index, analyser in enumerate(self.config["analysers"]):
-            parameters = self.config["analysers"][analyser]
 
             Analyser = import_analyser(analyser)
-            analyser = Analyser(parameters)
+            analyser = Analyser(self.config)
             self.chain.append(analyser)
-    
-    def create_metadata(self):
-        # Date/time/input/file list/ list of all the processes and in what order
-        pass
-                
 
+        for index, obj in enumerate(self.chain):
+            if index == 0:
+                obj.input = self.source
+            else:
+                obj.input = self.chain[index - 1].output
+            obj.set_output(self.base_dir)
+
+    def validate_io(self):
+        """
+        This will be run directly after build_processing_chain
+        It will require specific typs to be implemented so...
+        ...that the chain can be guaranteed to have matching io
+        """
+        raise NotYetImplemented
+
+    def create_metadata(self):
+        # Date/time/input/file list/
+        # List chain
+        time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
+        metadata = {"time": time}
+        io =[]
+        io.append(self.source)
+        for link in self.chain:
+            io.append(link.output)
+        metadata["io"] = io
+        write_json(os.path.join(self.base_dir, "metadata.json"), metadata)
 
     def run_analysers(self):
-        print('')
-        
-        
+        # Something here to do with self.chain
+        for obj in self.chain:
+            obj.run()
+
     def run_process(self):
         self.validate_config()
-        self.process_config()
+        self.parse_config()
+        self.build_processing_chain()
+        # THIS IS WHERE YOU WOULD VALIDATE INPUTS AND OUTPUTS
+
         # Assume here that all of the necessary checks have passed successfully
         # So we make sure that the output folder exists
         if not os.path.exists(self.base_dir):
