@@ -1,90 +1,74 @@
 import os
 import sys
-import tempfile
 import subprocess
-import multiprocessing as mp
+import tempfile
+import multiprocessing
+from shutil import rmtree
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.ftypes import audio_file
-from ftis.common.utils import bufspill, write_json, printp
-from ftis.common.exceptions import NotYetImplemented
-from shutil import rmtree
+from ftis.common.utils import printp, write_json, bufspill
 
 
 class MFCC(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
         self.name = "mfcc"
-        self.parameters = {
-            "fftsettings": "4096 1024 4096",
-            "numbands": 40,
-            "numcoeffs": 13,
-        }
+        self.fftsettings = []
+        self.data_container = multiprocessing.Manager().dict()
+        self.TMP = tempfile.mkdtemp()
         self.validate_parameters()
 
-    def validate_io(self):
-        raise NotImplementedError
+    def set_output(self, base_dir: str):
+        self.output = os.path.join(base_dir, f"{self.name}.json")
+
+    def analyse(self, workable: str):
+        # Setup paths/files etc
+        src = workable
+        base_name = os.path.basename(workable)
+        features = os.path.join(self.TMP, f"{base_name}_mfcc.wav")
+        # Compute MFCC descriptor
+        subprocess.call(
+            [
+                "fluid-mfcc",
+                "-source",
+                src,
+                "-features",
+                features,
+                "-fftsettings",
+                self.fftsettings[0],
+                self.fftsettings[1],
+                self.fftsettings[2],
+                "-numbands",
+                str(self.parameters["numbands"]),
+                "-numcoeffs",
+                str(self.parameters["numcoeffs"]),
+                "-maxnumcoeffs",
+                str(self.parameters["numcoeffs"]),
+            ]
+        )
+
+        data = bufspill(features)
+        list_data = data.tolist()
+        self.data_container[workable] = list_data
 
     def run(self):
         workables = []
+        printp('Getting workables')
+        self.fftsettings = self.parameters["fftsettings"].split(" ")
         # Recursively grab all the files from the input string
         for root, _, files in os.walk(self.input):
             for f in files:
                 if os.path.splitext(f)[1] in audio_file:
                     workables.append(os.path.join(root, f))
-        # Prepare for work
-        tmp_dir = tempfile.mkdtemp()
-        # dict with shared memory between processes for writing out results
-        mfcc_dict = mp.Manager().dict()
-
-        fftsettings = self.parameters["fftsettings"].split(" ")
-
-        def analyse(workable: str):
-            # Setup paths/files etc
-            mfcc_src = workable
-            base_name = os.path.basename(workable)
-            mfcc_features = os.path.join(tmp_dir, f"{base_name}_features.wav")
-            # Compute MFCC descriptor
-            subprocess.call(
-                [
-                    "fluid-mfcc",
-                    "-source",
-                    mfcc_src,
-                    "-features",
-                    mfcc_features,
-                    "-fftsettings",
-                    fftsettings[0],
-                    fftsettings[1],
-                    fftsettings[2],
-                    "-numbands",
-                    str(self.parameters["numbands"]),
-                    "-numcoeffs",
-                    str(self.parameters["numcoeffs"]),
-                    "-maxnumcoeffs",
-                    str(self.parameters["numcoeffs"]),
-                ]
-            )
-
-            data = bufspill(mfcc_features)
-            try:
-                list_data = data.tolist()
-                mfcc_dict[workable] = list_data
-            except:
-                print(f"There was no data to process for {mfcc_src}.")
 
         num_jobs = len(workables)
 
-        # Insert metadata at the top
-        mfcc_dict["meta"] = {
-            "fftsettings": self.parameters["fftsettings"],
-            "numbands": self.parameters["numbands"],
-            "numcoeffs": self.parameters["numcoeffs"],
-            "numjobs": num_jobs,
-        }
+        printp('Starting multiprocessing')
+        with multiprocessing.Pool() as p:
+            for i, _ in enumerate(p.imap_unordered(self.analyse, workables), 1):
+                sys.stdout.write(f"\rAnalyse Progress {(i/num_jobs) * 100.0}")
 
-        for index, workable in enumerate(workables):
-            analyse(workable)
-            sys.stdout.write(f"\rAnalayse Progress {index/num_jobs}")
+        write_json(self.output, dict(self.data_container))
+        rmtree(self.TMP)
 
-        write_json(self.output, dict(mfcc_dict))
-        rmtree(tmp_dir)
         printp("Finished MFCC analysis")
