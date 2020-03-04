@@ -5,7 +5,6 @@ import tempfile
 import multiprocessing
 from shutil import rmtree
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.ftypes import audio_file
 from ftis.common.utils import printp, write_json, bufspill
 
 
@@ -58,7 +57,7 @@ class MFCC(FTISAnalyser):
         # Recursively grab all the files from the input string
         for root, _, files in os.walk(self.input):
             for f in files:
-                if os.path.splitext(f)[1] in audio_file:
+                if os.path.splitext(f)[1] in ['.wav']:
                     workables.append(os.path.join(root, f))
 
         num_jobs = len(workables)
