@@ -1,0 +1,20 @@
+algorithm:
+    # The specific algorithm to be used 
+    default: HDBSCAN
+    options:
+        HDBSCAN
+        AgglomCluster
+
+scaling:
+    # Scaling that is applied to the input data prior to clustering
+    default: standardise
+    options: 
+        standardise
+        normalise
+
+numclusters: # only used if the algorithm requires a number of clusters
+    default: 10
+    type: int
+
+
+
