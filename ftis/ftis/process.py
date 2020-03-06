@@ -1,5 +1,6 @@
 import os
 import datetime
+import logging
 from ftis.common.exceptions import InvalidYamlError, AnalyserNotFound, NotYetImplemented
 from ftis.common.utils import import_analyser, read_yaml, expand_tilde, write_json
 
@@ -13,44 +14,67 @@ class FTISProcess:
     def __init__(self, config_path):
         self.config_path = config_path
         self.config = read_yaml(self.config_path)
-        self.source = ""
         self.base_dir = ""
+        self.source = ""
         self.chain = []
+        self.logger = None
+
+    def initial_parse(self):
+        """Makes an initial parse of the yaml file and initialises logging"""
+        try:
+            self.base_dir = expand_tilde(self.config["folder"])
+        except KeyError:
+            raise InvalidYamlError("Config does not contain output folder")
+        try:
+            self.source = expand_tilde(self.config["source"])
+        except KeyError:
+            raise InvalidYamlError("Config does not contain source folder")
+        
+        # Setup logging
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        logfile_path = os.path.join(self.base_dir, "logfile.log")
+        if os.path.isfile(logfile_path):
+            os.remove(logfile_path)
+        logfile_handler = logging.FileHandler(
+            os.path.join(self.base_dir, "logfile.log")
+        )
+        formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+        logfile_handler.setFormatter(formatter)
+        self.logger.addHandler(logfile_handler)
+        self.logger.info("Logging initialised")
 
     def validate_config(self):
         """I validate the configuration file"""
-
+        self.logger.info("Validating Configuration")
         try:
-            self.config.keys()
-        except AttributeError:
-            raise InvalidYamlError(
-                "No sections configuring analysis and processing stages"
-            )
+            keys = self.config.keys()
+        except AttributeError as e:
+            self.logger.exception(e)
+            raise InvalidYamlError("No analysis sections in configs")
         try:
             self.config.values()
-        except AttributeError:
-            raise InvalidYamlError(
-                "No configuration for the analysis and processing sections"
-            )
+        except AttributeError as e:
+            self.logger.exception(e)
+            raise InvalidYamlError("No analysis sections in config")
 
-        keys = self.config.keys()
         if "source" not in keys:
+            self.logger.debug("No source specified in configuration file")
             raise InvalidYamlError("No source is specified")
         if "analysers" not in keys:
+            self.logger.debug("No analyers specified in configuration file")
             raise InvalidYamlError("No analysers are specified")
         if "folder" not in keys:
+            self.logger.debug("No output folder specified in configuration")
             raise InvalidYamlError("No output folder specified")
 
         for analyser in self.config["analysers"]:
             # Test that all of the analysers can be imported without error
             try:
                 import_analyser(analyser)
-            except ImportError:
+            except ImportError as e:
+                self.logger.exception(e)
                 raise AnalyserNotFound(f"{analyser} is not a valid analyser")
-
-    def parse_config(self):
-        self.base_dir = expand_tilde(self.config["folder"])
-        self.source = expand_tilde(self.config["source"])
 
     def build_processing_chain(self):
         """
@@ -59,7 +83,7 @@ class FTISProcess:
         for index, analyser in enumerate(self.config["analysers"]):
 
             Analyser = import_analyser(analyser)
-            analyser = Analyser(self.config)
+            analyser = Analyser(self)
             self.chain.append(analyser)
 
         for index, obj in enumerate(self.chain):
@@ -73,7 +97,7 @@ class FTISProcess:
         """
         This will be run directly after build_processing_chain
         It will require specific typs to be implemented so...
-        ...that the chain can be guaranteed to have matching io
+        ...that the chain can be guaranteed to have compatible io
         """
         raise NotYetImplemented
 
@@ -82,7 +106,7 @@ class FTISProcess:
         # List chain
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
         metadata = {"time": time}
-        io =[]
+        io = []
         io.append(self.source)
         for link in self.chain:
             io.append(link.output)
@@ -95,8 +119,8 @@ class FTISProcess:
             obj.run()
 
     def run_process(self):
+        self.initial_parse()
         self.validate_config()
-        self.parse_config()
         self.build_processing_chain()
         # THIS IS WHERE YOU WOULD VALIDATE INPUTS AND OUTPUTS
 

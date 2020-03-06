@@ -6,12 +6,11 @@ from ftis.common.utils import read_yaml
 #TODO: required parameters and optional
 #TODO: stereo > mono analyser
 class FTISAnalyser:
-    """
-    Every analyser inherits from this class
-    """
+    """Every analyser inherits from this class"""
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, parent_process):
+        self.config = parent_process.config
+        self.logger = parent_process.logger
         self.input = ""
         self.output = ""
         self.parameters = {}
@@ -24,7 +23,7 @@ class FTISAnalyser:
         """
         Validates parameters set in the process against the template
         """
-        #
+        self.logger.info(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "..",
