@@ -47,14 +47,19 @@ class DR(FTISAnalyser):
         data = reduction.fit_transform(data)
 
         # Normalisation
-        printp("Normalising for JSON output")
-        post_normalisation = MinMaxScaler()
-        data = post_normalisation.fit_transform(data)
+        if self.parameters["post_scaling"] == "normalise":
+            printp("Normalising for JSON output")
+            post_scaling = MinMaxScaler()
+        if self.parameters["post_scaling"] == "standardise":
+            printp("Standardising for JSON output")
+            post_scaling = StandardScaler()
+        if self.parameters["post_scaling"] != "none":
+            data = post_scaling.fit_transform(data)
 
-        normalised_data_points = {}
+        dictionary_format_data = {}
 
         printp("Outputting JSON")
         for key, value in zip(keys, data):
-            normalised_data_points[key] = value.tolist()
+            dictionary_format_data[key] = value.tolist()
 
-        write_json(self.output, normalised_data_points)
+        write_json(self.output, dictionary_format_data)
