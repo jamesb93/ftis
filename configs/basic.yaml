@@ -1,0 +1,15 @@
+source: ~/dev/crackle/slice
+folder: ~/dev/crackle/analysis
+
+analysers:
+    mfcc:
+        fftsettings: "4096 1024 4096"
+        numcoeffs: 13
+        
+    stats:
+        numderivs: 3
+        flatten: True
+
+    dimension_reduction:
+        components: 10
+        post_scaling: "standardise"
