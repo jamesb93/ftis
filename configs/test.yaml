@@ -1,8 +1,0 @@
-source: ~/testdata.json
-folder: ~/ftistconfigs
-
-analysers:
-        
-    dimension_reduction:
-        scaling: standardise
-        components: 1    
