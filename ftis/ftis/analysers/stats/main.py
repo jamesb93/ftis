@@ -9,7 +9,8 @@ from ftis.common.utils import printp, write_json, read_json
 class STATS(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
-        self.name = "stats" #TODO: grab this from the parent folder to only have to change one place
+        self.name = "stats"
+        self.stats_dict = {}
         self.validate_parameters()
 
     def set_output(self, base_dir: str):
@@ -41,11 +42,8 @@ class STATS(FTISAnalyser):
             container.append(stats)
         return container
 
-
-
     def run(self):
         data = read_json(self.input)
-        stats_dict = {}
         try:
             del data["meta"]
         except KeyError:
@@ -53,17 +51,16 @@ class STATS(FTISAnalyser):
 
         for element in data:  # for key (audio file ) in dict
             element_container = []
-            print(element)
             for row in data[element]:  # for mfcc band in mfcc
                 row_stats = self.get_stats(row, self.parameters["numderivs"]) # get the stats for each mfcc band
-                element_container.append(row_stats) # 
+                element_container.append(row_stats)
 
             if self.parameters["flatten"]:
-                element_container = np.array(element_container) # Convert to numpy array
+                element_container = np.array(element_container)
                 element_container = element_container.flatten()
                 element_container = element_container.tolist()
-            stats_dict[element] = element_container
-        
-        write_json(self.output, stats_dict)
+            self.stats_dict[element] = element_container
+
+        write_json(self.output, dict(self.stats_dict))
 
         printp("Finished getting stats")
