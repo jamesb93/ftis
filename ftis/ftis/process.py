@@ -1,10 +1,19 @@
 import os
 import datetime
 import logging
-from ftis.common.exceptions import InvalidYamlError, AnalyserNotFound, NotYetImplemented
-from ftis.common.utils import import_analyser, read_yaml, expand_tilde, write_json
+from ftis.common.exceptions import (
+    InvalidYamlError,
+    AnalyserNotFound,
+    NotYetImplemented
+)
 
-#TODO: If folder exists prompt the user or make a has or sumting mon
+from ftis.common.utils import (
+    import_analyser,
+    read_yaml,
+    expand_tilde,
+    write_json
+)
+
 
 class FTISProcess:
     """
@@ -29,10 +38,10 @@ class FTISProcess:
             self.source = expand_tilde(self.config["source"])
         except KeyError:
             raise InvalidYamlError("Config does not contain source folder")
-        
+
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
-        
+
         # Setup logging
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
