@@ -2,12 +2,9 @@ import os
 from ftis.common.exceptions import AnalyserParameterInvalid, NotYetImplemented
 from ftis.common.utils import read_yaml
 
-#TODO: types for input and output
-#TODO: required parameters and optional
-#TODO: stereo > mono analyser
+
 class FTISAnalyser:
     """Every analyser inherits from this class"""
-
     def __init__(self, parent_process):
         self.config = parent_process.config
         self.logger = parent_process.logger
@@ -21,7 +18,8 @@ class FTISAnalyser:
 
     def validate_parameters(self):
         """
-        Validates parameters set in the process against the template
+        Validates parameters set in the process against the template.
+        This is optional but highly recommended.
         """
         self.logger.info(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
@@ -43,8 +41,6 @@ class FTISAnalyser:
         for key in self.parameter_template:
             if key not in self.parameters:
                 self.parameters[key] = self.parameter_template[key]["default"]
-
-        # TODO: Ensure any keys that have options
 
     def metadata(self):
         """
