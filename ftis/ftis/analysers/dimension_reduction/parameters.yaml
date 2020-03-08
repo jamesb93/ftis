@@ -13,5 +13,9 @@ mindist:
 neighbours:
       default: 7
       type: int
+    
+post_scaling:
+    default: none
+    type: string
 
 
