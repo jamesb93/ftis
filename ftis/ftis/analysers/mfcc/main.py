@@ -9,8 +9,9 @@ from ftis.common.utils import printp, write_json, bufspill
 
 
 class MFCC(FTISAnalyser):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, parent_process):
+        super().__init__(parent_process)
+        self.logger.debug("Creating MFCC instance")
         self.name = "mfcc"
         self.fftsettings = []
         self.data_container = multiprocessing.Manager().dict()
@@ -29,20 +30,15 @@ class MFCC(FTISAnalyser):
         subprocess.call(
             [
                 "fluid-mfcc",
-                "-source",
-                src,
-                "-features",
-                features,
+                "-source", src,
+                "-features", features,
                 "-fftsettings",
                 self.fftsettings[0],
                 self.fftsettings[1],
                 self.fftsettings[2],
-                "-numbands",
-                str(self.parameters["numbands"]),
-                "-numcoeffs",
-                str(self.parameters["numcoeffs"]),
-                "-maxnumcoeffs",
-                str(self.parameters["numcoeffs"]),
+                "-numbands", str(self.parameters["numbands"]),
+                "-numcoeffs", str(self.parameters["numcoeffs"]),
+                "-maxnumcoeffs", str(self.parameters["numcoeffs"]),
             ]
         )
 
@@ -51,6 +47,7 @@ class MFCC(FTISAnalyser):
         self.data_container[workable] = list_data
 
     def run(self):
+        self.logger.info("Starting MFCC")
         workables = []
         printp('Getting workables')
         self.fftsettings = self.parameters["fftsettings"].split(" ")
