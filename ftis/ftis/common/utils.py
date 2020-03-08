@@ -18,14 +18,6 @@ def expand_tilde(path: str) -> str:
         return path
 
 
-def scrub_metadata(dict_to_scrub: dict) -> dict:
-    # FIXME: optimise without temporary container
-    temp_dict = dict_to_scrub
-    if "meta" in temp_dict:
-        del temp_dict["meta"]
-    return temp_dict
-
-
 def import_analyser(class_name: str):
     path = f"ftis.analysers.{class_name}"
     module = import_module(path)
@@ -48,14 +40,6 @@ def check_make(dir_path: str):
         print(f"Directory {dir_path} already exists.")
 
 
-def cd_up(path: str, num: int) -> str:
-    """Given path, traverse num directories up from it"""
-    t_path = path
-    for _ in range(num):
-        t_path = os.path.dirname(t_path)
-    return t_path
-
-
 def read_yaml(yaml_file):
     with open(yaml_file, "r") as stream:
         try:
@@ -64,16 +48,13 @@ def read_yaml(yaml_file):
             print(exc)
 
 
-def list_to_coll(list_in: list, out_file: str):
+def list_to_coll(list_input: list, out_file: str):
     """
     Turns a list into a coll.
-
-    list: Provide a list to convert
-    out_file: a path to a file where the coll will be saved
     """
     f = open(out_file, "w+")
     counter = 0
-    for item in list_in:
+    for item in list_input:
         f.write(f"{counter}, {item};")
         counter += 1
     f.close()
@@ -90,27 +71,21 @@ def bytes_to_mb(val: int) -> float:
     return val * 0.000001
 
 
-def get_path() -> str:
-    """returns path of script being run"""
-    return os.path.dirname(os.path.realpath(__file__))
-
-
-# TODO Fix the parameter inputs naming (I think its backwards with ms2smaps)
-def samps2ms(ms: float, sr: int) -> float:
+def samps2ms(samples: float, sr: int) -> float:
     """
     convert samples to milliseconds given a sampling rate
     """
-    return (ms / sr) * 1000.0
+    return (samples / sr) * 1000.0
 
 
-def ms2samps(samples: int, sr: int) -> int:
+def ms2samps(ms: int, sr: int) -> int:
     """
     convert milliseconds to samples given a sample rate
     """
-    return (samples / 1000) * sr
+    return (ms * 0.001) * sr
 
 
-def ds_store(file_list: list) -> list:
+def rm_ds(file_list: list) -> list:
     """
     Remove .DS_Store if in a list
     """
@@ -120,12 +95,8 @@ def ds_store(file_list: list) -> list:
 
 
 def bufspill(audio_file_path: str):
-    """Reads an audio file and converts its content to a numpy array"""
-    try:
-        t_data, _ = sf.read(audio_file_path)
-        return t_data.transpose()
-    except:
-        print(f"Could not read: {audio_file_path}")
+    """Returns an audio files fp32 values as a flat numpy array"""
+    return sf.read(audio_file_path).transpose()
 
 
 def write_json(json_file_path: str, in_dict: dict):
