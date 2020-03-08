@@ -30,12 +30,16 @@ class FTISProcess:
         except KeyError:
             raise InvalidYamlError("Config does not contain source folder")
         
+        if not os.path.exists(self.base_dir):
+            os.makedirs(self.base_dir)
+        
         # Setup logging
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         logfile_path = os.path.join(self.base_dir, "logfile.log")
         if os.path.isfile(logfile_path):
             os.remove(logfile_path)
+
         logfile_handler = logging.FileHandler(
             os.path.join(self.base_dir, "logfile.log")
         )
@@ -126,7 +130,5 @@ class FTISProcess:
 
         # Assume here that all of the necessary checks have passed successfully
         # So we make sure that the output folder exists
-        if not os.path.exists(self.base_dir):
-            os.makedirs(self.base_dir)
         self.create_metadata()
         self.run_analysers()
