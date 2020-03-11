@@ -42,7 +42,7 @@ class MFCC(FTISAnalyser):
             ]
         )
 
-        data = bufspill(features)
+        data = bufspill(features)[0]
         list_data = data.tolist()
         self.data_container[workable] = list_data
 
