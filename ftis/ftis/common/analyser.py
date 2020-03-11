@@ -33,14 +33,23 @@ class FTISAnalyser:
         self.parameters = self.config["analysers"][self.name]
 
         # Check that any defined parameters actually exist
-        for key in self.parameters:
-            if key not in self.parameter_template:
-                raise AnalyserParameterInvalid(f"{key} does not exist for {self.name}")
+        try:
+            for key in self.parameters:
+                if key not in self.parameter_template:
+                    raise AnalyserParameterInvalid(
+                        f"{key} does not exist for {self.name}"
+                        )
+        except TypeError:
+            self.logger.debug(f"{self.name} analyser has no parameters")
 
         # If some required keys aren't defined then use defaults
-        for key in self.parameter_template:
-            if key not in self.parameters:
-                self.parameters[key] = self.parameter_template[key]["default"]
+        try:
+            for key in self.parameter_template:
+                if key not in self.parameters:
+                    self.parameters[key] = self.parameter_template[key]["default"]
+        except TypeError:
+            self.logger.debug(f"{self.name} analyser has no parameter template")
+
 
     def metadata(self):
         """
