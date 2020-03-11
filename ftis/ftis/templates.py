@@ -4,6 +4,7 @@ from .main import @NAME@ as main
 __all__ = ["main"]
 '''
 main = '''
+import os
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import printp
 
@@ -25,19 +26,20 @@ class @NAME@(FTISAnalyser):
         Any output is valid providing the next link in the chain accepts it.
         """
         self.output = os.path.join(base_dir, f"{self.name}.json")
-        self.logger.debug("Setting output for @NAME@")
-
+        self.logger.debug(f"Setting output for {self.name}")
 
     def run(self):
         """
         In this method you implement the functionality for the analyser
         """
-        self.logger.info("Starting @NAME@")
-        self.logger.info("Finished @NAME@")
+        self.logger.info("Starting {self.name}")
+        self.logger.info(f"Finished {self.name}")
 
 '''
 
 parameters = '''
+# Parameters are declared first with a node being its name.
+# The default for this, and the type are specified in a child node from this.
 parameter1:
     default: "4096 1024 4096"
     type: string
