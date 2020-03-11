@@ -16,3 +16,8 @@ class AnalyserParameterInvalid(Exception):
 class NotYetImplemented(Exception):
     def __init__(self):
         super().__init__("This function is not implemented yet")
+
+
+class AnalyserExists(Exception):
+    def __init__(self):
+        super().__init__("This analyser already exists")
