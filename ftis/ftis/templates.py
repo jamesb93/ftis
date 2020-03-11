@@ -34,7 +34,6 @@ class @NAME@(FTISAnalyser):
         """
         self.logger.info("Starting {self.name}")
         self.logger.info(f"Finished {self.name}")
-
 '''
 
 parameters = '''
