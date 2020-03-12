@@ -104,7 +104,6 @@ class FTISProcess:
                 obj.input = self.source
             else:
                 obj.input = self.chain[index - 1].output
-            obj.set_output(self.base_dir)
 
     def validate_io(self):
         """
