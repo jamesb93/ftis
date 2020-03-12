@@ -62,6 +62,7 @@ class FTISAnalyser:
         """
         Method to create the right output for each analyser
         """
+        # TODO: automatically call this and infer from the string what the type is?
 
     def validate_io(self):
         """
