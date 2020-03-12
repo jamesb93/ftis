@@ -59,7 +59,7 @@ class FTISAnalyser:
 
         raise NotYetImplemented
 
-    def set_output(self, base_dir: str):
+    def set_output(self):
         """
         Method to create the right output for each analyser
         """
