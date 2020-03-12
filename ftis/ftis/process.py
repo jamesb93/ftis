@@ -4,7 +4,8 @@ import logging
 from ftis.common.exceptions import (
     InvalidYamlError,
     AnalyserNotFound,
-    NotYetImplemented
+    NotYetImplemented,
+    ChainIOError
 )
 
 from ftis.common.utils import (
@@ -99,12 +100,16 @@ class FTISProcess:
             analyser = Analyser(self)
             self.chain.append(analyser)
 
-        for index, obj in enumerate(self.chain):
+        for index, analyser in enumerate(self.chain):
             if index == 0:
-                obj.input = self.source
+                analyser.input = self.source
+                # case the source argument and figure out of its compatible
             else:
-                obj.input = self.chain[index - 1].output
-            obj.set_output(self.base_dir)
+                if analyser.input_type != self.chain[index - 1].output_type:
+                    self.logger.debug("Error building chain")
+                    raise ChainIOError(analyser, self.chain[index-1])
+                analyser.input = self.chain[index - 1].output
+                # just match up the types against each other
 
     def validate_io(self):
         """

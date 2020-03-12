@@ -6,8 +6,9 @@ from ftis.common.utils import read_yaml
 class FTISAnalyser:
     """Every analyser inherits from this class"""
     def __init__(self, parent_process):
-        self.config = parent_process.config
-        self.logger = parent_process.logger
+        self.parent_process = parent_process
+        self.config = self.parent_process.config
+        self.logger = self.parent_process.logger
         self.input = ""
         self.output = ""
         self.parameters = {}
@@ -19,7 +20,7 @@ class FTISAnalyser:
     def validate_parameters(self):
         """
         Validates parameters set in the process against the template.
-        This is optional but highly recommended.
+        This is not an optional function.
         """
         self.logger.info(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
@@ -48,8 +49,11 @@ class FTISAnalyser:
                 if key not in self.parameters:
                     self.parameters[key] = self.parameter_template[key]["default"]
         except TypeError:
-            self.logger.debug(f"{self.name} analyser has no parameter template")
+            self.logger.debug(f"{self.name} analyser has empty template")
 
+        # THESE CALLS ARE PIVOTAL #
+        # self.validate_io()
+        self.set_output()
 
     def metadata(self):
         """
@@ -58,11 +62,12 @@ class FTISAnalyser:
 
         raise NotYetImplemented
 
-    def set_output(self, base_dir: str):
-        """
-        Method to create the right output for each analyser
-        """
-        # TODO: automatically call this and infer from the string what the type is?
+    def set_output(self):
+        """Create the output for path/type"""
+        self.output = os.path.join(
+            self.parent_process.base_dir, f"{self.name}.{self.output_type}"
+        )
+        self.logger.debug(f"Setting output for {self.name}")
 
     def validate_io(self):
         """

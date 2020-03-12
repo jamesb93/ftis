@@ -6,6 +6,7 @@ import multiprocessing
 from shutil import rmtree
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import printp, write_json, bufspill
+from ftis.common.types import Ftypes
 
 
 class MFCC(FTISAnalyser):
@@ -13,13 +14,13 @@ class MFCC(FTISAnalyser):
         super().__init__(parent_process)
         self.logger.debug("Creating MFCC instance")
         self.name = "mfcc"
+        self.input_type = Ftypes.folder
+        self.output_type = Ftypes.json
         self.fftsettings = []
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
         self.validate_parameters()
 
-    def set_output(self, base_dir: str):
-        self.output = os.path.join(base_dir, f"{self.name}.json")
 
     def analyse(self, workable: str):
         # Setup paths/files etc

@@ -26,3 +26,12 @@ class BinError(Exception):
 class NotYetImplemented(Exception):
     def __init__(self):
         super().__init__("This function is not implemented yet")
+
+
+class ChainIOError(Exception):
+    def __init__(self, analyser1, analyser2):
+        super().__init__(f"""
+        Incompatible types
+        {analyser1.name} input: {analyser1.input_type}
+        {analyser2.name} output: {analyser2.output_type}
+        """)
