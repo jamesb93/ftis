@@ -1,0 +1,20 @@
+
+# Parameters are declared first with a node being its name.
+# The default for this, and the type are specified in a child node from this.
+hopsize:
+    default: 17640
+    type: int
+
+windowsize:
+    default: 4410
+    type: int
+
+kweighting:
+    # This is technically a bool but implemented as an int
+    default: 1
+    type: int
+
+truepeak:
+    # This is technically a bool but implemented as an int
+    default: 1
+    type: int
