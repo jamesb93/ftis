@@ -11,7 +11,7 @@ def new_analyser(name: str):
     if os.path.exists(new_analyser):
         raise AnalyserExists()
     else:
-        os.makedirs(new_analyser)
+        os.makedirs(new_analyser.lower())
 
     # Now fill the new directory with the right stuff.
 
