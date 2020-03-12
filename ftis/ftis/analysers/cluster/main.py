@@ -4,6 +4,7 @@ import numpy as np
 import hdbscan
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import printp, read_json, write_json
+from ftis.common.types import Ftypes
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 
@@ -12,10 +13,9 @@ class CLUSTER(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
         self.name = "cluster"
+        self.input_type = Ftypes.json
+        self.output_type = Ftypes.json
         self.validate_parameters()
-
-    def set_output(self, base_dir: str):
-        self.output = os.path.join(base_dir, f"{self.name}.json")
 
     def run(self):
 
