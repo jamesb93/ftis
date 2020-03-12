@@ -17,6 +17,7 @@ class @NAME@(FTISAnalyser):
         """
         super().__init__(parent_process)
         self.logger.debug("Creating @NAME@ instance")
+        self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
         self.name = "@NAME@".lower()
         self.validate_parameters()
