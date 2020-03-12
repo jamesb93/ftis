@@ -7,6 +7,7 @@ main = '''
 import os
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import printp
+from ftis.common.types import Ftypes
 
 
 class @NAME@(FTISAnalyser):
@@ -16,17 +17,9 @@ class @NAME@(FTISAnalyser):
         """
         super().__init__(parent_process)
         self.logger.debug("Creating @NAME@ instance")
+        self.output_type = Ftypes.json
         self.name = "@NAME@".lower()
         self.validate_parameters()
-
-    def set_output(self, base_dir: str):
-        """
-        In this method you provide the logic for setting the output.
-        An example here is given for outputting a json file.
-        Any output is valid providing the next link in the chain accepts it.
-        """
-        self.output = os.path.join(base_dir, f"{self.name}.json")
-        self.logger.debug(f"Setting output for {self.name}")
 
     def run(self):
         """
