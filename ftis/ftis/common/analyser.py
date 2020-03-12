@@ -6,8 +6,9 @@ from ftis.common.utils import read_yaml
 class FTISAnalyser:
     """Every analyser inherits from this class"""
     def __init__(self, parent_process):
-        self.config = parent_process.config
-        self.logger = parent_process.logger
+        self.parent_process = parent_process
+        self.config = self.parent_process.config
+        self.logger = self.parent_process.logger
         self.input = ""
         self.output = ""
         self.parameters = {}
