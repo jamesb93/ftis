@@ -16,7 +16,7 @@ class @NAME@(FTISAnalyser):
         """
         super().__init__(parent_process)
         self.logger.debug("Creating @NAME@ instance")
-        self.name = "@NAME@"
+        self.name = "@NAME@".lower()
         self.validate_parameters()
 
     def set_output(self, base_dir: str):
