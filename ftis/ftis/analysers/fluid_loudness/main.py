@@ -9,16 +9,16 @@ from shutil import rmtree
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.exceptions import BinError
 from ftis.common.utils import printp, bufspill, write_json
+from ftis.common.types import Ftypes
 
 
 class FLUID_LOUDNESS(FTISAnalyser):
     def __init__(self, parent_process):
-        """
-        This is the bare minimum required to instantiate the object.
-        """
         super().__init__(parent_process)
         self.logger.debug("Creating FLUID_LOUDNESS instance")
         self.name = "FLUID_LOUDNESS".lower()
+        self.input_type = Ftypes.folder
+        self.output_type = Ftypes.json  # TODO: This would be of some kind of type
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
         self.validate_cli()
@@ -30,11 +30,9 @@ class FLUID_LOUDNESS(FTISAnalyser):
             raise BinError("fluid-loudness executable not found in PATH")
 
     def analyse(self, workable: str):
-        # Setup paths/files etc
         src = workable
         base_name = os.path.basename(workable)
         features = os.path.join(self.TMP, f"{base_name}loudness.wav")
-        # Compute MFCC descriptor
         subprocess.call([
                 "fluid-loudness",
                 "-maxwindowsize", str(self.parameters["windowsize"]),
@@ -49,15 +47,6 @@ class FLUID_LOUDNESS(FTISAnalyser):
         data = bufspill(features)[0]
         list_data = data.tolist()
         self.data_container[workable] = list_data
-
-    def set_output(self, base_dir: str):
-        """
-        In this method you provide the logic for setting the output.
-        An example here is given for outputting a json file.
-        Any output is valid providing the next link in the chain accepts it.
-        """
-        self.output = os.path.join(base_dir, f"{self.name}.json")
-        self.logger.debug(f"Setting output for {self.name}")
 
     def run(self):  
         """
