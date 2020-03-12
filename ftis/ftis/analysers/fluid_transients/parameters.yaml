@@ -1,14 +1,31 @@
-
-# Parameters are declared first with a node being its name.
-# The default for this, and the type are specified in a child node from this.
-parameter1:
-    default: "4096 1024 4096"
-    type: string
-
-parameter2:
-    default: 40
+blocksize:
+    default: 256
     type: int
 
-parameter3:
-    default: 13.32
+clumplength:
+    default: 25
+    type: int
+
+order:
+    default: 20
+    type: int
+
+padsize:
+    default: 128
+    type: int
+
+skew:
+    default: 0.0
     type: float
+
+threshback:
+    default: 1.1
+    type: float
+
+threshfwd:
+    default: 2.0
+    type: float
+
+windowsize:
+    default: 14
+    type: int
