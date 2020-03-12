@@ -51,9 +51,9 @@ class FTISAnalyser:
         except TypeError:
             self.logger.debug(f"{self.name} analyser has empty template")
 
+        # THESE CALLS ARE PIVOTAL #
         # self.validate_io()
         self.set_output()
-
 
     def metadata(self):
         """
@@ -63,10 +63,11 @@ class FTISAnalyser:
         raise NotYetImplemented
 
     def set_output(self):
-        """
-        Method to create the right output for each analyser
-        """
-        # TODO: automatically call this and infer from the string what the type is?
+        """Create the output for path/type"""
+        self.output = os.path.join(
+            self.parent_process.base_dir, f"{self.name}.{self.output_type}"
+        )
+        self.logger.debug(f"Setting output for {self.name}")
 
     def validate_io(self):
         """
