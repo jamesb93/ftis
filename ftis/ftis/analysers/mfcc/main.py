@@ -18,8 +18,6 @@ class MFCC(FTISAnalyser):
         self.TMP = tempfile.mkdtemp()
         self.validate_parameters()
 
-    def set_output(self):
-        self.output = os.path.join(self.base_dir, f"{self.name}.json")
 
     def analyse(self, workable: str):
         # Setup paths/files etc
