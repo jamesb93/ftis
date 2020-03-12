@@ -30,9 +30,10 @@ class @NAME@(FTISAnalyser):
 
     def run(self):
         """
-        In this method you implement the functionality for the analyser
+        In this method you implement the functionality for the analyser.
+        Ideally, place the logic between the two loggers.
         """
-        self.logger.info("Starting {self.name}")
+        self.logger.info(f"Starting {self.name}")
         self.logger.info(f"Finished {self.name}")
 '''
 
