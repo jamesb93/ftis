@@ -49,7 +49,10 @@ class FTISAnalyser:
                 if key not in self.parameters:
                     self.parameters[key] = self.parameter_template[key]["default"]
         except TypeError:
-            self.logger.debug(f"{self.name} analyser has no parameter template")
+            self.logger.debug(f"{self.name} analyser has empty template")
+
+        # self.validate_io()
+        self.set_output()
 
 
     def metadata(self):
