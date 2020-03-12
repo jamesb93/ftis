@@ -49,10 +49,11 @@ class STATS(FTISAnalyser):
         except KeyError:
             print("No metadata to delete")
 
+        #TODO: serialise and kind of dimension input
         for element in data:  # for key (audio file ) in dict
             element_container = []
             for row in data[element]:  # for mfcc band in mfcc
-                row_stats = self.get_stats(row, self.parameters["numderivs"]) # get the stats for each mfcc band
+                row_stats = self.get_stats(row, self.parameters["numderivs"])
                 element_container.append(row_stats)
 
             if self.parameters["flatten"]:
