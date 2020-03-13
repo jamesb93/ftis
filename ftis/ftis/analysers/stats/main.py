@@ -43,8 +43,7 @@ class STATS(FTISAnalyser):
                 container.append(stats)
 
         elif num_derivs <= 0:
-            stats = self.calc_stats(base_data)
-            container.append(stats)
+            container = self.calc_stats(base_data) 
         
         return container
 
@@ -60,7 +59,6 @@ class STATS(FTISAnalyser):
             element_container = []
             for row in data[element]:  # for mfcc band in mfcc
                 row_stats = self.get_stats(row, self.parameters["numderivs"])
-                print(row_stats)
                 element_container.append(row_stats)
 
             if self.parameters["flatten"]:
