@@ -1,0 +1,7 @@
+source: ~/dev/exhaust/out
+folder: ~/dev/exhaust/analysis
+
+analysers:
+    fluid_loudness:
+    stats:
+        num_derivs: 0
