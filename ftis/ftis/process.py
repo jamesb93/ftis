@@ -5,7 +5,8 @@ from ftis.common.exceptions import (
     InvalidYamlError,
     AnalyserNotFound,
     NotYetImplemented,
-    ChainIOError
+    ChainIOError,
+    SourceIOError
 )
 
 from ftis.common.utils import (
@@ -14,6 +15,7 @@ from ftis.common.utils import (
     expand_tilde,
     write_json
 )
+from ftis.common.types import Ftypes
 
 
 class FTISProcess:
@@ -91,9 +93,8 @@ class FTISProcess:
                 raise AnalyserNotFound(f"{analyser} is not a valid analyser")
 
     def build_processing_chain(self):
-        """
-        Builds the processing chain in the right order
-        """
+        """Builds the processing chain in the right order"""
+
         for index, analyser in enumerate(self.config["analysers"]):
 
             Analyser = import_analyser(analyser)
@@ -102,14 +103,21 @@ class FTISProcess:
 
         for index, analyser in enumerate(self.chain):
             if index == 0:
-                analyser.input = self.source
                 # case the source argument and figure out of its compatible
+                source_ext = os.path.splitext(self.source)[1]
+                for type_string, ext in Ftypes.items():
+                    if ext == source_ext:
+                        self.source_type = ext
+                
+                if analyser.input_type != self.source_type:
+                    raise SourceIOError()
+                    
+                analyser.input = self.source
             else:
                 if analyser.input_type != self.chain[index - 1].output_type:
                     self.logger.debug("Error building chain")
                     raise ChainIOError(analyser, self.chain[index-1])
                 analyser.input = self.chain[index - 1].output
-                # just match up the types against each other
 
     def validate_io(self):
         """

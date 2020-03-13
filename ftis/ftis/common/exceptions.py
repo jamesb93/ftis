@@ -35,3 +35,10 @@ class ChainIOError(Exception):
         {analyser1.name} input: {analyser1.input_type}
         {analyser2.name} output: {analyser2.output_type}
         """)
+
+
+class SourceIOError(Exception):
+    def __init__(self):
+        super().__init__(
+            f"The source and first analyser type are incompatible"
+        )
