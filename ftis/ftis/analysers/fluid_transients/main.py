@@ -17,8 +17,8 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         """
         super().__init__(parent_process)
         self.logger.debug("Creating FLUID_TRANSIENTS instance")
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.folder
+        self.input_type = Ftypes["folder"]
+        self.output_type = Ftypes["folder"]
         self.name = "FLUID_TRANSIENTS".lower()
         self.validate_cli()
         self.validate_parameters()
