@@ -1,5 +1,5 @@
 import os
-from ftis.common.exceptions import AnalyserParameterInvalid, NotYetImplemented
+from ftis.common.exceptions import NotYetImplemented
 from ftis.common.utils import read_yaml
 
 
@@ -31,28 +31,16 @@ class FTISAnalyser:
             "parameters.yaml",
         )
         self.parameter_template = read_yaml(module_parameters)
-        self.parameters = self.config["analysers"][self.name]
 
-        # Check that any defined parameters actually exist
-        try:
-            for key in self.parameters:
-                if key not in self.parameter_template:
-                    raise AnalyserParameterInvalid(
-                        f"{key} does not exist for {self.name}"
-                        )
-        except TypeError:
-            self.logger.debug(f"{self.name} analyser has no parameters")
+        for key in self.parameter_template:
+            self.parameters[key] = self.parameter_template[key]["default"]
 
-        # If some required keys aren't defined then use defaults
-        try:
-            for key in self.parameter_template:
-                if key not in self.parameters:
-                    self.parameters[key] = self.parameter_template[key]["default"]
-        except TypeError:
-            self.logger.debug(f"{self.name} analyser has empty template")
+        # now check for any defined keys
+        if self.config["analysers"]:  # if there is anything at all
+            for key in self.config["analysers"]:  # assign it
+                self.parameters[key] = self.config["analysers"][key]
 
-        # THESE CALLS ARE PIVOTAL #
-        # self.validate_io()
+        # Calling here stops user having to execute in __init__ class
         self.set_output()
 
     def metadata(self):
