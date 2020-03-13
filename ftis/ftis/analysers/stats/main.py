@@ -12,8 +12,8 @@ class STATS(FTISAnalyser):
         super().__init__(config)
         self.name = "stats"
         self.stats_dict = {}
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
+        self.input_type = Ftypes["json"]
+        self.output_type = Ftypes["json"]
         self.validate_parameters()
 
     @staticmethod
@@ -31,15 +31,20 @@ class STATS(FTISAnalyser):
         maximum = describe.minmax[1]
         return [mean, stddev, skewness, kurtosis, minimum, median, maximum]
 
-    def get_stats(self, base_data, num_derivs) -> list:
+    def get_stats(self, base_data, num_derivs: int) -> list:
         """
         Given stats on n number derivatives from initial data
         """
         container = []
-        for i in range(num_derivs):
-            deriv = np.diff(base_data, i + 1)
-            stats = self.calc_stats(deriv)
-            container.append(stats)
+        if num_derivs > 0:
+            for i in range(num_derivs):
+                deriv = np.diff(base_data, i + 1)
+                stats = self.calc_stats(deriv)
+                container.append(stats)
+
+        elif num_derivs <= 0:
+            container = self.calc_stats(base_data) 
+        
         return container
 
     def run(self):
@@ -47,7 +52,7 @@ class STATS(FTISAnalyser):
         try:
             del data["meta"]
         except KeyError:
-            print("No metadata to delete")
+            print("\nNo metadata to delete")
 
         #TODO: serialise and kind of dimension input
         for element in data:  # for key (audio file ) in dict

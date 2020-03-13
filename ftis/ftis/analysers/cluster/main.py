@@ -20,8 +20,8 @@ class CLUSTER(FTISAnalyser):
     def run(self):
 
         feature = read_json(self.input)
-        keys    = [x for x in feature.keys()]
-        values  = [y for y in feature.values()]
+        keys = feature.keys()
+        values = feature.values()
 
         data = np.array(values)
         scaling = self.parameters["scaling"]
@@ -42,8 +42,7 @@ class CLUSTER(FTISAnalyser):
             db = hdbscan.HDBSCAN().fit(data)
 
         cluster_dict = {}
-        # extract the label provided by the instance of DBSCAN (labels found in db.labels_)
-        # make a dict out of th is information
+        
         for audio, cluster in zip(keys, db.labels_):
             if str(cluster) in cluster_dict:
                 cluster_dict[str(cluster)].append(audio)
