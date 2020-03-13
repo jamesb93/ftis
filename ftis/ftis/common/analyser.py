@@ -53,7 +53,7 @@ class FTISAnalyser:
     def set_output(self):
         """Create the output for path/type"""
         self.output = os.path.join(
-            self.parent_process.base_dir, f"{self.name}.{self.output_type}"
+            self.parent_process.base_dir, f"{self.name}{self.output_type}"
         )
         self.logger.debug(f"Setting output for {self.name}")
 
