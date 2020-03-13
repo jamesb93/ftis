@@ -17,8 +17,8 @@ class FLUID_LOUDNESS(FTISAnalyser):
         super().__init__(parent_process)
         self.logger.debug("Creating FLUID_LOUDNESS instance")
         self.name = "FLUID_LOUDNESS".lower()
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.json
+        self.input_type = Ftypes["folder"]
+        self.output_type = Ftypes["json"]
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
         self.validate_cli()
