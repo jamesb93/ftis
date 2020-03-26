@@ -1,6 +1,7 @@
 import os
 import datetime
 import logging
+import git
 from ftis.common.exceptions import (
     InvalidYamlError,
     AnalyserNotFound,
@@ -128,19 +129,22 @@ class FTISProcess:
         raise NotYetImplemented
 
     def create_metadata(self):
-        # Date/time/input/file list/
-        # List chain
+        # file list/
+        # Time
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
         metadata = {"time": time}
-        io = []
-        io.append(self.source)
-        for link in self.chain:
-            io.append(link.output)
+        # Git Hash
+        repo = git.Repo(search_parent_directories=True)
+        sha = repo.head.object.hexsha
+        metadata["commit_hash"] = sha
+
+        # Analyser chain
+        io = [link.output for link in self.chain]
+        io.insert(0, self.source)
         metadata["io"] = io
         write_json(os.path.join(self.base_dir, "metadata.json"), metadata)
 
     def run_analysers(self):
-        # Something here to do with self.chain
         for obj in self.chain:
             obj.run()
 
@@ -148,9 +152,5 @@ class FTISProcess:
         self.initial_parse()
         self.validate_config()
         self.build_processing_chain()
-        # THIS IS WHERE YOU WOULD VALIDATE INPUTS AND OUTPUTS
-
-        # Assume here that all of the necessary checks have passed successfully
-        # So we make sure that the output folder exists
         self.create_metadata()
         self.run_analysers()
