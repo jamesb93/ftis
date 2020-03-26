@@ -6,5 +6,7 @@
 Ftypes = {
     "json": ".json",
     "text": ".txt",
-    "folder": ""
+    "folder": "",
+    "pyscript": ".py",
+    "any": ""  # a catch all for strings
 }
