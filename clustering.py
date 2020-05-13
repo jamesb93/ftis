@@ -4,7 +4,7 @@ import numpy as np
 from shutil import copyfile
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from ftis.utils import read_json, write_json,read_yaml, printp, check_make
+from ftis.utils import read_json, write_json, read_yaml, printp, check_make
 
 parser = argparse.ArgumentParser(description='Cluster data')
 parser.add_argument('-i', '--infile',  required=True, type=str,            help='The input JSON containing analysis data to reduce')
