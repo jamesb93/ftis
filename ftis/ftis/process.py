@@ -2,6 +2,9 @@ import os
 import datetime
 import logging
 import git
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
 from ftis.common.exceptions import (
     InvalidYamlError,
     AnalyserNotFound,
@@ -31,6 +34,7 @@ class FTISProcess:
         self.source = ""
         self.chain = []
         self.logger = None
+        self.console = Console()
 
     def initial_parse(self):
         """Makes an initial parse of the yaml file and initialises logging"""
@@ -60,6 +64,9 @@ class FTISProcess:
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
         self.logger.info("Logging initialised")
+    
+    def fprint(self, text):
+        self.console.print(text, style="magenta underline")
 
     def validate_config(self):
         """I validate the configuration file"""
@@ -153,4 +160,23 @@ class FTISProcess:
         self.validate_config()
         self.build_processing_chain()
         self.create_metadata()
+        # Pretty table print out here
+        md = "# **** FTIS v0.1 ****"
+        for key in self.config:
+            if key == "source":
+                md += f"\n\n**Source: {self.config[key]}**"
+            if key == "folder":
+                md += f"\n\n**Output: {self.config[key]}**"
+            # if key == "analysers":
+            #     md += f"\n\n**Chain:**"
+            #     for i, v in enumerate(self.config[key]):
+            #         md += f"\n\n{i+1} - {v}"
+            #         for x in self.config[key][v]:
+            #             md += f"\n\n    {x}: {self.config[key][v][x]}"         
+        md += "\n\n---------------------"
+        md += "\n\nBeginning processing..."
+        self.console.print(
+            Markdown(md)
+        )
+        print("\n")
         self.run_analysers()
