@@ -52,10 +52,10 @@ class STATS(FTISAnalyser):
         try:
             del data["meta"]
         except KeyError:
-            print("\nNo metadata to delete")
+            pass
 
-        #TODO: serialise and kind of dimension input
-        for element in data:  # for key (audio file ) in dict
+        #TODO: any dimensionality input
+        for element in data:  # for key (audio file) in dict
             element_container = []
             for row in data[element]:  # for mfcc band in mfcc
                 row_stats = self.get_stats(row, self.parameters["numderivs"])
@@ -68,5 +68,3 @@ class STATS(FTISAnalyser):
             self.stats_dict[element] = element_container
 
         write_json(self.output, dict(self.stats_dict))
-
-        printp("Finished getting stats")
