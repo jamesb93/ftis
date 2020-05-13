@@ -63,8 +63,13 @@ class FTISAnalyser:
         I also create the input and output strings for the class.
         This needs to be implemented in the module definition.
         """
-
+    def do(self):
+        self.logger.info(f"Executing {self.name} run")
+        self.run()
+        self.logger.info(f"Finished {self.name} run")
+        
     def run(self):
         """
         Method for running the processing chain from input to output.
         """
+        
