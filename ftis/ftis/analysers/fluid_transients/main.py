@@ -5,9 +5,10 @@ import multiprocessing
 import subprocess
 import shutil
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import printp
+from ftis.common.proc import multiproc
 from ftis.common.types import Ftypes
 from ftis.common.exceptions import BinError
+from ftis.common.utils import get_workables
 
 
 class FLUID_TRANSIENTS(FTISAnalyser):
@@ -28,7 +29,7 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         if not shutil.which("fluid-transients"):
             raise BinError("fluid-transients executable not found in PATH")
 
-    def analyse(self, workable: str):
+    def analyse(self, workable: str, task, progress_bar):
         # Setup paths/files etc
         src = workable
         base_name = os.path.basename(workable)
@@ -48,6 +49,7 @@ class FLUID_TRANSIENTS(FTISAnalyser):
                 "-threshfwd", str(self.parameters["threshfwd"]),
                 "-windowsize", str(self.parameters["windowsize"])
         ])
+        progress_bar.update(task, advance = 1)
 
 
     def run(self):
@@ -56,17 +58,6 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         Ideally, place the logic between the two loggers.
         """
 
-        workables = []
-        # Recursively grab all the files from the input string
-        for root, _, files in os.walk(self.input):
-            for f in files:
-                if os.path.splitext(f)[1] in ['.wav']:
-                    workables.append(os.path.join(root, f))
+        workables = get_workable(self.input, ('.wav'))
 
-        num_jobs = len(workables)
-
-        printp('Starting multiprocessing')
-        with multiprocessing.Pool() as p:
-            for i, _ in enumerate(p.imap_unordered(self.analyse, workables), 1):
-                sys.stdout.write(f"\rAnalyse Progress {(i/num_jobs) * 100.0}")
-
+        multiproc(self.name, self.analyse, workables)

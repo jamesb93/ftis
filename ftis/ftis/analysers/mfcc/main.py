@@ -5,8 +5,10 @@ import tempfile
 import multiprocessing
 from shutil import rmtree
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import printp, write_json, bufspill
+from ftis.common.utils import write_json, bufspill, get_workables
 from ftis.common.types import Ftypes
+from ftis.common.proc import multiproc
+
 
 
 class MFCC(FTISAnalyser):
@@ -22,14 +24,13 @@ class MFCC(FTISAnalyser):
         self.validate_parameters()
 
 
-    def analyse(self, workable: str):
+    def analyse(self, workable: str, task, progress_bar):
         # Setup paths/files etc
         src = workable
         base_name = os.path.basename(workable)
         features = os.path.join(self.TMP, f"{base_name}_mfcc.wav")
         # Compute MFCC descriptor
-        subprocess.call(
-            [
+        subprocess.call([
                 "fluid-mfcc",
                 "-source", src,
                 "-features", features,
@@ -40,32 +41,20 @@ class MFCC(FTISAnalyser):
                 "-numbands", str(self.parameters["numbands"]),
                 "-numcoeffs", str(self.parameters["numcoeffs"]),
                 "-maxnumcoeffs", str(self.parameters["numcoeffs"]),
-            ]
-        )
+            ])
 
+        progress_bar.update(task, advance = 1)
         data = bufspill(features)[0]
         list_data = data.tolist()
         self.data_container[workable] = list_data
 
     def run(self):
-        self.logger.info("Starting MFCC")
-        workables = []
-        printp('Getting workables')
+        
         self.fftsettings = self.parameters["fftsettings"].split(" ")
+        workables = get_workables(self.input, ('.wav'))
         # Recursively grab all the files from the input string
-        for root, _, files in os.walk(self.input):
-            for f in files:
-                if os.path.splitext(f)[1] in ['.wav']:
-                    workables.append(os.path.join(root, f))
 
-        num_jobs = len(workables)
-
-        printp('Starting multiprocessing')
-        with multiprocessing.Pool() as p:
-            for i, _ in enumerate(p.imap_unordered(self.analyse, workables), 1):
-                sys.stdout.write(f"\rAnalyse Progress {(i/num_jobs) * 100.0}")
+        multiproc(self.name, self.analyse, workables)
 
         write_json(self.output, dict(self.data_container))
         rmtree(self.TMP)
-
-        printp("Finished MFCC analysis")
