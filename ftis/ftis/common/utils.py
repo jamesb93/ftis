@@ -11,6 +11,15 @@ except ImportError:
     import json as rj
 
 
+def get_workables(pth, valid_ext):
+    temp_workables = []
+    for root, _, files in os.walk(pth):
+        for f in files:
+            if os.path.splitext(f)[1] in valid_ext:
+                temp_workables.append(os.path.join(root, f))
+    return temp_workables
+
+
 def expand_tilde(path: str) -> str:
     if path[0] == "~":
         return os.path.expanduser(path)
