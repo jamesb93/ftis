@@ -146,7 +146,7 @@ class FTISProcess:
 
     def run_analysers(self):
         for obj in self.chain:
-            obj.run()
+            obj.do()
 
     def run_process(self):
         self.initial_parse()
