@@ -1,15 +1,20 @@
-source: ~/dev/crackle/slice
-folder: ~/dev/crackle/analysis
+source: ~/dev/ftis_example_project/audio
+folder: ~/dev/ftis_example_project/analysis
 
 analysers:
     mfcc:
         fftsettings: "4096 1024 4096"
         numcoeffs: 13
-        
-    stats:
-        numderivs: 3
-        flatten: True
+    # fluid_loudness:
+    #     kweighting: 0
 
-    dimension_reduction:
-        components: 10
-        post_scaling: "standardise"
+        
+    # stats:
+    #     numderivs: 3
+    #     flatten: True
+
+    # fluid_transients:
+    #     skew: 0.1
+    # dimension_reduction:
+    #     components: 10
+    #     post_scaling: "standardise"
