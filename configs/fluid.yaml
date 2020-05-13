@@ -1,7 +1,8 @@
-source: ~/dev/exhaust/out
-folder: ~/dev/exhaust/analysis
+source: ~/dev/ftis_example_project/audio
+folder: ~/dev/ftis_example_project/analysis
 
 analysers:
-    fluid_loudness:
-    stats:
-        num_derivs: 0
+    fluid_transients:
+        skew: 0.1
+    # stats:
+    #     num_derivs: 0
