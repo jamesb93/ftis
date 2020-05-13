@@ -52,8 +52,6 @@ class MFCC(FTISAnalyser):
         
         self.fftsettings = self.parameters["fftsettings"].split(" ")
         workables = get_workables(self.input, ('.wav'))
-        # Recursively grab all the files from the input string
-
         multiproc(self.name, self.analyse, workables)
 
         write_json(self.output, dict(self.data_container))
