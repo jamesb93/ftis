@@ -27,8 +27,6 @@ class @NAME@(FTISAnalyser):
         In this method you implement the functionality for the analyser.
         Ideally, place the logic between the two loggers.
         """
-        self.logger.info(f"Starting {self.name}")
-        self.logger.info(f"Finished {self.name}")
 '''
 
 parameters = '''

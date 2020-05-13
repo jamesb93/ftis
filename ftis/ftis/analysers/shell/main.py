@@ -24,9 +24,7 @@ class SHELL(FTISAnalyser):
         In this method you implement the functionality for the analyser.
         Ideally, place the logic between the two loggers.
         """
-        self.logger.info(f"Starting {self.name}")
         command = shlex.split(
             self.parameters["command"]
         )
         subprocess.call(command)
-        self.logger.info(f"Finished {self.name}")

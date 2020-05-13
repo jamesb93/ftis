@@ -52,7 +52,6 @@ class FLUID_LOUDNESS(FTISAnalyser):
         """
         In this method you implement the functionality for the analyser
         """
-        self.logger.info(f"Starting {self.name}")
 
         workables = []
         printp('Getting workables')
@@ -70,5 +69,3 @@ class FLUID_LOUDNESS(FTISAnalyser):
 
         write_json(self.output, dict(self.data_container))
         rmtree(self.TMP)
-
-        self.logger.info(f"Finished {self.name}")

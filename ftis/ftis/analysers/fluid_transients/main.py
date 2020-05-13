@@ -55,7 +55,6 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         In this method you implement the functionality for the analyser.
         Ideally, place the logic between the two loggers.
         """
-        self.logger.info(f"Starting {self.name}")
 
         workables = []
         # Recursively grab all the files from the input string
@@ -71,4 +70,3 @@ class FLUID_TRANSIENTS(FTISAnalyser):
             for i, _ in enumerate(p.imap_unordered(self.analyse, workables), 1):
                 sys.stdout.write(f"\rAnalyse Progress {(i/num_jobs) * 100.0}")
 
-        self.logger.info(f"Finished {self.name}")
