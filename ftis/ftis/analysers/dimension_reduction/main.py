@@ -10,8 +10,8 @@ class DR(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
         self.name = "dimension_reduction"
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
+        self.input_type = Ftypes["json"]
+        self.output_type = Ftypes["json"]
         self.validate_parameters()
 
     def run(self):
