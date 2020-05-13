@@ -1,6 +1,7 @@
 import os
 from ftis.common.exceptions import NotYetImplemented
 from ftis.common.utils import read_yaml
+from ftis.common.types import Ftypes
 
 
 class FTISAnalyser:
@@ -52,9 +53,15 @@ class FTISAnalyser:
 
     def set_output(self):
         """Create the output for path/type"""
+        out = f"{self.name}{self.output_type}"
         self.output = os.path.join(
-            self.parent_process.base_dir, f"{self.name}{self.output_type}"
+            self.parent_process.base_dir, 
+            out
         )
+
+        if self.output_type == Ftypes["folder"] and not os.path.exists(self.output):
+            os.makedirs(self.output)
+
         self.logger.debug(f"Setting output for {self.name}")
 
     def validate_io(self):
