@@ -58,6 +58,6 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         Ideally, place the logic between the two loggers.
         """
 
-        workables = get_workable(self.input, ('.wav'))
+        workables = get_workables(self.input, ('.wav'))
 
         multiproc(self.name, self.analyse, workables)
