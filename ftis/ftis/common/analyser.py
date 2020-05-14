@@ -37,9 +37,10 @@ class FTISAnalyser:
             self.parameters[key] = self.parameter_template[key]["default"]
 
         if self.config["analysers"]:  # if there is anything at all
-            for key in self.config["analysers"]:  # assign it
-                for parameter in self.config["analysers"][key]:
-                    self.parameters[parameter] = self.config["analysers"][key][parameter]
+            for analyser in self.config["analysers"]:  # assign it
+                if self.config["analysers"][analyser]: # in the case that parameters have been assigned
+                    for parameter in self.config["analysers"][analyser]:
+                        self.parameters[parameter] = self.config["analysers"][key][parameter]
 
         # Calling here stops user having to execute in __init__ class
         self.set_output()
