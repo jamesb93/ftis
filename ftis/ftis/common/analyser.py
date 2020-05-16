@@ -40,7 +40,7 @@ class FTISAnalyser:
             for analyser in self.config["analysers"]:  # assign it
                 if self.config["analysers"][analyser]: # in the case that parameters have been assigned
                     for parameter in self.config["analysers"][analyser]:
-                        self.parameters[parameter] = self.config["analysers"][key][parameter]
+                        self.parameters[parameter] = self.config["analysers"][analyser][parameter]
 
         # Calling here stops user having to execute in __init__ class
         self.set_output()

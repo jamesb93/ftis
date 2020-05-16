@@ -49,7 +49,6 @@ class MFCC(FTISAnalyser):
         self.data_container[workable] = list_data
 
     def run(self):
-        
         self.fftsettings = self.parameters["fftsettings"].split(" ")
         workables = get_workables(self.input, ('.wav'))
         multiproc(self.name, self.analyse, workables)
