@@ -109,6 +109,12 @@ class FTISProcess:
             analyser = Analyser(self)
             self.chain.append(analyser)
 
+        source_ext = os.path.splitext(self.source)[1]
+        for type_string, ext in Ftypes.items():
+            if ext == source_ext:
+                self.source_type = ext
+        if self.chain[0].input_type != self.source_type:
+            raise SourceIOError()
         if self.config["mode"]:
             self.mode = self.config["mode"]
         else:
