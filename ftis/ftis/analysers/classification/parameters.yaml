@@ -1,0 +1,11 @@
+
+# Parameters are declared first with a node being its name.
+# The default for this, and the type are specified in a child node from this.
+parameter1:
+    default: "4096 1024 4096"
+
+parameter2:
+    default: 40
+
+parameter3:
+    default: 13.32
