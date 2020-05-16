@@ -64,14 +64,14 @@ class FTISProcess:
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
-        self.logger.info("Logging initialised")
+        self.logger.debug("Logging initialised")
     
     def fprint(self, text):
         self.console.print(text, style="magenta underline")
 
     def validate_config(self):
         """I validate the configuration file"""
-        self.logger.info("Validating Configuration")
+        self.logger.debug("Validating Configuration")
         try:
             keys = self.config.keys()
         except AttributeError as e:
