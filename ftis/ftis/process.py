@@ -115,6 +115,7 @@ class FTISProcess:
                 self.source_type = ext
         if self.chain[0].input_type != self.source_type:
             raise SourceIOError()
+
         if self.config["mode"]:
             self.mode = self.config["mode"]
         else:
@@ -123,15 +124,6 @@ class FTISProcess:
         if self.mode == "chain":
             for index, analyser in enumerate(self.chain):
                 if index == 0:
-                    # case the source argument and figure out of its compatible
-                    source_ext = os.path.splitext(self.source)[1]
-                    for type_string, ext in Ftypes.items():
-                        if ext == source_ext:
-                            self.source_type = ext
-                    
-                    if analyser.input_type != self.source_type:
-                        raise SourceIOError()
-                        
                     analyser.input = self.source
                 else:
                     if analyser.input_type != self.chain[index - 1].output_type:
@@ -139,21 +131,6 @@ class FTISProcess:
                         raise ChainIOError(analyser, self.chain[index-1])
                     analyser.input = self.chain[index - 1].output
         
-        # if self.mode == "batch":
-        #     for index, analyser in enumerate(self.chain):
-        #         if index == 0:
-        #             source_ext = os.path.splitext(self.source)[1]
-        #             for type_string, ext in Ftypes.items():
-        #                 if ext == source_ext:
-        #                     self.source_type = ext
-        #             if analyser.input_type != self.source:
-        #                 raise SourceIOError()
-
-        #         analyser.input = self.source
-                        
-                    
-
-
         if self.mode == "batch":
             for analyser in self.chain:
                 if analyser.input_type == self.source_type:
