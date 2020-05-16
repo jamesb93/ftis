@@ -148,6 +148,12 @@ class FTISProcess:
                     
 
 
+        if self.mode == "batch":
+            for analyser in self.chain:
+                if analyser.input_type == self.source_type:
+                    analyser.input = self.source
+                else:
+                    raise ChainIOError(analyser, self.source)
 
 
     def validate_io(self):
