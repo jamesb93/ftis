@@ -23,7 +23,7 @@ class FTISAnalyser:
         Validates parameters set in the process against the template.
         This is not an optional function.
         """
-        self.logger.info(f"Validating parameters for {self.name}")
+        self.logger.debug(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "..",
@@ -72,9 +72,9 @@ class FTISAnalyser:
         This needs to be implemented in the module definition.
         """
     def do(self):
-        self.logger.info(f"Executing {self.name} run")
+        self.logger.debug(f"Executing {self.name} run")
         self.run()
-        self.logger.info(f"Finished {self.name} run")
+        self.logger.debug(f"Finished {self.name} run")
         
     def run(self):
         """
