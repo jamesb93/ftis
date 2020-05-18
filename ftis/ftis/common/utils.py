@@ -1,5 +1,6 @@
 import os
 import yaml
+import math
 import soundfile as sf
 import simpleaudio as sa
 from importlib import import_module
@@ -10,6 +11,11 @@ try:
 except ImportError:
     import json as rj
 
+
+
+def nextpow(x):
+    """Find the next power of 2 from x"""
+    return 2 ** math.ceil(math.log(x)/math.log(2))
 
 def get_workables(pth, valid_ext):
     temp_workables = []
