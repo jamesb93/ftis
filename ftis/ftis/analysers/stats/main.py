@@ -3,7 +3,7 @@ import math
 import numpy as np
 from scipy import stats
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import printp, write_json, read_json
+from ftis.common.utils import write_json, read_json
 from ftis.common.types import Ftypes
 
 
@@ -49,10 +49,6 @@ class STATS(FTISAnalyser):
 
     def run(self):
         data = read_json(self.input)
-        try:
-            del data["meta"]
-        except KeyError:
-            pass
 
         #TODO: any dimensionality input
         for element in data:  # for key (audio file) in dict
