@@ -6,7 +6,6 @@ __all__ = ["main"]
 main = '''
 import os
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import printp
 from ftis.common.types import Ftypes
 
 
@@ -25,7 +24,6 @@ class @NAME@(FTISAnalyser):
     def run(self):
         """
         In this method you implement the functionality for the analyser.
-        Ideally, place the logic between the two loggers.
         """
 '''
 
@@ -34,13 +32,10 @@ parameters = '''
 # The default for this, and the type are specified in a child node from this.
 parameter1:
     default: "4096 1024 4096"
-    type: string
 
 parameter2:
     default: 40
-    type: int
 
 parameter3:
     default: 13.32
-    type: float
 '''

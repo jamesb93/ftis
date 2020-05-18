@@ -1,0 +1,23 @@
+feature:
+    default: 0
+
+fftsettings:
+    default: "2048 -1 -1"
+
+filtersize:
+    default: 3
+
+kernelsize:
+    default: 3
+
+minslicelength:
+    default: 2
+
+threshold:
+    default: 0.5
+
+
+
+
+
+

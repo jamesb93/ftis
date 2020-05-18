@@ -20,8 +20,6 @@ trackfreqrange:
     default: 50.0
 
 trackingmethod:
-    # greedy 0
-    # other one 1
     default: 0
 
 trackmagrange:

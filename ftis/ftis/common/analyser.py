@@ -23,7 +23,7 @@ class FTISAnalyser:
         Validates parameters set in the process against the template.
         This is not an optional function.
         """
-        self.logger.info(f"Validating parameters for {self.name}")
+        self.logger.debug(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "..",
@@ -32,14 +32,15 @@ class FTISAnalyser:
             "parameters.yaml",
         )
         self.parameter_template = read_yaml(module_parameters)
-
-        for key in self.parameter_template:
-            self.parameters[key] = self.parameter_template[key]["default"]
+        if self.parameter_template:
+            for key in self.parameter_template:
+                self.parameters[key] = self.parameter_template[key]["default"]
 
         if self.config["analysers"]:  # if there is anything at all
-            for key in self.config["analysers"]:  # assign it
-                for parameter in self.config["analysers"][key]:
-                    self.parameters[parameter] = self.config["analysers"][key][parameter]
+            for analyser in self.config["analysers"]:  # assign it
+                if self.config["analysers"][analyser]: # in the case that parameters have been assigned
+                    for parameter in self.config["analysers"][analyser]:
+                        self.parameters[parameter] = self.config["analysers"][analyser][parameter]
 
         # Calling here stops user having to execute in __init__ class
         self.set_output()
@@ -70,10 +71,11 @@ class FTISAnalyser:
         I also create the input and output strings for the class.
         This needs to be implemented in the module definition.
         """
+
     def do(self):
-        self.logger.info(f"Executing {self.name} run")
+        self.logger.debug(f"Executing {self.name} run")
         self.run()
-        self.logger.info(f"Finished {self.name} run")
+        self.logger.debug(f"Finished {self.name} run")
         
     def run(self):
         """

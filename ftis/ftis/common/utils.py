@@ -1,5 +1,6 @@
 import os
 import yaml
+import math
 import soundfile as sf
 import simpleaudio as sa
 from importlib import import_module
@@ -9,6 +10,12 @@ try:
     import rapidjson as rj
 except ImportError:
     import json as rj
+
+
+
+def nextpow(x):
+    """Find the next power of 2 from x"""
+    return 2 ** math.ceil(math.log(x)/math.log(2))
 
 
 def get_workables(pth, valid_ext):
@@ -21,11 +28,11 @@ def get_workables(pth, valid_ext):
 
 
 def expand_tilde(path: str) -> str:
+    """Expand tilde to user home folder"""
     if path[0] == "~":
         return os.path.expanduser(path)
     else:
         return path
-
 
 def import_analyser(class_name: str):
     path = f"ftis.analysers.{class_name}"
@@ -46,7 +53,7 @@ def check_make(dir_path: str):
     try:
         os.mkdir(dir_path)
     except FileExistsError:
-        print(f"Directory {dir_path} already exists.")
+        pass
 
 
 def read_yaml(yaml_file):
@@ -58,9 +65,7 @@ def read_yaml(yaml_file):
 
 
 def list_to_coll(list_input: list, out_file: str):
-    """
-    Turns a list into a coll.
-    """
+    """Turns a list into a coll."""
     f = open(out_file, "w+")
     counter = 0
     for item in list_input:
@@ -105,9 +110,8 @@ def rm_ds(file_list: list) -> list:
 
 def bufspill(audio_file_path: str):
     """Returns an audio files fp32 values as a flat numpy array"""
-    read_data = sf.read(audio_file_path)
-    data = read_data[0].transpose()
-    sr = read_data[1]
+    data, sr = sf.read(audio_file_path)
+    data = data.transpose()
     return (data, sr)
 
 
@@ -129,13 +133,3 @@ def walkman(audio_path: str):
     wave_obj = sa.WaveObject.from_wave_file(os.path.join(audio_path))
     play_obj = wave_obj.play()
     play_obj.wait_done()
-
-
-def printp(string_to_print: str):
-    """A uniform way for printing status updates in scripts"""
-    print(f"\n---- {string_to_print} ----\n")
-
-
-def printe(string_to_print: str):
-    """A uniform way for printing errors in scripts"""
-    print(f"\n!!!! {string_to_print} !!!!")

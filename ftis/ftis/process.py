@@ -35,6 +35,7 @@ class FTISProcess:
         self.chain = []
         self.logger = None
         self.console = Console()
+        self.mode = ""
 
     def initial_parse(self):
         """Makes an initial parse of the yaml file and initialises logging"""
@@ -63,14 +64,14 @@ class FTISProcess:
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
-        self.logger.info("Logging initialised")
+        self.logger.debug("Logging initialised")
     
     def fprint(self, text):
         self.console.print(text, style="magenta underline")
 
     def validate_config(self):
         """I validate the configuration file"""
-        self.logger.info("Validating Configuration")
+        self.logger.debug("Validating Configuration")
         try:
             keys = self.config.keys()
         except AttributeError as e:
@@ -104,28 +105,39 @@ class FTISProcess:
         """Builds the processing chain in the right order"""
 
         for index, analyser in enumerate(self.config["analysers"]):
-
             Analyser = import_analyser(analyser)
             analyser = Analyser(self)
             self.chain.append(analyser)
 
-        for index, analyser in enumerate(self.chain):
-            if index == 0:
-                # case the source argument and figure out of its compatible
-                source_ext = os.path.splitext(self.source)[1]
-                for type_string, ext in Ftypes.items():
-                    if ext == source_ext:
-                        self.source_type = ext
-                
-                if analyser.input_type != self.source_type:
-                    raise SourceIOError()
-                    
-                analyser.input = self.source
-            else:
-                if analyser.input_type != self.chain[index - 1].output_type:
-                    self.logger.debug("Error building chain")
-                    raise ChainIOError(analyser, self.chain[index-1])
-                analyser.input = self.chain[index - 1].output
+        source_ext = os.path.splitext(self.source)[1]
+        for type_string, ext in Ftypes.items():
+            if ext == source_ext:
+                self.source_type = ext
+        if self.chain[0].input_type != self.source_type:
+            raise SourceIOError()
+
+        if self.config["mode"]:
+            self.mode = self.config["mode"]
+        else:
+            self.mode = "chain"
+
+        if self.mode == "chain":
+            for index, analyser in enumerate(self.chain):
+                if index == 0:
+                    analyser.input = self.source
+                else:
+                    if analyser.input_type != self.chain[index - 1].output_type:
+                        self.logger.debug("Error building chain")
+                        raise ChainIOError(analyser, self.chain[index-1])
+                    analyser.input = self.chain[index - 1].output
+        
+        if self.mode == "batch":
+            for analyser in self.chain:
+                if analyser.input_type == self.source_type:
+                    analyser.input = self.source
+                else:
+                    raise ChainIOError(analyser, self.source)
+
 
     def validate_io(self):
         """
