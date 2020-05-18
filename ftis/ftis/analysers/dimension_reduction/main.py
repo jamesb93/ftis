@@ -1,7 +1,8 @@
 import os
 import umap
+import numpy as np
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import printp, read_json, write_json
+from ftis.common.utils import read_json, write_json
 from ftis.common.types import Ftypes
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
@@ -15,14 +16,8 @@ class DR(FTISAnalyser):
         self.validate_parameters()
 
     def run(self):
-
+        print("Doing some dimension reduction")
         analysis_data = read_json(self.input)
-
-        # scrub that metadata boy!
-        try:
-            del analysis_data["meta"]
-        except KeyError:
-            pass
         data = [v for v in analysis_data.values()]
         keys = [k for k in analysis_data.keys()]
 
@@ -30,15 +25,15 @@ class DR(FTISAnalyser):
             scaler = MinMaxScaler()
         if self.parameters["scaling"] == "standardise":
             scaler = StandardScaler()
-        # data = np.array(data)
+        
+        data = np.array(data)
         data = scaler.fit_transform(data)
 
         # Fit the transform
         reduction = umap.UMAP(
             n_components=self.parameters["components"],
             n_neighbors=self.parameters["neighbours"],
-            min_dist=self.parameters["mindist"],
-        )
+            min_dist=self.parameters["mindist"])
         data = reduction.fit_transform(data)
 
         # Normalisation
@@ -53,5 +48,5 @@ class DR(FTISAnalyser):
 
         for key, value in zip(keys, data):
             dictionary_format_data[key] = value.tolist()
-
+        
         write_json(self.output, dictionary_format_data)
