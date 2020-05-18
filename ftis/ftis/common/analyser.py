@@ -32,9 +32,9 @@ class FTISAnalyser:
             "parameters.yaml",
         )
         self.parameter_template = read_yaml(module_parameters)
-
-        for key in self.parameter_template:
-            self.parameters[key] = self.parameter_template[key]["default"]
+        if self.parameter_template:
+            for key in self.parameter_template:
+                self.parameters[key] = self.parameter_template[key]["default"]
 
         if self.config["analysers"]:  # if there is anything at all
             for analyser in self.config["analysers"]:  # assign it
@@ -71,6 +71,7 @@ class FTISAnalyser:
         I also create the input and output strings for the class.
         This needs to be implemented in the module definition.
         """
+
     def do(self):
         self.logger.debug(f"Executing {self.name} run")
         self.run()
