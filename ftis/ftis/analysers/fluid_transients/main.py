@@ -57,7 +57,5 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         In this method you implement the functionality for the analyser.
         Ideally, place the logic between the two loggers.
         """
-
         workables = get_workables(self.input, ('.wav'))
-
         multiproc(self.name, self.analyse, workables)
