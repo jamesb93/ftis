@@ -105,9 +105,8 @@ def rm_ds(file_list: list) -> list:
 
 def bufspill(audio_file_path: str):
     """Returns an audio files fp32 values as a flat numpy array"""
-    read_data = sf.read(audio_file_path)
-    data = read_data[0].transpose()
-    sr = read_data[1]
+    data, sr = sf.read(audio_file_path)
+    data = data.transpose()
     return (data, sr)
 
 
