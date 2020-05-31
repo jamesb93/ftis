@@ -23,8 +23,7 @@ class FLUID_NOVELTYSLICE(FTISAnalyser):
         self.fftsettings = []
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
-        self.validate_parameters()
-
+        
     def analyse(self, workable:str, task, progress_bar):
         src = workable
         base_name = os.path.basename(workable)

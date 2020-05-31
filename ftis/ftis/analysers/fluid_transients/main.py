@@ -22,7 +22,6 @@ class FLUID_TRANSIENTS(FTISAnalyser):
         self.output_type = Ftypes["folder"]
         self.name = "FLUID_TRANSIENTS".lower()
         self.validate_cli()
-        self.validate_parameters()
 
     @staticmethod
     def validate_cli():

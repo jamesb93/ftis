@@ -23,7 +23,6 @@ class FLUID_LOUDNESS(FTISAnalyser):
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
         self.validate_cli()
-        self.validate_parameters()
 
     @staticmethod
     def validate_cli():

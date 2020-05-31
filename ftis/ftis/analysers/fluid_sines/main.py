@@ -23,7 +23,6 @@ class FLUID_SINES(FTISAnalyser):
         self.fftsettings = []
         self.name = "FLUID_SINES".lower()
         self.validate_cli()
-        self.validate_parameters()
 
     @staticmethod
     def validate_cli():
