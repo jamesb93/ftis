@@ -17,7 +17,6 @@ class AUDIO_EXPLODE(FTISAnalyser):
         self.input_type = Ftypes["json"]
         self.output_type = Ftypes["folder"]
         self.name = "AUDIO_EXPLODE".lower()
-        self.validate_parameters()
     
     def segment(self, filename:str, task, progress_bar):
         basic_name = os.path.splitext(os.path.basename(filename))[0]
