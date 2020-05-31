@@ -52,8 +52,7 @@ class FTISAnalyser:
         out = f"{self.name}{self.output_type}"
         self.output = os.path.join(
             self.parent_process.base_dir, 
-            out
-        )
+            f"{self.order}_{out}")
 
         if self.output_type == Ftypes["folder"] and not os.path.exists(self.output):
             os.makedirs(self.output)
