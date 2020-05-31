@@ -4,8 +4,11 @@ mode: chain
 
 analysers:
     fluid_noveltyslice:
-        threshold: 0.35
-    
+        threshold: 0.5
+    audio_explode:
+
+    fluid_noveltyslice:
+        threshold: 0.5
     audio_explode:
     
     mfcc:
@@ -17,4 +20,10 @@ analysers:
 
     dimension_reduction:
         scaling: standardise
-        post_scaling: normalise
+        post_scaling: none
+        components: 5
+    
+    cluster:
+
+
+    
