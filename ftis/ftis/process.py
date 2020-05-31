@@ -187,8 +187,6 @@ class FTISProcess:
             #             md += f"\n\n    {x}: {self.config[key][v][x]}"         
         md += "\n\n---------------------"
         md += "\n\nBeginning processing..."
-        self.console.print(
-            Markdown(md)
-        )
+        self.console.print(Markdown(md))
         print("\n")
         self.run_analysers()
