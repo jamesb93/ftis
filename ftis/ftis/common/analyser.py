@@ -20,10 +20,7 @@ class FTISAnalyser:
         self.output_type = ""
 
     def validate_parameters(self):
-        """
-        Validates parameters set in the process against the template.
-        This is not an optional function.
-        """
+        """Validates parameters set in the process against the template"""
         self.logger.debug(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
