@@ -13,7 +13,6 @@ class DR(FTISAnalyser):
         self.name = "dimension_reduction"
         self.input_type = Ftypes["json"]
         self.output_type = Ftypes["json"]
-        self.validate_parameters()
 
     def run(self):
         print("Doing some dimension reduction")
