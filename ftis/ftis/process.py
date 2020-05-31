@@ -121,8 +121,10 @@ class FTISProcess:
         else:
             self.mode = "chain"
 
-        if self.mode == "chain":
-            for index, analyser in enumerate(self.chain):
+        for index, analyser in enumerate(self.chain):
+            analyser.order = index
+            analyser.validate_parameters()
+            if self.mode == "chain":
                 if index == 0:
                     analyser.input = self.source
                 else:
