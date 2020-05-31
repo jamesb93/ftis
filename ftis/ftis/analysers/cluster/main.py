@@ -50,4 +50,3 @@ class CLUSTER(FTISAnalyser):
                 cluster_dict[str(cluster)] = [audio]
 
         write_json(self.output, cluster_dict)
-        printp('Clustering Complete')
