@@ -44,10 +44,7 @@ class FTISAnalyser:
         self.set_output()
 
     def metadata(self):
-        """
-        TODO: Replace the hardcoded metadata creation
-        """
-
+        """TODO: Replace the hardcoded metadata creation"""
         raise NotYetImplemented
 
     def set_output(self):
