@@ -14,7 +14,3 @@ scaling:
 
 numclusters: # only used if the algorithm requires a number of clusters
     default: 10
-    type: int
-
-
-
