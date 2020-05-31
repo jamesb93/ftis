@@ -132,14 +132,12 @@ class FTISProcess:
                         self.logger.debug("Error building chain")
                         raise ChainIOError(analyser, self.chain[index-1])
                     analyser.input = self.chain[index - 1].output
-        
-        if self.mode == "batch":
-            for analyser in self.chain:
+
+            if self.mode == "batch":
                 if analyser.input_type == self.source_type:
                     analyser.input = self.source
                 else:
                     raise ChainIOError(analyser, self.source)
-
 
     def validate_io(self):
         """
