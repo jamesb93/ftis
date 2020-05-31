@@ -20,8 +20,8 @@ class CLUSTER(FTISAnalyser):
     def run(self):
 
         feature = read_json(self.input)
-        keys = feature.keys()
-        values = feature.values()
+        keys = [x for x in feature.keys()]
+        values = [x for x in feature.values()]
 
         data = np.array(values)
         scaling = self.parameters["scaling"]
