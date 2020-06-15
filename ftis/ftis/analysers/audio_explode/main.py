@@ -13,9 +13,8 @@ from ftis.common.proc import multiproc
 class AUDIO_EXPLODE(FTISAnalyser):
     def __init__(self, parent_process):
         super().__init__(parent_process)
-        self.logger.debug("Creating AUDIO_EXPLODE instance")
-        self.input_type = Ftypes["json"]
-        self.output_type = Ftypes["folder"]
+        self.input_type = Ftypes.json
+        self.output_type = Ftypes.folder
         self.name = "AUDIO_EXPLODE".lower()
     
     def segment(self, filename:str, task, progress_bar):

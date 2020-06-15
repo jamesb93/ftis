@@ -17,8 +17,8 @@ class FLUID_NOVELTYSLICE(FTISAnalyser):
         This is the bare minimum required to instantiate the object.
         """
         super().__init__(parent_process)
-        self.input_type = Ftypes["folder"]
-        self.output_type = Ftypes["json"]
+        self.input_type = Ftypes.folder
+        self.output_type = Ftypes.json
         self.name = "FLUID_NOVELTYSLICE".lower()
         self.fftsettings = []
         self.data_container = multiprocessing.Manager().dict()

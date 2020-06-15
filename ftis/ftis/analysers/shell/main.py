@@ -13,9 +13,8 @@ class SHELL(FTISAnalyser):
         This is the bare minimum required to instantiate the object.
         """
         super().__init__(parent_process)
-        self.logger.debug("Creating SHELL instance")
-        self.input_type = Ftypes["any"]
-        self.output_type = Ftypes["any"]
+        self.input_type = Ftypes.folder
+        self.output_type = Ftypes.folder
         self.name = "SHELL".lower()
         self.validate_parameters()
 

@@ -12,15 +12,13 @@ class STATS(FTISAnalyser):
         super().__init__(config)
         self.name = "stats"
         self.stats_dict = {}
-        self.input_type = Ftypes["json"]
-        self.output_type = Ftypes["json"]
+        self.input_type = Ftypes.json
+        self.output_type = Ftypes.json
         self.validate_parameters()
 
     @staticmethod
     def calc_stats(data: np.array):
-        """
-        Given a time series calculate statistics
-        """
+        """Given a time series calculate statistics"""
         describe = stats.describe(data)
         mean = describe.mean
         stddev = math.sqrt(describe.variance)

@@ -13,8 +13,8 @@ class CLUSTER(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
         self.name = "cluster"
-        self.input_type = Ftypes["json"]
-        self.output_type = Ftypes["json"]
+        self.input_type = Ftypes.json
+        self.output_type = Ftypes.json
 
     def run(self):
 

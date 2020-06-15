@@ -2,11 +2,13 @@
 #     json = ".json"
 #     text = ".txt"
 #     folder = ""
+from dataclasses import dataclass
 
-Ftypes = {
-    "json": ".json",
-    "text": ".txt",
-    "folder": "",
-    "pyscript": ".py",
-    "any": ""  # a catch all for strings
-}
+@dataclass
+class FTISTypes:
+    json:str = ".json"
+    text:str = ".txt"
+    folder:str = ""
+    python:str = ".py"
+
+Ftypes = FTISTypes()

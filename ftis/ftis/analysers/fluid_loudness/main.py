@@ -16,10 +16,9 @@ from ftis.common.proc import multiproc
 class FLUID_LOUDNESS(FTISAnalyser):
     def __init__(self, parent_process):
         super().__init__(parent_process)
-        self.logger.debug("Creating FLUID_LOUDNESS instance")
         self.name = "FLUID_LOUDNESS".lower()
-        self.input_type = Ftypes["folder"]
-        self.output_type = Ftypes["json"]
+        self.input_type = Ftypes.folder
+        self.output_type = Ftypes.json
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
         self.validate_cli()
