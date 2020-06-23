@@ -1,0 +1,14 @@
+source: ~/dev/ftis_example_project/audio
+folder: ~/dev/ftis_example_project/analysis
+mode: chain
+
+analysers:
+    fluid_loudness:
+        cache: True
+    
+    stats:
+        cache: True
+        flatten: True
+
+    dimension_reduction:
+        cache: True
