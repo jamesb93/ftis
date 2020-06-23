@@ -13,10 +13,6 @@ except ImportError:
     import json as rj
 
 
-def nextpow(x):
-    """Find the next power of 2 from x"""
-    return 2 ** math.ceil(math.log(x)/math.log(2))
-
 def get_workables(pth):
     temp_workables = []
     for root, _, files in os.walk(pth):
@@ -29,14 +25,7 @@ def get_workables(pth):
 def filter_extensions(workables, valid_ext):
     """Filters path objects from a list based on extension"""
     return [x for x in workables if x.suffix in valid_ext]
-    
 
-def expand_tilde(path: str) -> str:
-    """Expand tilde to user home folder"""
-    if path[0] == "~":
-        return os.path.expanduser(path)
-    else:
-        return path
 
 def import_analyser(class_name: str):
     path = f"ftis.analysers.{class_name}"
@@ -76,12 +65,6 @@ def list_to_coll(list_input: list, out_file: str):
         f.write(f"{counter}, {item};")
         counter += 1
     f.close()
-
-
-def wipe_dir(dir: str):
-    """Wipe a directory given a path"""
-    for file_name in os.listdir(dir):
-        os.remove(os.path.join(dir, file_name))
 
 
 def bytes_to_mb(val: int) -> float:
