@@ -1,6 +1,7 @@
 #! /Users/james/.virtualenvs/ftis/bin/python3
 
 import argparse
+from pathlib import Path
 from ftis.process import FTISProcess
 from ftis.generate import new_analyser
 
