@@ -31,8 +31,7 @@ class FTISAnalyser:
             "..",
             "analysers",
             self.name,
-            "parameters.yaml"
-        )
+            "parameters.yaml")
         self.parameter_template = read_yaml(module_parameters)
 
         # Put the caching parameter in no matter what
