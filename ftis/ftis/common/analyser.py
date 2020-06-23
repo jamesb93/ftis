@@ -18,36 +18,39 @@ class FTISAnalyser:
         self.parameters = {}
         self.parameter_template = {}
         self.name = ""
-        self.input_type = ""
-        self.output_type = ""
+        self.cache_exists = False
+    
+    def log(self, log_text):
+        self.logger.debug(f"{self.name}: {log_text}")
 
     def validate_parameters(self):
-        """Validates parameters set in the process against the template"""
-        self.logger.debug(f"Validating parameters for {self.name}")
+        """Validates parameters from the config against the template"""
+        self.log(f"Validating parameters for {self.name}")
         module_parameters = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "..",
             "analysers",
             self.name,
-            "parameters.yaml",
+            "parameters.yaml"
         )
         self.parameter_template = read_yaml(module_parameters)
+
+        # Put the caching parameter in no matter what
+        if not self.parameter_template:
+            self.parameter_template = {"cache" : {"default" : False}}
+        else:
+            self.parameter_template["cache"] = {"default" : False} 
+
         if self.parameter_template:
             for key in self.parameter_template:
                 self.parameters[key] = self.parameter_template[key]["default"]
-
-        if self.config["analysers"]:  # if there is anything at all
-            for analyser in self.config["analysers"]:  # assign it
-                if self.config["analysers"][analyser]: # in the case that parameters have been assigned
-                    for parameter in self.config["analysers"][analyser]:
-                        self.parameters[parameter] = self.config["analysers"][analyser][parameter]
-
-        # Calling here stops user having to execute in __init__ class
+        try:
+            for parameter in self.config["analysers"][self.name]:
+                self.parameters[parameter] = self.config["analysers"][self.name][parameter]
+        except TypeError:
+            self.log("using all default parameters")
+            
         self.set_output()
-
-    def metadata(self):
-        """TODO: Replace the hardcoded metadata creation"""
-        raise NotYetImplemented
 
     def set_output(self):
         """Create the output for path/type"""
@@ -56,25 +59,34 @@ class FTISAnalyser:
             self.parent_process.base_dir, 
             f"{self.order}_{out}")
 
-        if self.output_type == Ftypes["folder"] and not os.path.exists(self.output):
+        
+        
+        if os.path.exists(self.output):
+            metadata = 
+            if self.parent_process.base_dir
+            self.cache_exists = True # set a flag to say cache exists once we know the output
+        
+        if self.output_type == Ftypes.folder and not os.path.exists(self.output):
             os.makedirs(self.output)
 
-        self.logger.debug(f"Setting output for {self.name}")
-
-    def validate_io(self):
-        """
-        I validate whether the input and output types are correct.
-        I also create the input and output strings for the class.
-        This needs to be implemented in the module definition.
-        """
+        self.log("Setting outputs")
 
     def do(self):
-        self.logger.debug(f"Executing {self.name} run")
-        self.run()
-        self.logger.debug(f"Finished {self.name} run")
+        self.log("Executing process")
+
+        if self.parameters["cache"] == True:
+            if self.cache_exists:
+                self.log("was cached")
+                self.parent_process.fprint(f"{self.name} was cached!")
+            else:
+                self.run()
+                self.log(f"{self.name} wanted to be cached but there was no cache")
+        else:
+            self.run()
+            self.log("was not cached")
+
+        self.log("Finished processing")
         
     def run(self):
-        """
-        Method for running the processing chain from input to output.
-        """
+        """Method for running the processing chain from input to output"""
         
