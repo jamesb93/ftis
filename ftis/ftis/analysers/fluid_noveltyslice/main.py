@@ -1,10 +1,12 @@
 
 import os
 import multiprocessing
+import flucoma
 import tempfile
 import subprocess
 import numpy as np
 from shutil import rmtree
+from flucoma import fluid
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.types import Ftypes
 from ftis.common.utils import nextpow, get_workables, write_json, bufspill
@@ -29,18 +31,16 @@ class FLUID_NOVELTYSLICE(FTISAnalyser):
         base_name = os.path.basename(workable)
         indices = os.path.join(self.TMP, f"{base_name}_nsindices.wav")
 
-        subprocess.call([
-                "fluid-noveltyslice",
-                "-feature", str(self.parameters["feature"]),
-                "-fftsettings", self.fftsettings[0], self.fftsettings[1], self.fftsettings[2],
-                "-filtersize", str(self.parameters["filtersize"]),
-                "-minslicelength", str(self.parameters["minslicelength"]),
-                "-threshold", str(self.parameters["threshold"]),
-                "-source", str(src),
-                "-indices", str(indices)
-        ])
-        data = bufspill(indices)[0].tolist()
-        self.data_container[workable] = data
+        noveltyslice = fluid.noveltyslice(
+                src
+                feature = self.parameters["feature"],
+                fftsettings = self.parameters["fftsettings"]
+                filtersize = self.parameters["filtersize"],
+                minslicelength = self.parameters["minslicelength"],
+                threshold = self.parameters["threshold"],
+        )
+
+        self.data_container[workable] = flucoma.utils.get_buffer(noveltyslice)
         progress_bar.update(task, advance = 1)
 
     def run(self):
