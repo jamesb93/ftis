@@ -12,6 +12,8 @@ class FTISAnalyser:
         self.logger = self.parent_process.logger
         self.input = ""
         self.output = ""
+        self.input_type = ""
+        self.output_type = ""
         self.order:int = -1
         self.parameters = {}
         self.parameter_template = {}
