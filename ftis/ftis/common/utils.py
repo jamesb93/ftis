@@ -4,6 +4,7 @@ import math
 import soundfile as sf
 import simpleaudio as sa
 from importlib import import_module
+from pathlib import Path
 
 # JSON importing
 try:
@@ -12,21 +13,22 @@ except ImportError:
     import json as rj
 
 
-
 def nextpow(x):
     """Find the next power of 2 from x"""
     return 2 ** math.ceil(math.log(x)/math.log(2))
 
-
-def get_workables(pth, valid_ext):
+def get_workables(pth):
     temp_workables = []
     for root, _, files in os.walk(pth):
         for f in files:
-            if os.path.splitext(f)[1] in valid_ext:
-                temp_workables.append(os.path.join(root, f))
+            full_path = Path(root) / f
+            temp_workables.append(full_path)
     return temp_workables
 
-
+def filter_extensions(workables, valid_ext):
+    """Filters path objects from a list based on extension"""
+    return [x for x in workables if x.suffix in valid_ext]
+    
 def expand_tilde(path: str) -> str:
     """Expand tilde to user home folder"""
     if path[0] == "~":
