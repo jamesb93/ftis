@@ -46,6 +46,7 @@ class STATS(FTISAnalyser):
         return container
 
     def run(self):
+        self.parent_process.fprint("Running stats")
         data = read_json(self.input)
 
         #TODO: any dimensionality input
