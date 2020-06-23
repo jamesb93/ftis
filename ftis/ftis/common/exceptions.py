@@ -40,5 +40,4 @@ class ChainIOError(Exception):
 class SourceIOError(Exception):
     def __init__(self):
         super().__init__(
-            f"The source and first analyser type are incompatible"
-        )
+            f"The source and first analyser type are incompatible")
