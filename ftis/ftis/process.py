@@ -2,6 +2,7 @@ import os
 import datetime
 import logging
 import git
+from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -10,15 +11,12 @@ from ftis.common.exceptions import (
     AnalyserNotFound,
     NotYetImplemented,
     ChainIOError,
-    SourceIOError
-)
-
+    SourceIOError)
 from ftis.common.utils import (
     import_analyser,
     read_yaml,
     expand_tilde,
-    write_json
-)
+    write_json)
 from ftis.common.types import Ftypes
 
 
@@ -40,27 +38,28 @@ class FTISProcess:
     def initial_parse(self):
         """Makes an initial parse of the yaml file and initialises logging"""
         try:
-            self.base_dir = expand_tilde(self.config["folder"])
+            self.base_dir = Path(self.config["folder"]).expanduser()
         except KeyError:
             raise InvalidYamlError("Config does not contain output folder")
         try:
-            self.source = expand_tilde(self.config["source"])
+            self.source = Path(self.config["source"]).expanduser()
         except KeyError:
             raise InvalidYamlError("Config does not contain source folder")
 
-        if not os.path.exists(self.base_dir):
-            os.makedirs(self.base_dir)
+        if not self.base_dir.exists():
+            self.base_dir.mkdir()
 
         # Setup logging
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         logfile_path = os.path.join(self.base_dir, "logfile.log")
-        if os.path.isfile(logfile_path):
+
+        logfile_path = self.base_dir / "logfile.log"
+
+        if logfile_path.exists():
             os.remove(logfile_path)
 
-        logfile_handler = logging.FileHandler(
-            os.path.join(self.base_dir, "logfile.log")
-        )
+        logfile_handler = logging.FileHandler(logfile_path)
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
@@ -139,14 +138,6 @@ class FTISProcess:
                 else:
                     raise ChainIOError(analyser, self.source)
 
-    def validate_io(self):
-        """
-        This will be run directly after build_processing_chain
-        It will require specific typs to be implemented so...
-        ...that the chain can be guaranteed to have compatible io
-        """
-        raise NotYetImplemented
-
     def create_metadata(self):
         # Time
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
@@ -160,11 +151,16 @@ class FTISProcess:
         # Analyser chain
         io = [link.output for link in self.chain]
         io.insert(0, self.source)
-        metadata["io"] = io
+        metadata["io"] = str(io)
 
         # Analyer Parameters
         metadata["analysers"] = self.config["analysers"]
-        write_json(os.path.join(self.base_dir, "metadata.json"), metadata)
+
+        # Write out
+        out = self.base_dir / "metadata.json"
+        print(metadata)
+        print(out)
+        write_json(out, metadata)
 
     def run_analysers(self):
         for obj in self.chain:
