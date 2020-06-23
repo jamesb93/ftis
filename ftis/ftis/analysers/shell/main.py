@@ -3,7 +3,6 @@ import os
 import subprocess
 import shlex
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import printp
 from ftis.common.types import Ftypes
 
 
