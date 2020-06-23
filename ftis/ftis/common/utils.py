@@ -25,10 +25,12 @@ def get_workables(pth):
             temp_workables.append(full_path)
     return temp_workables
 
+
 def filter_extensions(workables, valid_ext):
     """Filters path objects from a list based on extension"""
     return [x for x in workables if x.suffix in valid_ext]
     
+
 def expand_tilde(path: str) -> str:
     """Expand tilde to user home folder"""
     if path[0] == "~":
