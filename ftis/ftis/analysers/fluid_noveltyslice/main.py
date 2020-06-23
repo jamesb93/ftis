@@ -32,7 +32,7 @@ class FLUID_NOVELTYSLICE(FTISAnalyser):
         indices = os.path.join(self.TMP, f"{base_name}_nsindices.wav")
 
         noveltyslice = fluid.noveltyslice(
-                src
+                src,
                 feature = self.parameters["feature"],
                 fftsettings = self.parameters["fftsettings"]
                 filtersize = self.parameters["filtersize"],
