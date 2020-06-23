@@ -1,7 +1,7 @@
 import os
-from ftis.common.exceptions import NotYetImplemented
 from ftis.common.utils import read_yaml
 from ftis.common.types import Ftypes
+from pathlib import Path
 
 
 class FTISAnalyser:
@@ -25,13 +25,8 @@ class FTISAnalyser:
 
     def validate_parameters(self):
         """Validates parameters from the config against the template"""
-        self.log(f"Validating parameters for {self.name}")
-        module_parameters = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "..",
-            "analysers",
-            self.name,
-            "parameters.yaml")
+        self.log("Validating parameters")
+        module_parameters = Path(__file__).parent.parent / "analysers" / self.name / "parameters.yaml"
         self.parameter_template = read_yaml(module_parameters)
 
         # Put the caching parameter in no matter what
@@ -53,20 +48,13 @@ class FTISAnalyser:
 
     def set_output(self):
         """Create the output for path/type"""
-        out = f"{self.name}{self.output_type}"
-        self.output = os.path.join(
-            self.parent_process.base_dir, 
-            f"{self.order}_{out}")
+        self.output = self.parent_process.base_dir / f"{self.order}_{self.name}{self.output_type}"
 
-        
-        
-        if os.path.exists(self.output):
-            metadata = 
-            if self.parent_process.base_dir
+        if self.output.exists():
             self.cache_exists = True # set a flag to say cache exists once we know the output
-        
-        if self.output_type == Ftypes.folder and not os.path.exists(self.output):
-            os.makedirs(self.output)
+
+        if self.output_type == Ftypes.folder and not self.output.exists():
+            self.output.mkdirs()
 
         self.log("Setting outputs")
 
@@ -75,14 +63,14 @@ class FTISAnalyser:
 
         if self.parameters["cache"] == True:
             if self.cache_exists:
-                self.log("was cached")
+                self.log("Intending to cache")
                 self.parent_process.fprint(f"{self.name} was cached!")
             else:
                 self.run()
-                self.log(f"{self.name} wanted to be cached but there was no cache")
+                self.log("Cache was true but there was no cache")
         else:
             self.run()
-            self.log("was not cached")
+            self.log("Caching now true")
 
         self.log("Finished processing")
         
