@@ -158,8 +158,6 @@ class FTISProcess:
 
         # Write out
         out = self.base_dir / "metadata.json"
-        print(metadata)
-        print(out)
         write_json(out, metadata)
 
     def run_analysers(self):
