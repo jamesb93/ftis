@@ -5,17 +5,14 @@ import git
 from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
-from rich.panel import Panel
 from ftis.common.exceptions import (
     InvalidYamlError,
     AnalyserNotFound,
-    NotYetImplemented,
     ChainIOError,
     SourceIOError)
 from ftis.common.utils import (
     import_analyser,
     read_yaml,
-    expand_tilde,
     write_json)
 from ftis.common.types import Ftypes
 
