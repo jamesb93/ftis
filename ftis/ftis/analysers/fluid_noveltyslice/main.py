@@ -9,7 +9,7 @@ from shutil import rmtree
 from flucoma import fluid
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.types import Ftypes
-from ftis.common.utils import nextpow, get_workables, write_json, bufspill
+from ftis.common.utils import get_workables, write_json, bufspill
 from ftis.common.proc import multiproc
 
 
