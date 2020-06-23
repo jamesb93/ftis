@@ -28,8 +28,6 @@ class FLUID_NOVELTYSLICE(FTISAnalyser):
         
     def analyse(self, workable:str, task, progress_bar):
         src = workable
-        base_name = os.path.basename(workable)
-        indices = os.path.join(self.TMP, f"{base_name}_nsindices.wav")
 
         noveltyslice = fluid.noveltyslice(
                 src,
