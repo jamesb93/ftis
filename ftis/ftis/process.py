@@ -110,7 +110,7 @@ class FTISProcess:
             self.chain.append(analyser)
 
         source_ext = os.path.splitext(self.source)[1]
-        for type_string, ext in Ftypes.items():
+        for ext in vars(Ftypes).values():
             if ext == source_ext:
                 self.source_type = ext
         if self.chain[0].input_type != self.source_type:
@@ -148,10 +148,10 @@ class FTISProcess:
         raise NotYetImplemented
 
     def create_metadata(self):
-        # file list/
         # Time
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
         metadata = {"time": time}
+        
         # Git Hash
         repo = git.Repo(search_parent_directories=True)
         sha = repo.head.object.hexsha
@@ -161,6 +161,9 @@ class FTISProcess:
         io = [link.output for link in self.chain]
         io.insert(0, self.source)
         metadata["io"] = io
+
+        # Analyer Parameters
+        metadata["analysers"] = self.config["analysers"]
         write_json(os.path.join(self.base_dir, "metadata.json"), metadata)
 
     def run_analysers(self):
