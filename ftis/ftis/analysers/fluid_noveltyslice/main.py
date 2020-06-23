@@ -32,7 +32,7 @@ class FLUID_NOVELTYSLICE(FTISAnalyser):
         noveltyslice = fluid.noveltyslice(
                 src,
                 feature = self.parameters["feature"],
-                fftsettings = self.parameters["fftsettings"]
+                fftsettings = self.parameters["fftsettings"],
                 filtersize = self.parameters["filtersize"],
                 minslicelength = self.parameters["minslicelength"],
                 threshold = self.parameters["threshold"],
