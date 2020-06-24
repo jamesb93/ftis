@@ -3,12 +3,12 @@ folder: ~/dev/ftis_example_project/analysis
 mode: chain
 
 analysers:
-    fluid_loudness:
+    FluidLoudness:
         cache: True
     
-    stats:
+    Stats:
         cache: True
         flatten: True
 
-    dimension_reduction:
+    DimensionReduction:
         cache: True
