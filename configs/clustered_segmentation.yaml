@@ -1,0 +1,13 @@
+source: ~/dev/ftis_example_project/audio
+folder: ~/dev/ftis_example_project/analysis
+mode: chain
+
+analysers:
+    FluidNoveltyslice:
+        fftsettings: [2048, -1, -1]
+        threshold: 0.1
+        cache: True
+
+    ClusteredSegmentation:
+        windowsize: 15
+        numclusters: 2
