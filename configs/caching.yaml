@@ -12,3 +12,7 @@ analysers:
 
     DimensionReduction:
         cache: True
+    
+    AgglomerativeClustering:
+        cache: False
+        numclusters: 5
