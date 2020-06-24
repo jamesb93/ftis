@@ -7,10 +7,10 @@ from ftis.common.utils import write_json, read_json
 from ftis.common.types import Ftypes
 
 
-class STATS(FTISAnalyser):
+class Stats(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
-        self.name = "stats"
+        self.name = "Stats"
         self.stats_dict = {}
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json

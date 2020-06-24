@@ -11,23 +11,16 @@ from ftis.common.exceptions import BinError
 from ftis.common.utils import get_workables
 
 
-class FLUID_SINES(FTISAnalyser):
+class FluidSines(FTISAnalyser):
     def __init__(self, parent_process):
         """
         This is the bare minimum required to instantiate the object.
         """
         super().__init__(parent_process)
-        self.logger.debug("Creating FLUID_SINES instance")
-        self.input_type = Ftypes["folder"]
-        self.output_type = Ftypes["folder"]
+        self.input_type = Ftypes.folder
+        self.output_type = Ftypes.folder
         self.fftsettings = []
-        self.name = "FLUID_SINES".lower()
-        self.validate_cli()
-
-    @staticmethod
-    def validate_cli():
-        if not shutil.which("fluid-sines"):
-            raise BinError("fluid-sines executable not found in PATH")
+        self.name = "FluidSines"
 
     def analyse(self, workable: str, task, progress_bar):
         # Setup paths/files etc

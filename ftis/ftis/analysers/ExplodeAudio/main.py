@@ -10,12 +10,12 @@ from ftis.common.utils import samps2ms, bufspill, check_make, read_json
 from ftis.common.proc import multiproc
 
 
-class AUDIO_EXPLODE(FTISAnalyser):
+class ExplodeAudio(FTISAnalyser):
     def __init__(self, parent_process):
         super().__init__(parent_process)
         self.input_type = Ftypes.json
         self.output_type = Ftypes.folder
-        self.name = "AUDIO_EXPLODE".lower()
+        self.name = "ExplodeAudio"
     
     def segment(self, filename:str, task, progress_bar):
         basic_name = os.path.splitext(os.path.basename(filename))[0]

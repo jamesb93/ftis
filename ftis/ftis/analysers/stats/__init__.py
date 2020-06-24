@@ -1,3 +1,3 @@
-from .main import STATS as main
+from .main import Stats as main
 
 __all__ = ["main"]
