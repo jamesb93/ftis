@@ -54,7 +54,7 @@ class FTISProcess:
         logfile_path = self.base_dir / "logfile.log"
 
         if logfile_path.exists():
-            os.remove(logfile_path)
+            logfile_path.unlink()
 
         logfile_handler = logging.FileHandler(logfile_path)
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
