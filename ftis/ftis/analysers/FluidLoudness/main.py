@@ -4,7 +4,7 @@ from multiprocessing import Manager
 from flucoma import fluid
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.exceptions import BinError
-from ftis.common.utils import bufspill, write_json, get_workables, filter_extensions
+from ftis.common.utils import write_json, get_workables, filter_extensions
 from ftis.common.types import Ftypes
 from ftis.common.proc import multiproc
 
