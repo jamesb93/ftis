@@ -9,10 +9,10 @@ from ftis.common.types import Ftypes
 from ftis.common.proc import multiproc
 
 
-class FLUID_LOUDNESS(FTISAnalyser):
+class FluidLoudness(FTISAnalyser):
     def __init__(self, parent_process):
         super().__init__(parent_process)
-        self.name = "FLUID_LOUDNESS".lower()
+        self.name = "FluidLoudness"
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()

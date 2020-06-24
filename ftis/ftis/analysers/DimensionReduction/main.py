@@ -8,16 +8,15 @@ from ftis.common.types import Ftypes
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
-class DR(FTISAnalyser):
+class DimensionReduction(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
-        self.name = "dimension_reduction"
+        self.name = "DimensionReduction"
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
 
     def run(self):
         with alive_bar(1, spinner='dots_waves') as bar:
-            time.sleep(10)
             bar()
             print("Doing some dimension reduction")
             analysis_data = read_json(self.input)

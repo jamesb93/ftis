@@ -13,11 +13,10 @@ from ftis.common.proc import multiproc
 
 
 
-class MFCC(FTISAnalyser):
+class FluidMFCC(FTISAnalyser):
     def __init__(self, parent_process):
         super().__init__(parent_process)
-        self.logger.debug("Creating MFCC instance")
-        self.name = "mfcc"
+        self.name = "FluidMFCC"
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
         self.fftsettings = []

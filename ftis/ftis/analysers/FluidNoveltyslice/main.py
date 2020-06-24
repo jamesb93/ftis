@@ -13,15 +13,12 @@ from ftis.common.utils import get_workables, write_json, bufspill
 from ftis.common.proc import multiproc
 
 
-class FLUID_NOVELTYSLICE(FTISAnalyser):
+class FluidNoveltyslice(FTISAnalyser):
     def __init__(self, parent_process):
-        """
-        This is the bare minimum required to instantiate the object.
-        """
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
-        self.name = "FLUID_NOVELTYSLICE".lower()
+        self.name = "FluidNoveltyslice"
         self.fftsettings = []
         self.data_container = multiprocessing.Manager().dict()
         self.TMP = tempfile.mkdtemp()
