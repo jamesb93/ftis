@@ -14,10 +14,10 @@ class FTISAnalyser:
         self.output = ""
         self.input_type = ""
         self.output_type = ""
-        self.order:int = -1
         self.parameters = {}
         self.parameter_template = {}
         self.name = ""
+        self.order:int = -1
         self.cache_exists = False
     
     def log(self, log_text):
