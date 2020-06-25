@@ -41,14 +41,6 @@ def lines_to_list(input_file: str) -> list:
         return content
 
 
-def check_make(dir_path: str):
-    """Create a directory if it doesn't exist"""
-    try:
-        os.mkdir(dir_path)
-    except FileExistsError:
-        pass
-
-
 def read_yaml(yaml_file):
     with open(yaml_file, "r") as stream:
         try:
@@ -84,15 +76,6 @@ def ms2samps(ms: int, sr: int) -> int:
     convert milliseconds to samples given a sample rate
     """
     return (ms * 0.001) * sr
-
-
-def rm_ds(file_list: list) -> list:
-    """
-    Remove .DS_Store if in a list
-    """
-    if ".DS_Store" in file_list:
-        file_list.remove(".DS_Store")
-    return file_list
 
 
 def bufspill(audio_file_path: str):
