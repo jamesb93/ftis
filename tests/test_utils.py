@@ -2,8 +2,18 @@ from ftis.common.utils import (
     bytes_to_mb,
     samps2ms,
     ms2samps,
-    rm_ds
+    rm_ds,
+    filter_extensions
 )
+from pathlib import Path
+
+
+
+def test_filter_extensions():
+    test = [Path("foo.wav"), Path("grab.wav"), Path("foo.csv")]
+    truth = [Path("foo.wav"), Path("grab.wav")]
+    filtered = filter_extensions(test, (".wav"))
+    assert truth == filtered
 
 
 def test_bytes_to_mb():
@@ -22,14 +32,3 @@ def test_ms2samps():
     ms = 1000
     sr = 44100
     assert ms2samps(ms, sr) == 44100.0
-
-
-def test_rm_ds():
-    test_list = [
-        ".DS_Store",
-        "foo.bar"
-    ]
-    result = rm_ds(test_list)
-    assert len(result) == 1
-    assert test_list[0] == "foo.bar"
-    assert ".DS_Store" not in result
