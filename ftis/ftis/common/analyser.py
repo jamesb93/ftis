@@ -70,7 +70,7 @@ class FTISAnalyser:
                 self.log("Cache was true but there was no cache")
         else:
             self.run()
-            self.log("Caching now true")
+            self.log("Ran without caching")
 
         self.log("Finished processing")
         
