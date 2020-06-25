@@ -2,7 +2,6 @@ import os
 import yaml
 import math
 import soundfile as sf
-import simpleaudio as sa
 from importlib import import_module
 from pathlib import Path
 
@@ -96,10 +95,3 @@ def read_json(json_file_path: str) -> dict:
     with open(json_file_path, "r") as fp:
         data = rj.load(fp)
         return data
-
-
-def walkman(audio_path: str):
-    """Play a sound file given a path to a valid piece of audio"""
-    wave_obj = sa.WaveObject.from_wave_file(os.path.join(audio_path))
-    play_obj = wave_obj.play()
-    play_obj.wait_done()

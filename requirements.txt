@@ -6,6 +6,7 @@ click==7.1.2
 colorama==0.4.3
 commonmark==0.9.1
 Cython==0.29.15
+-e git+git@github.com:jamesb93/ftis.git@8399c1a37066aaed01c6a8fc61341b126ef12990#egg=ftis&subdirectory=ftis
 gitdb==4.0.2
 GitPython==3.1.0
 hdbscan==0.8.25
@@ -31,7 +32,6 @@ regex==2020.6.8
 rich==1.1.1
 scikit-learn==0.22.2.post1
 scipy==1.4.1
-simpleaudio==1.0.4
 six==1.14.0
 sklearn==0.0
 smmap==3.0.1

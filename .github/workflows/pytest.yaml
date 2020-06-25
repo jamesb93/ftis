@@ -12,9 +12,6 @@ jobs:
           with:
             python-version: '3.x'
 
-        - name: Get GCC
-          run: sudo apt install build-essential
-
         - name: Setup Python
           run: |
             cd $GITHUB_WORKSPACE
