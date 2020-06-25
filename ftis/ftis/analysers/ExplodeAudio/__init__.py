@@ -1,4 +1,4 @@
 
-from .main import AUDIO_EXPLODE as main
+from .main import ExplodeAudio as main
 
 __all__ = ["main"]
