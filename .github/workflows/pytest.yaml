@@ -1,0 +1,23 @@
+name: run tests automatically each push
+on: push
+
+jobs:
+    tester:
+        name: Use pytest to run tests each push
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+        - name: Set up Python
+          uses: actions/setup-python@v1
+          with:
+            python-version: '3.x'
+
+        - name: Setup Python
+          run: |
+            cd $GITHUB_WORKSPACE
+            python -m pip install --upgrade pip
+            pip install pytest
+            pip install -r requirements.txt
+            
+        - name: Run Tests
+          run: pytest
