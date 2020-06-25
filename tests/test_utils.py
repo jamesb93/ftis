@@ -2,7 +2,6 @@ from ftis.common.utils import (
     bytes_to_mb,
     samps2ms,
     ms2samps,
-    rm_ds,
     filter_extensions
 )
 from pathlib import Path
