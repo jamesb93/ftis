@@ -1,4 +1,3 @@
-alive-progress==1.5.1
 appdirs==1.4.4
 attrs==19.3.0
 black==19.10b0
@@ -7,7 +6,7 @@ click==7.1.2
 colorama==0.4.3
 commonmark==0.9.1
 Cython==0.29.15
--e git+git@github.com:jamesb93/ftis.git@29fbb8a45e6c6371a8f471d65e362fb1059c32bd#egg=ftis&subdirectory=ftis
+-e git+git@github.com:jamesb93/ftis.git@5de94c96b8b41588bde0b0558a936cb0993e6eaf#egg=ftis&subdirectory=ftis
 gitdb==4.0.2
 GitPython==3.1.0
 hdbscan==0.8.25
@@ -26,7 +25,7 @@ pydub==0.23.1
 Pygments==2.6.1
 pyparsing==2.4.6
 pytest==5.3.5
--e git+git@github.com:jamesb93/python-flucoma.git@6508caf6be817b671c0adf3918381643ad1d1c59#egg=python_flucoma
+python-flucoma @ git+https://github.com/jamesb93/python-flucoma@6508caf6be817b671c0adf3918381643ad1d1c59
 python-rapidjson==0.9.1
 PyYAML==5.3
 regex==2020.6.8
