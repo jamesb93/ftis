@@ -1,4 +1,3 @@
-import os
 import datetime
 import logging
 import git
@@ -49,7 +48,6 @@ class FTISProcess:
         # Setup logging
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        logfile_path = os.path.join(self.base_dir, "logfile.log")
 
         logfile_path = self.base_dir / "logfile.log"
 
@@ -105,9 +103,8 @@ class FTISProcess:
             analyser = Analyser(self)
             self.chain.append(analyser)
 
-        source_ext = os.path.splitext(self.source)[1]
         for ext in vars(Ftypes).values():
-            if ext == source_ext:
+            if ext == self.source.suffix:
                 self.source_type = ext
         if self.chain[0].input_type != self.source_type:
             raise SourceIOError()
