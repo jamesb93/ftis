@@ -7,11 +7,11 @@ analysers:
         cache: True
     
     Stats:
-        cache: True
+        cache: False
         flatten: True
 
     DimensionReduction:
-        cache: True
+        cache: False
     
     AgglomerativeClustering:
         cache: False
