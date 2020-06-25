@@ -1,16 +1,15 @@
 from ftis.common.analyser import FTISAnalyser
+from ftis.common.utils import import_analyser
 from ftis.process import FTISProcess
-import os
-
-test_path = os.path.dirname(os.path.abspath(__file__))
-test_yaml = os.path.join(
-    test_path,
-    "cfgtest.yaml"
-)
+from pathlib import Path
 
 
-def test_instantiation():
-    process = FTISProcess(test_yaml)
-    process.initial_parse()
-    analyser = FTISAnalyser(process)
+def test_analyser_import():
+    analysers = Path("../ftis/ftis/analysers")
+    print(analysers.glob("**/*"))
 
+    invalid_folders = ("__pycache__",".DS_Store")
+
+    for x in analysers.iterdir():
+        if x.stem not in invalid_folders:
+            import_analyser(x.stem)
