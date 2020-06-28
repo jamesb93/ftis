@@ -6,6 +6,7 @@ from ftis.common.types import Ftypes
 from sklearn.cluster import AgglomerativeClustering
 from flucoma import fluid
 from flucoma.utils import get_buffer
+from scipy.io import wavfile
 
 class ClusteredNMF(FTISAnalyser):
     def __init__(self, config):
