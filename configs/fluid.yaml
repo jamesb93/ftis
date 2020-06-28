@@ -1,8 +1,0 @@
-source: ~/dev/ftis_example_project/audio
-folder: ~/dev/ftis_example_project/analysis
-
-analysers:
-    fluid_transients:
-        skew: 0.1
-    # stats:
-    #     num_derivs: 0
