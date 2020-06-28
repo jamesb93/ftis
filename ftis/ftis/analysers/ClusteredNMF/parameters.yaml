@@ -1,0 +1,15 @@
+components:
+    default: 10
+
+iterations:
+    default: 100
+
+fftsettings:
+    default: [2048, -1, -1]
+
+clustersize: 
+    default: 2
+
+samples:
+    default: 2
+
