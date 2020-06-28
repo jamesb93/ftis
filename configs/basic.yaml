@@ -1,8 +1,0 @@
-source: ~/dev/ftis_example_project/audio
-folder: ~/dev/ftis_example_project/analysis
-mode: batch
-
-analysers:
-    fluid_sines:
-        bandwidthaper
-        
