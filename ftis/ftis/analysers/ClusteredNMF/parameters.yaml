@@ -13,3 +13,8 @@ clustersize:
 samples:
     default: 2
 
+smoothing:
+    default: 11
+
+polynomial:
+    default: 2
