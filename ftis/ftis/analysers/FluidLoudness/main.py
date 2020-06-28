@@ -16,7 +16,7 @@ class FluidLoudness(FTISAnalyser):
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()
 
-    def analyse(self, workable: str, task, progress_bar):
+    def analyse(self, workable: str):
         loudness = fluid.loudness(workable,
             windowsize = self.parameters["windowsize"],
             hopsize = self.parameters["hopsize"],
@@ -24,9 +24,8 @@ class FluidLoudness(FTISAnalyser):
             truepeak = self.parameters["truepeak"])
     
         self.data_container[str(workable)] = flucoma.utils.get_buffer(loudness)
-        progress_bar.update(task, advance = 1)
 
     def run(self):  
-        workables = filter_extensions(get_workables(self.input), [".wav"])
+        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))
