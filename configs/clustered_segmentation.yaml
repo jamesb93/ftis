@@ -6,7 +6,6 @@ analysers:
     FluidNoveltyslice:
         fftsettings: [2048, -1, -1]
         threshold: 0.1
-        cache: True
 
     ClusteredSegmentation:
         windowsize: 15
