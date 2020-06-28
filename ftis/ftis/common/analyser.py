@@ -54,7 +54,7 @@ class FTISAnalyser:
             self.cache_exists = True # set a flag to say cache exists once we know the output
 
         if self.output_type == Ftypes.folder and not self.output.exists():
-            self.output.mkdirs()
+            self.output.mkdir()
 
         self.log("Setting outputs")
 
