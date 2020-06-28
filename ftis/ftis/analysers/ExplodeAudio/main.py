@@ -14,7 +14,6 @@ class ExplodeAudio(FTISAnalyser):
         super().__init__(parent_process)
         self.input_type = Ftypes.json
         self.output_type = Ftypes.folder
-        self.name = "ExplodeAudio"
     
     def segment(self, filename:str, task, progress_bar):
         """Receives a full path to an audio file"""

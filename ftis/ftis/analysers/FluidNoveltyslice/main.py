@@ -19,23 +19,19 @@ class FluidNoveltyslice(FTISAnalyser):
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
-        self.name = "FluidNoveltyslice"
         self.data_container = Manager().dict()
         
-    def analyse(self, workable:str, task, progress_bar):
+    def analyse(self, workable:str):
         src = workable
-
         noveltyslice = fluid.noveltyslice(
-                src,
-                feature = self.parameters["feature"],
-                fftsettings = self.parameters["fftsettings"],
-                filtersize = self.parameters["filtersize"],
-                minslicelength = self.parameters["minslicelength"],
-                threshold = self.parameters["threshold"],
+            src,
+            feature = self.parameters["feature"],
+            fftsettings = self.parameters["fftsettings"],
+            filtersize = self.parameters["filtersize"],
+            minslicelength = self.parameters["minslicelength"],
+            threshold = self.parameters["threshold"]
         )
-
         self.data_container[str(workable)] = flucoma.utils.get_buffer(noveltyslice)
-        progress_bar.update(task, advance = 1)
 
     def run(self):
         workables = get_workables(self.input)

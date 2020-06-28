@@ -10,7 +10,6 @@ from sklearn.cluster import AgglomerativeClustering as ag
 class AgglomerativeClustering(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
-        self.name = "AgglomerativeClustering"
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
 
@@ -20,7 +19,7 @@ class AgglomerativeClustering(FTISAnalyser):
         values = [x for x in feature.values()]
 
         data = np.array(values)
-        scaling = self.parameters["scaling"]
+        scaling = self.parameters["input_scaling"]
         if scaling:
             if scaling == 'normalise':
                 scaler = MinMaxScaler()

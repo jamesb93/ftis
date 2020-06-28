@@ -13,17 +13,11 @@ from ftis.common.utils import get_workables
 
 class FluidSines(FTISAnalyser):
     def __init__(self, parent_process):
-        """
-        This is the bare minimum required to instantiate the object.
-        """
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.folder
-        self.fftsettings = []
-        self.name = "FluidSines"
 
     def analyse(self, workable: str, task, progress_bar):
-        # Setup paths/files etc
         src = workable
         base_name = os.path.basename(workable)
         sines = os.path.join(self.output, f"{base_name}_sines.wav")

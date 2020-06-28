@@ -12,29 +12,21 @@ from ftis.common.proc import multiproc
 class FluidLoudness(FTISAnalyser):
     def __init__(self, parent_process):
         super().__init__(parent_process)
-        self.name = "FluidLoudness"
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()
 
     def analyse(self, workable: str, task, progress_bar):
-
-        loudness = fluid.loudness(
-                workable,
-                windowsize = self.parameters["windowsize"],
-                hopsize = self.parameters["hopsize"],
-                kweighting = self.parameters["kweighting"],
-                truepeak = self.parameters["truepeak"])
-        
+        loudness = fluid.loudness(workable,
+            windowsize = self.parameters["windowsize"],
+            hopsize = self.parameters["hopsize"],
+            kweighting = self.parameters["kweighting"],
+            truepeak = self.parameters["truepeak"])
+    
         self.data_container[str(workable)] = flucoma.utils.get_buffer(loudness)
         progress_bar.update(task, advance = 1)
 
     def run(self):  
-        """
-        In this method you implement the functionality for the analyser
-        """
-        workables = filter_extensions(
-            get_workables(self.input), [".wav"])
-
+        workables = filter_extensions(get_workables(self.input), [".wav"])
         multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))

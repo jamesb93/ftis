@@ -1,9 +1,8 @@
-scaling:
-    # Scaling that is applied to the input data prior to clustering
+input_scaling:
     default: standardise
     options: 
         standardise
         normalise
 
-numclusters: # only used if the algorithm requires a number of clusters
+numclusters:
     default: 4

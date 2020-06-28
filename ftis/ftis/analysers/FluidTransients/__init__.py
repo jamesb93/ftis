@@ -1,4 +1,3 @@
-
-from .main import FLUID_TRANSIENTS as main
+from .main import FluidTransients as main
 
 __all__ = ["main"]

@@ -14,7 +14,6 @@ class ClusteredSegmentation(FTISAnalyser):
     """https://github.com/jamesb93/emexperiments/blob/master/segmentation_scripts/clustered_segmentation.py"""
     def __init__(self, config):
         super().__init__(config)
-        self.name = "ClusteredSegmentation"
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()

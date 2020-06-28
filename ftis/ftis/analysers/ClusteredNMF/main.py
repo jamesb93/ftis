@@ -10,7 +10,6 @@ from flucoma.utils import get_buffer
 class ClusteredNMF(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
-        self.name = "ClusteredNMF"
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.folder
 

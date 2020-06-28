@@ -10,11 +10,8 @@ from ftis.common.types import Ftypes
 class Stats(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
-        self.name = "Stats"
-        self.stats_dict = {}
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
-        self.validate_parameters()
 
     @staticmethod
     def calc_stats(data: np.array):
