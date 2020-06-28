@@ -19,7 +19,7 @@ class ClusteredSegmentation(FTISAnalyser):
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()
 
-    def analyse(self, workable, task, progress_bar):
+    def analyse(self, workable):
         slices = self.input_data[workable]
         slices = [int(x) for x in slices] # lets test this out later
         count = 0
@@ -56,18 +56,12 @@ class ClusteredSegmentation(FTISAnalyser):
                         slices.pop(j + count)
                     except IndexError:
                         pass # TODO fix later
-
             count += 1
-            self.data_container[workable] = slices
-
-        # progress_bar.update(task, advance = 1)
+            self.data_container[workable] = slices\
 
     def run(self):
         self.input_data = read_json(self.input)
         workables = [str(k) for k in self.input_data]
-        for x in workables:
-            self.analyse(x, None, None)
-        
-        # multiproc(self.name, self.analyse, workables)
+        multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))
 
