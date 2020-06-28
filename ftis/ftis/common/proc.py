@@ -1,15 +1,14 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from rich.progress import Progress, BarColumn
 
 def multiproc(name: str, process, workables):
-    """
-    This function wraps up the necessary functionality for a multithreaded loop with progres bar
-    """
+    """This function wraps up a multithreaded worker and progress bar"""
     with Progress() as progress:
         task = progress.add_task(name, total=len(workables))
         with ThreadPoolExecutor() as pool:
-            for work in workables:
-                pool.submit(process, work, task, progress)
+            futures = [pool.submit(process, work) for work in workables]
+            for result in as_completed(futures):
+                progress.update(task, advance=1)
 
 
 def staticproc(name: str, process):
