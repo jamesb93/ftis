@@ -5,8 +5,9 @@ from ftis.common.proc import singleproc
 from ftis.common.types import Ftypes
 from sklearn.cluster import AgglomerativeClustering
 from flucoma import fluid
-from flucoma.utils import get_buffer
+from flucoma.utils import get_buffer, cleanup
 from scipy.io import wavfile
+from scipy.signal import savgol_filter
 
 
 class ClusteredNMF(FTISAnalyser):
@@ -51,3 +52,4 @@ class ClusteredNMF(FTISAnalyser):
     def run(self):
         workables = [str(k) for k in self.input.iterdir() if k.name != ".DS_Store"]
         singleproc(self.name, self.analyse, workables)
+        cleanup()
