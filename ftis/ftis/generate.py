@@ -5,7 +5,7 @@ from ftis.common.exceptions import AnalyserExists
 
 def new_analyser(name: str):
     here = os.path.abspath(os.path.dirname(__file__))
-    analyser_folder = os.path.join(here, 'analysers')
+    analyser_folder = os.path.join(here, "analysers")
     new_analyser = os.path.join(analyser_folder, name)
     if os.path.exists(new_analyser):
         raise AnalyserExists()
@@ -17,9 +17,9 @@ def new_analyser(name: str):
     new_init = init.replace("@NAME@", name.upper())
     new_main = main.replace("@NAME@", name.upper())
 
-    new_init_path = os.path.join(new_analyser, '__init__.py')
-    new_main_path = os.path.join(new_analyser, 'main.py')
-    new_para_path = os.path.join(new_analyser, 'parameters.yaml')
+    new_init_path = os.path.join(new_analyser, "__init__.py")
+    new_main_path = os.path.join(new_analyser, "main.py")
+    new_para_path = os.path.join(new_analyser, "parameters.yaml")
 
     print(f"Generating new analyser: {name.upper()}")
     with open(new_init_path, "w") as f:

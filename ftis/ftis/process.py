@@ -8,11 +8,9 @@ from ftis.common.exceptions import (
     InvalidYamlError,
     AnalyserNotFound,
     ChainIOError,
-    SourceIOError)
-from ftis.common.utils import (
-    import_analyser,
-    read_yaml,
-    write_json)
+    SourceIOError,
+)
+from ftis.common.utils import import_analyser, read_yaml, write_json
 from ftis.common.types import Ftypes
 
 
@@ -55,11 +53,13 @@ class FTISProcess:
             logfile_path.unlink()
 
         logfile_handler = logging.FileHandler(logfile_path)
-        formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s : %(levelname)s : %(name)s : %(message)s"
+        )
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
         self.logger.debug("Logging initialised")
-    
+
     def fprint(self, text):
         self.console.print(text, style="yellow underline")
 
@@ -123,7 +123,7 @@ class FTISProcess:
                 else:
                     if analyser.input_type != self.chain[index - 1].output_type:
                         self.logger.debug("Error building chain")
-                        raise ChainIOError(analyser, self.chain[index-1])
+                        raise ChainIOError(analyser, self.chain[index - 1])
                     analyser.input = self.chain[index - 1].output
 
             if self.mode == "batch":
@@ -136,7 +136,7 @@ class FTISProcess:
         # Time
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
         metadata = {"time": time}
-        
+
         # Git Hash
         repo = git.Repo(search_parent_directories=True)
         sha = repo.head.object.hexsha
@@ -175,13 +175,13 @@ class FTISProcess:
             #     for i, v in enumerate(self.config[key]):
             #         md += f"\n\n{i+1} - {v}"
             #         for x in self.config[key][v]:
-            #             md += f"\n\n    {x}: {self.config[key][v][x]}"         
+            #             md += f"\n\n    {x}: {self.config[key][v][x]}"
         md += "\n\n---------------------"
         md += "\n\nBeginning processing..."
         self.console.print(Markdown(md))
         print("\n")
         self.run_analysers()
-    
+
     def dry(self):
         self.initial_parse()
         self.validate_config()

@@ -21,9 +21,9 @@ class AgglomerativeClustering(FTISAnalyser):
         data = np.array(values)
         scaling = self.parameters["input_scaling"]
         if scaling:
-            if scaling == 'normalise':
+            if scaling == "normalise":
                 scaler = MinMaxScaler()
-            if scaling == 'standardise':
+            if scaling == "standardise":
                 scaler = StandardScaler()
             scaler.fit(data)
             data = scaler.transform(data)
@@ -31,7 +31,7 @@ class AgglomerativeClustering(FTISAnalyser):
         db = ag(n_clusters=self.parameters["numclusters"]).fit(data)
 
         cluster_dict = {}
-        
+
         for audio, cluster in zip(keys, db.labels_):
             if str(cluster) in cluster_dict:
                 cluster_dict[str(cluster)].append(audio)
@@ -42,6 +42,3 @@ class AgglomerativeClustering(FTISAnalyser):
 
     def run(self):
         staticproc(self.name, self.analyse)
-
-        
-

@@ -8,6 +8,7 @@ from flucoma import fluid
 from flucoma.utils import get_buffer
 from scipy.io import wavfile
 
+
 class ClusteredNMF(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
@@ -16,21 +17,23 @@ class ClusteredNMF(FTISAnalyser):
 
     def analyse(self, workable):
         nmf = fluid.nmf(
-            workable, 
-            iterations=self.parameters["iterations"], 
+            workable,
+            iterations=self.parameters["iterations"],
             components=self.parameters["components"],
-            fftsettings=self.parameters["fftsettings"])
+            fftsettings=self.parameters["fftsettings"],
+        )
         bases = get_buffer(nmf.bases, "numpy")
         bases_smoothed = np.zeros_like(bases)
-        
+
         for i, x in enumerate(bases):
-            bases_smoothed[i] = savgol_filter(x, 
-                self.parameters["smoothing"], 
-                self.parameters["polynomial"])
-            
+            bases_smoothed[i] = savgol_filter(
+                x, self.parameters["smoothing"], self.parameters["polynomial"]
+            )
+
         clusterer = hdbscan.HDBSCAN(
-            min_cluster_size=self.parameters["clustersize"], 
-            min_samples=self.parameters["samples"])
+            min_cluster_size=self.parameters["clustersize"],
+            min_samples=self.parameters["samples"],
+        )
 
         cluster_labels = clusterer.fit_predict(bases)
         unique_clusters = list(dict.fromkeys(cluster_labels))
@@ -38,7 +41,7 @@ class ClusteredNMF(FTISAnalyser):
         sound = get_buffer(resynth, "numpy")
 
         for x in unique_clusters:
-            summed = np.zeros_like(sound[0]) #make an empty numpy array of same size
+            summed = np.zeros_like(sound[0])  # make an empty numpy array of same size
             base = workable.name
             output = self.output / f"{base}_{x}.wav"
             for idx, cluster in enumerate(cluster_labels):

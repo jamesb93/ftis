@@ -1,4 +1,3 @@
-
 from flucoma import fluid
 from flucoma.utils import get_buffer, cleanup
 from multiprocessing import Manager
@@ -14,15 +13,15 @@ class FluidNoveltyslice(FTISAnalyser):
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()
-        
+
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
             workable,
-            feature = self.parameters["feature"],
-            fftsettings = self.parameters["fftsettings"],
-            filtersize = self.parameters["filtersize"],
-            minslicelength = self.parameters["minslicelength"],
-            threshold = self.parameters["threshold"]
+            feature=self.parameters["feature"],
+            fftsettings=self.parameters["fftsettings"],
+            filtersize=self.parameters["filtersize"],
+            minslicelength=self.parameters["minslicelength"],
+            threshold=self.parameters["threshold"],
         )
         self.data_container[str(workable)] = get_buffer(noveltyslice)
 

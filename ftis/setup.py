@@ -6,5 +6,5 @@ setuptools.setup(
     author="James Bradbury",
     author_email="jamesbradbury93@gmail.com",
     description="The finding things in stuff package.",
-    packages=["ftis"]
+    packages=["ftis"],
 )

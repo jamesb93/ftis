@@ -15,10 +15,12 @@ class FluidMFCC(FTISAnalyser):
         self.data_container = Manager().dict()
 
     def analyse(self, workable):
-        mfcc = fluid.mfcc(workable,
-            fftsettings = self.parameters["fftsettings"],
-            numbands = self.parameters["numbands"],
-            numcoeffs = self.parameters["numcoeffs"])
+        mfcc = fluid.mfcc(
+            workable,
+            fftsettings=self.parameters["fftsettings"],
+            numbands=self.parameters["numbands"],
+            numcoeffs=self.parameters["numcoeffs"],
+        )
         self.data_container[str(workable)] = get_buffer(mfcc)
 
     def run(self):

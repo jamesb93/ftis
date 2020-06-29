@@ -6,7 +6,7 @@ from pathlib import Path
 
 def test_analyser_import():
     analysers = Path("../ftis/ftis/analysers")
-    invalid_folders = ("__pycache__",".DS_Store")
+    invalid_folders = ("__pycache__", ".DS_Store")
 
     for x in analysers.iterdir():
         if x.stem not in invalid_folders:

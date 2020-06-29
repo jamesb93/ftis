@@ -1,8 +1,8 @@
-init = '''
+init = """
 from .main import @NAME@ as main
 
 __all__ = ["main"]
-'''
+"""
 main = '''
 import os
 from ftis.common.analyser import FTISAnalyser
@@ -27,7 +27,7 @@ class @NAME@(FTISAnalyser):
         """
 '''
 
-parameters = '''
+parameters = """
 # Parameters are declared first with a node being its name.
 # The default for this, and the type are specified in a child node from this.
 parameter1:
@@ -38,4 +38,4 @@ parameter2:
 
 parameter3:
     default: 13.32
-'''
+"""

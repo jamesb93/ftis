@@ -1,11 +1,5 @@
-from ftis.common.utils import (
-    bytes_to_mb,
-    samps2ms,
-    ms2samps,
-    filter_extensions
-)
+from ftis.common.utils import bytes_to_mb, samps2ms, ms2samps, filter_extensions
 from pathlib import Path
-
 
 
 def test_filter_extensions():

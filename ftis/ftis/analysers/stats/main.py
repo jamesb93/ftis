@@ -38,15 +38,15 @@ class Stats(FTISAnalyser):
                 container.append(stats)
 
         elif num_derivs <= 0:
-            container = self.calc_stats(base_data) 
-        
+            container = self.calc_stats(base_data)
+
         return container
 
     def run(self):
         self.parent_process.fprint("Running stats")
         data = read_json(self.input)
 
-        #TODO: any dimensionality input
+        # TODO: any dimensionality input
         for element in data:  # for key (audio file) in dict
             element_container = []
             for row in data[element]:  # for mfcc band in mfcc

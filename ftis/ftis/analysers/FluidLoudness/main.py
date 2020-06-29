@@ -1,4 +1,3 @@
-
 from flucoma.utils import get_buffer, cleanup
 from flucoma import fluid
 from multiprocessing import Manager
@@ -17,15 +16,17 @@ class FluidLoudness(FTISAnalyser):
         self.data_container = Manager().dict()
 
     def analyse(self, workable: str):
-        loudness = fluid.loudness(workable,
-            windowsize = self.parameters["windowsize"],
-            hopsize = self.parameters["hopsize"],
-            kweighting = self.parameters["kweighting"],
-            truepeak = self.parameters["truepeak"])
-    
+        loudness = fluid.loudness(
+            workable,
+            windowsize=self.parameters["windowsize"],
+            hopsize=self.parameters["hopsize"],
+            kweighting=self.parameters["kweighting"],
+            truepeak=self.parameters["truepeak"],
+        )
+
         self.data_container[str(workable)] = get_buffer(loudness)
 
-    def run(self):  
+    def run(self):
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))

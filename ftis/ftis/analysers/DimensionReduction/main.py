@@ -31,7 +31,7 @@ class DimensionReduction(FTISAnalyser):
         reduction = umap.UMAP(
             n_components=self.parameters["components"],
             n_neighbors=self.parameters["neighbours"],
-            min_dist=self.parameters["mindist"]
+            min_dist=self.parameters["mindist"],
         )
         data = reduction.fit_transform(data)
 
@@ -52,4 +52,3 @@ class DimensionReduction(FTISAnalyser):
 
     def run(self):
         staticproc(self.name, self.analyse)
- 

@@ -18,21 +18,21 @@ class FluidTransients(FTISAnalyser):
         transients = out_folder / f"transients_{workable.name}"
         residual = out_folder / f"residual_{workable.name}"
 
-        fluid.transients(workable,
+        fluid.transients(
+            workable,
             transients=transients,
             residual=residual,
-            blocksize = self.parameters["blocksize"],
-            clumplength = self.parameters["clumplength"],
-            order = self.parameters["order"],
-            padsize = self.parameters["padsize"],
-            skew = self.parameters["skew"],
-            threshback = self.parameters["threshback"],
-            threshfwd = self.parameters["threshfwd"],
-            windowsize = self.parameters["windowsize"]
+            blocksize=self.parameters["blocksize"],
+            clumplength=self.parameters["clumplength"],
+            order=self.parameters["order"],
+            padsize=self.parameters["padsize"],
+            skew=self.parameters["skew"],
+            threshback=self.parameters["threshback"],
+            threshfwd=self.parameters["threshfwd"],
+            windowsize=self.parameters["windowsize"],
         )
 
     def run(self):
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
         cleanup()
-

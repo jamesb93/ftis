@@ -18,22 +18,23 @@ class FluidSines(FTISAnalyser):
         sines = out_folder / f"sines_{workable.name}"
         residual = out_folder / f"residual_{workable.name}"
 
-        fluid.sines(workable,
+        fluid.sines(
+            workable,
             sines=sines,
             residual=residual,
-            bandwidth = self.parameters["bandwidth"],
-            birthhighthreshold = self.parameters["birthhighthreshold"],
-            birthlowthreshold = self.parameters["birthlowthreshold"],
-            detectionthreshold = self.parameters["detectionthreshold"],
-            fftsettings = self.parameters["fftsettings"],
-            mintracklen = self.parameters["mintracklen"],
-            trackingmethod = self.parameters["trackmethod"],
-            trackfreqrange = self.parameters["trackfreqrange"],
-            trackmagrange = self.parameters["trackmagrange"],
-            trackprob = self.parameters["trackprob"])
-        
+            bandwidth=self.parameters["bandwidth"],
+            birthhighthreshold=self.parameters["birthhighthreshold"],
+            birthlowthreshold=self.parameters["birthlowthreshold"],
+            detectionthreshold=self.parameters["detectionthreshold"],
+            fftsettings=self.parameters["fftsettings"],
+            mintracklen=self.parameters["mintracklen"],
+            trackingmethod=self.parameters["trackmethod"],
+            trackfreqrange=self.parameters["trackfreqrange"],
+            trackmagrange=self.parameters["trackmagrange"],
+            trackprob=self.parameters["trackprob"],
+        )
+
     def run(self):
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         singleproc(self.name, self.analyse, workables)
         cleanup()
-
