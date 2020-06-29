@@ -1,31 +1,23 @@
 blocksize:
     default: 256
-    type: int
 
 clumplength:
     default: 25
-    type: int
 
 order:
     default: 20
-    type: int
 
 padsize:
     default: 128
-    type: int
 
 skew:
     default: 0.0
-    type: float
 
 threshback:
     default: 1.1
-    type: float
 
 threshfwd:
     default: 2.0
-    type: float
 
 windowsize:
     default: 14
-    type: int
