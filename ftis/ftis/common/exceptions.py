@@ -41,3 +41,9 @@ class SourceIOError(Exception):
     def __init__(self):
         super().__init__(
             f"The source and first analyser type are incompatible")
+
+
+class EmptyWorkables(Exception):
+    def __init__(self):
+        super().__init__(
+            f"No workables were passed to the proc")
