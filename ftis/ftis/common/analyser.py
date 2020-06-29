@@ -52,10 +52,10 @@ class FTISAnalyser:
         self.output = self.parent_process.base_dir / f"{self.order}_{self.name}{self.output_type}"
 
         if self.output.exists():
-            self.cache_exists = True  # set a flag to say cache exists once we know the output
+            self.cache_exists = True # We have to flag here because we make the output anyway and cannot check later
 
-        if self.output_type == Ftypes.folder and not self.output.exists():
-            self.output.mkdir()
+        if self.output_type == Ftypes.folder:
+            self.output.mkdir(exist_ok=True)
 
         self.log("Setting outputs")
 
