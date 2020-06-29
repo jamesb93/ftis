@@ -11,7 +11,7 @@ detectionthreshold:
     default: -96.0
 
 fftsettings:
-    default: "1024 -1 -1"
+    default: [1024, -1, -1]
 
 mintracklen:
     default: 15
