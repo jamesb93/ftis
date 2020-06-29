@@ -1,14 +1,12 @@
 source: ~/dev/ftis_example_project/audio
 folder: ~/dev/ftis_example_project/analysis
 mode: batch
+cache: True
+
 analysers:
     FluidMFCC:
-        cache: True
+        numbands: 10
     FluidSines:
-        cache: True
     FluidLoudness:
-        cache: True
     FluidNoveltyslice:
-        cache: True
     FluidTransients:
-        cache: True
