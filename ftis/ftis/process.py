@@ -109,9 +109,9 @@ class FTISProcess:
         if self.chain[0].input_type != self.source_type:
             raise SourceIOError()
 
-        if self.config["mode"]:
+        try:
             self.mode = self.config["mode"]
-        else:
+        except KeyError:
             self.mode = "chain"
 
         for index, analyser in enumerate(self.chain):
