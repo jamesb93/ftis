@@ -181,3 +181,8 @@ class FTISProcess:
         self.console.print(Markdown(md))
         print("\n")
         self.run_analysers()
+    
+    def dry(self):
+        self.initial_parse()
+        self.validate_config()
+        self.build_processing_chain()
