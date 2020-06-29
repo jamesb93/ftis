@@ -62,7 +62,7 @@ class FTISAnalyser:
     def do(self):
         self.log("Executing process")
 
-        if self.parameters["cache"] == True:
+        if self.parameters["cache"] == True or self.parent_process.config["cache"] == True:
             if self.cache_exists:
                 self.log("Intending to cache")
                 self.parent_process.fprint(f"{self.name} was cached!")
