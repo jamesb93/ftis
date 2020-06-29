@@ -61,7 +61,7 @@ class FTISProcess:
         self.logger.debug("Logging initialised")
     
     def fprint(self, text):
-        self.console.print(text, style="magenta underline")
+        self.console.print(text, style="yellow underline")
 
     def validate_config(self):
         """I validate the configuration file"""
