@@ -1,5 +1,5 @@
 from flucoma import fluid
-from flucoma.utils import get_buffer
+from flucoma.utils import get_buffer, cleanup
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import write_json, get_workables, filter_extensions
 from ftis.common.types import Ftypes
@@ -25,3 +25,4 @@ class FluidMFCC(FTISAnalyser):
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))
+        cleanup()
