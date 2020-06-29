@@ -1,14 +1,8 @@
-
-import os
-import sys
-import multiprocessing
-import subprocess
-import shutil
+from flucoma import fluid
+from flucoma.utils import cleanup
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.proc import multiproc
+from ftis.common.proc import multiproc, singleproc
 from ftis.common.types import Ftypes
-from ftis.common.exceptions import BinError
-from ftis.common.utils import get_workables
 
 
 class FluidSines(FTISAnalyser):
@@ -17,32 +11,29 @@ class FluidSines(FTISAnalyser):
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.folder
 
-    def analyse(self, workable: str, task, progress_bar):
-        src = workable
-        base_name = os.path.basename(workable)
-        sines = os.path.join(self.output, f"{base_name}_sines.wav")
-        residual = os.path.join(self.output, f"{base_name}_residual.wav")
-        params = [
-                "fluid-sines",
-                "-source", src,
-                "-sines", sines,
-                "-residual", residual,
-                "-bandwidth", str(self.parameters["bandwidth"]),
-                "-birthhighthreshold", str(self.parameters["birthhighthreshold"]),
-                "-birthlowthreshold", str(self.parameters["birthlowthreshold"]),
-                "-detectionthreshold", str(self.parameters["detectionthreshold"]),
-                "-fftsettings",
-                self.fftsettings[0], self.fftsettings[1], self.fftsettings[2],
-                "-mintracklen", str(self.parameters["mintracklen"]),
-                "-trackfreqrange", str(self.parameters["trackfreqrange"]),
-                "-trackingmethod", str(self.parameters["trackingmethod"]),
-                "-trackmagrange", str(self.parameters["trackmagrange"]),
-                "-trackprob", str(self.parameters["trackprob"])
-        ]
-        subprocess.call(params)
-        progress_bar.update(task, advance=1)
+    def analyse(self, workable):
+        out_folder = self.output / workable.name
+        out_folder.mkdir(exist_ok=True)
 
+        sines = out_folder / f"sines_{workable.name}"
+        residual = out_folder / f"residual_{workable.name}"
+
+        fluid.sines(workable,
+            sines=sines,
+            residual=residual,
+            bandwidth = self.parameters["bandwidth"],
+            birthhighthreshold = self.parameters["birthhighthreshold"],
+            birthlowthreshold = self.parameters["birthlowthreshold"],
+            detectionthreshold = self.parameters["detectionthreshold"],
+            fftsettings = self.parameters["fftsettings"],
+            mintracklen = self.parameters["mintracklen"],
+            trackingmethod = self.parameters["trackmethod"],
+            trackfreqrange = self.parameters["trackfreqrange"],
+            trackmagrange = self.parameters["trackmagrange"],
+            trackprob = self.parameters["trackprob"])
+        
     def run(self):
-        self.fftsettings = self.parameters["fftsettings"].split(" ")
-        workables = get_workables(self.input, ('.wav'))
-        multiproc(self.name, self.analyse, workables)
+        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        singleproc(self.name, self.analyse, workables)
+        cleanup()
+
