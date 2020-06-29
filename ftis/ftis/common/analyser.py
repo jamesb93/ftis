@@ -27,9 +27,7 @@ class FTISAnalyser:
     def validate_parameters(self):
         """Validates parameters from the config against the template"""
         self.log("Validating parameters")
-        module_parameters = (
-            Path(__file__).parent.parent / "analysers" / self.name / "parameters.yaml"
-        )
+        module_parameters = Path(__file__).parent.parent / "analysers" / self.name / "parameters.yaml"
         self.parameter_template = read_yaml(module_parameters)
 
         # Put the caching parameter in no matter what
@@ -43,9 +41,7 @@ class FTISAnalyser:
                 self.parameters[key] = self.parameter_template[key]["default"]
         try:
             for parameter in self.config["analysers"][self.name]:
-                self.parameters[parameter] = self.config["analysers"][self.name][
-                    parameter
-                ]
+                self.parameters[parameter] = self.config["analysers"][self.name][parameter]
         except TypeError:
             self.log("using all default parameters")
 
@@ -53,14 +49,10 @@ class FTISAnalyser:
 
     def set_output(self):
         """Create the output for path/type"""
-        self.output = (
-            self.parent_process.base_dir / f"{self.order}_{self.name}{self.output_type}"
-        )
+        self.output = self.parent_process.base_dir / f"{self.order}_{self.name}{self.output_type}"
 
         if self.output.exists():
-            self.cache_exists = (
-                True  # set a flag to say cache exists once we know the output
-            )
+            self.cache_exists = True  # set a flag to say cache exists once we know the output
 
         if self.output_type == Ftypes.folder and not self.output.exists():
             self.output.mkdir()

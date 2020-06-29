@@ -53,9 +53,7 @@ class FTISProcess:
             logfile_path.unlink()
 
         logfile_handler = logging.FileHandler(logfile_path)
-        formatter = logging.Formatter(
-            "%(asctime)s : %(levelname)s : %(name)s : %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s : %(levelname)s : %(name)s : %(message)s")
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
         self.logger.debug("Logging initialised")

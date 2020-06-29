@@ -34,10 +34,7 @@ class ClusteredSegmentation(FTISAnalyser):
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
 
                 mfcc = fluid.mfcc(
-                    workable,
-                    fftsettings=[2048, -1, -1],
-                    startframe=start,
-                    numframes=end - start,
+                    workable, fftsettings=[2048, -1, -1], startframe=start, numframes=end - start,
                 )
 
                 stats = get_buffer(fluid.stats(mfcc, numderivs=1), "numpy")

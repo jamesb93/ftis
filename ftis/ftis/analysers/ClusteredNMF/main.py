@@ -31,8 +31,7 @@ class ClusteredNMF(FTISAnalyser):
             )
 
         clusterer = hdbscan.HDBSCAN(
-            min_cluster_size=self.parameters["clustersize"],
-            min_samples=self.parameters["samples"],
+            min_cluster_size=self.parameters["clustersize"], min_samples=self.parameters["samples"],
         )
 
         cluster_labels = clusterer.fit_predict(bases)
