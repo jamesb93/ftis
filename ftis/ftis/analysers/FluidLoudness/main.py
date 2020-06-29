@@ -1,7 +1,7 @@
 
-import flucoma
-from multiprocessing import Manager
+from flucoma.utils import get_buffer, cleanup
 from flucoma import fluid
+from multiprocessing import Manager
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.exceptions import BinError
 from ftis.common.utils import write_json, get_workables, filter_extensions
@@ -23,9 +23,10 @@ class FluidLoudness(FTISAnalyser):
             kweighting = self.parameters["kweighting"],
             truepeak = self.parameters["truepeak"])
     
-        self.data_container[str(workable)] = flucoma.utils.get_buffer(loudness)
+        self.data_container[str(workable)] = get_buffer(loudness)
 
     def run(self):  
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))
+        cleanup()
