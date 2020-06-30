@@ -29,4 +29,4 @@ class ExplodeAudio(FTISAnalyser):
     def run(self):
         self.slice_data = read_json(self.input)
         workables = [Path(x) for x in self.slice_data.keys()]
-        singleproc(self.name, self.segment, workables)
+        multiproc(self.name, self.segment, workables)
