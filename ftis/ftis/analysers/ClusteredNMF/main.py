@@ -1,4 +1,5 @@
 import numpy as np
+import hdbscan
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import read_json, write_json
 from ftis.common.proc import singleproc
