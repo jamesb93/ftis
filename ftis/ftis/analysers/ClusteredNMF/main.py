@@ -51,6 +51,6 @@ class ClusteredNMF(FTISAnalyser):
             wavfile.write(output, 44100, summed)
 
     def run(self):
-        workables = [str(k) for k in self.input.iterdir() if k.name != ".DS_Store"]
+        workables = [k for k in self.input.iterdir() if k.name != ".DS_Store"]
         singleproc(self.name, self.analyse, workables)
         cleanup()
