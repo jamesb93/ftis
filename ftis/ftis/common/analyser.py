@@ -75,8 +75,12 @@ class FTISAnalyser:
         self.log("Executing process")
         if self.parameters["cache"] == True:
             self.log("Intending to cache")
-            if self.cache_exists and self.parent_process.metapath.exists() and self.compare_meta():
-                self.parent_process.fprint(f"{self.name} was cached!") # Display on console
+            if self.cache_exists:
+                if self.parent_process.metapath.exists() and self.compare_meta():
+                    self.parent_process.fprint(f"{self.name} was cached!") # Display on console
+                elif not self.parent_process.metapath.exists():
+                    self.log("Cache was true but there was no metadata to compare parameters for")
+                    self.parent_process.fprint(f"{self.name} was cached!") # Display on console
             else:
                 self.run()
                 self.log("Cache was true but there was no cache")
@@ -97,8 +101,12 @@ class FTISAnalyser:
         self.log("Executing process")
         if self.parameters["cache"] == True:
             self.log("Intending to cache")
-            if self.cache_exists and self.parent_process.metapath.exists() and self.compare_meta():
-                self.parent_process.fprint(f"{self.name} was cached!") # Display on console
+            
+            if self.cache_exists: 
+                if self.parent_process.metapath.exists() and self.compare_meta():
+                    self.parent_process.fprint(f"{self.name} was cached!") # Display on console
+                elif not self.parent_process.metapath.exists():
+                    self.dry_print(f"No metadata to cache against")
             else:
                 self.parent_process.dry_print(f"Cache was true but there was no cache or something changed")
                 self.log("Cache was true but there was no cache")
