@@ -1,7 +1,6 @@
 import os
 import yaml
 import math
-import soundfile as sf
 from importlib import import_module
 from pathlib import Path
 
