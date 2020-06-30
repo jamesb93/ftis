@@ -1,5 +1,4 @@
-import os
-import umap, time
+import umap
 import numpy as np
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import read_json, write_json
@@ -33,6 +32,7 @@ class DimensionReduction(FTISAnalyser):
             n_neighbors=self.parameters["neighbours"],
             min_dist=self.parameters["mindist"],
         )
+        # TODO Dump the fit out as part of the proces
         data = reduction.fit_transform(data)
 
         # Normalisation
