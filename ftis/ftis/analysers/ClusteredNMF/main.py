@@ -1,12 +1,14 @@
 import numpy as np
+import hdbscan
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import read_json, write_json
 from ftis.common.proc import singleproc
 from ftis.common.types import Ftypes
 from sklearn.cluster import AgglomerativeClustering
 from flucoma import fluid
-from flucoma.utils import get_buffer
+from flucoma.utils import get_buffer, cleanup
 from scipy.io import wavfile
+from scipy.signal import savgol_filter
 
 
 class ClusteredNMF(FTISAnalyser):
@@ -37,7 +39,7 @@ class ClusteredNMF(FTISAnalyser):
         cluster_labels = clusterer.fit_predict(bases)
         unique_clusters = list(dict.fromkeys(cluster_labels))
 
-        sound = get_buffer(resynth, "numpy")
+        sound = get_buffer(nmf.resynth, "numpy")
 
         for x in unique_clusters:
             summed = np.zeros_like(sound[0])  # make an empty numpy array of same size
@@ -49,5 +51,6 @@ class ClusteredNMF(FTISAnalyser):
             wavfile.write(output, 44100, summed)
 
     def run(self):
-        workables = [str(k) for k in self.input.iterdir() if k.name != ".DS_Store"]
+        workables = [k for k in self.input.iterdir() if k.name != ".DS_Store"]
         singleproc(self.name, self.analyse, workables)
+        cleanup()
