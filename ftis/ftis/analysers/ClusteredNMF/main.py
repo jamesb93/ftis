@@ -39,7 +39,7 @@ class ClusteredNMF(FTISAnalyser):
         cluster_labels = clusterer.fit_predict(bases)
         unique_clusters = list(dict.fromkeys(cluster_labels))
 
-        sound = get_buffer(resynth, "numpy")
+        sound = get_buffer(nmf.resynth, "numpy")
 
         for x in unique_clusters:
             summed = np.zeros_like(sound[0])  # make an empty numpy array of same size
