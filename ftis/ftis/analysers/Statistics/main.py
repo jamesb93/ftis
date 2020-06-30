@@ -1,20 +1,22 @@
-import os
 import math
 import numpy as np
+from multiprocessing import Manager
 from scipy import stats
+from ftis.common.proc import multiproc
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import write_json, read_json
 from ftis.common.types import Ftypes
 
 
-class Stats(FTISAnalyser):
+class Statistics(FTISAnalyser):
     def __init__(self, config):
         super().__init__(config)
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
+        self.stats_dict = Manager().dict()
 
     @staticmethod
-    def calc_stats(data: np.array):
+    def calc_stats(data):
         """Given a time series calculate statistics"""
         describe = stats.describe(data)
         mean = describe.mean
@@ -42,21 +44,23 @@ class Stats(FTISAnalyser):
 
         return container
 
-    def run(self):
-        self.parent_process.fprint("Running stats")
-        data = read_json(self.input)
-
+    def analyse(self, workable):
         # TODO: any dimensionality input
-        for element in data:  # for key (audio file) in dict
-            element_container = []
-            for row in data[element]:  # for mfcc band in mfcc
-                row_stats = self.get_stats(row, self.parameters["numderivs"])
-                element_container.append(row_stats)
+        element_container = []
+        for row in self.data[workable]:  # for mfcc band in mfcc
+            row_stats = self.get_stats(row, self.parameters["numderivs"])
+            element_container.append(row_stats)
 
-            if self.parameters["flatten"]:
-                element_container = np.array(element_container)
-                element_container = element_container.flatten()
-                element_container = element_container.tolist()
-            self.stats_dict[element] = element_container
+        if self.parameters["flatten"]:
+            element_container = np.array(element_container)
+            element_container = element_container.flatten()
+            element_container = element_container.tolist()
+        self.stats_dict[workable] = element_container
 
+    def run(self):
+        self.data = read_json(self.input)
+        workables = [x for x in self.data.keys()]
+        multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.stats_dict))
+
+
