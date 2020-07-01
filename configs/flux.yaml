@@ -1,0 +1,4 @@
+source: /home/james/Documents/media
+folder: /home/james/Documents/analysis
+analysers:
+    Flux:
