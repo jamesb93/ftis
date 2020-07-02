@@ -25,13 +25,16 @@ class FTISAnalyser:
             self.process.folder / f"{self.order}_{self.name}{self.dump_type}"
         )
 
+    def dump(self):
+        pass
+
     def do(self):
         self.log("Initiating")
         self.run()
         self.log("Ran Successfully")
-        assert self.output != None # add this back in with a proper exception
-        if self.dumpout == True:
-            self.dump()
+        assert self.output != None  # add this back in with a proper exception
+        # if self.dumpout == True:
+        self.dump()
         # self.log("Executing process")
         # if self.parameters["cache"] == True:
         #     self.log("Intending to cache")
