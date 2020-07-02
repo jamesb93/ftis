@@ -1,5 +1,5 @@
 import numpy as np
-import hdbscan, math
+import hdbscan, math, umap
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import read_json, write_json, samps2ms
 from ftis.common.types import Ftypes
@@ -23,9 +23,9 @@ class Stats(FTISAnalyser):
     """Get various statistics and derivatives of those"""
 
     def __init__(self):
-        super().__init__()
-        self.numderivs = 0
-        self.flatten = True
+        super().__init__(numdervs=0, flatten=True)
+        self.numderivs = numderivs
+        self.flatten = flatten
 
     def dump(self):
         write_json(self.dump_path, dict(self.buffer))
@@ -85,10 +85,10 @@ class Stats(FTISAnalyser):
 class Flux(FTISAnalyser):
     """Computes spectral flux of an audio file"""
 
-    def __init__(self):
+    def __init__(self, windowsize, hopsize):
         super().__init__()
-        self.windowsize = 1024
-        self.hopsize = 512
+        self.windowsize = windowsize
+        self.hopsize = hopsize
 
     def flux(self, workable):
         audio = data.Wave.read(str(workable))
@@ -114,10 +114,10 @@ class Flux(FTISAnalyser):
 
 
 class Normalise(FTISAnalyser):
-    def __init__(self):
+    def __init__(self, minimum=0, maximum=1):
         super().__init__()
-        self.min = 0
-        self.max = 1
+        self.min = minimum
+        self.max = maximum
 
     def analyse(self):
         scaled_data = MinMaxScaler((self.min, self.max)).fit_transform(self.features)
@@ -156,22 +156,21 @@ class Standardise(FTISAnalyser):
 
 
 class ClusteredSegmentation(FTISAnalyser):
-    def __init__(self):
+    def __init__(self, numclusters=2, windowsize=4):
         super().__init__()
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
-        self.data_container = Manager().dict()
+        self.numclusters = numclusters
+        self.windowsize = windowsize
 
     def analyse(self, workable):
-        slices = self.input_data[workable]
+        slices = self.input[workable]
         slices = [int(x) for x in slices]  # lets test this out later
         count = 0
         standardise = StandardScaler()
-        model = AgglomerativeClustering(n_clusters=self.parameters["numclusters"])
+        model = AgglomerativeClustering(n_clusters=self.numclusters)
 
-        while (count + self.parameters["windowsize"]) <= len(slices):
+        while (count + self.windowsize) <= len(slices):
             indices = slices[
-                count : count + self.parameters["windowsize"]
+                count : count + self.windowsize
             ]  # create a section of the indices in question
             data = []
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
@@ -200,46 +199,46 @@ class ClusteredSegmentation(FTISAnalyser):
                     except IndexError:
                         pass  # TODO fix later
             count += 1
-            self.data_container[workable] = slices
+            self.buffer[workable] = slices
+
+    def dump(self):
+        write_json(self.dump_path, dict(self.buffer))
 
     def run(self):
-        self.input_data = read_json(self.input)
-        workables = [str(k) for k in self.input_data]
-        multiproc(self.name, self.analyse, workables)
-        write_json(self.output, dict(self.data_container))
+        self.buffer = Manager().dict()
+        workables = [x for x in self.input]
+        singleproc(self.name, self.analyse, workables)
+        self.output = dict(self.buffer)
 
 
 class UMAPDR(FTISAnalyser):
     """Dimension reduction with UMAP algorithm"""
 
-    def __init__(self):
-        super().__init__(config)
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
+    def __init__(self, mindist=0.01, neighbours=7, components=2):
+        super().__init__()
+        self.mindist = mindist
+        self.neighbours = neighbours
+        self.components = components
 
     def analyse(self):
-        analysis_data = read_json(self.input)
-        data = [v for v in analysis_data.values()]
-        keys = [k for k in analysis_data.keys()]
+        self.output = {}
+        data = [v for v in self.input.values()]
+        keys = [k for k in self.input.keys()]
 
         data = np.array(data)
-        data = scaler.fit_transform(data)
 
-        # Fit the transform
         reduction = umap.UMAP(
-            n_components=self.parameters["components"],
-            n_neighbors=self.parameters["neighbours"],
-            min_dist=self.parameters["mindist"],
+            n_components=self.components,
+            n_neighbors=self.neighbours,
+            min_dist=self.mindist,
         )
-        # TODO Dump the fit out as part of the proces
         data = reduction.fit_transform(data)
 
-        dictionary_format_data = {}
-
         for key, value in zip(keys, data):
-            dictionary_format_data[key] = value.tolist()
+            self.output[key] = value.tolist()
 
-        write_json(self.output, dictionary_format_data)
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def run(self):
         staticproc(self.name, self.analyse)
@@ -247,16 +246,13 @@ class UMAPDR(FTISAnalyser):
 
 class ExplodeAudio(FTISAnalyser):
     def __init__(self):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.folder
+        super().__init__()
 
     def segment(self, workable):
-        """Receives a full path to an audio file"""
-        slices = self.slice_data[str(workable)]
+        slices = self.input[str(workable)]
         src = AudioSegment.from_file(workable, format="wav")
         sr = int(mediainfo(workable)["sample_rate"])
-
+        
         for i, (start, end) in enumerate(zip(slices, slices[1:])):
             start = samps2ms(start, sr)
             end = samps2ms(end, sr)
@@ -264,209 +260,253 @@ class ExplodeAudio(FTISAnalyser):
             segment.export(self.output / f"{i}_{workable.name}", format="wav")
 
     def run(self):
-        self.slice_data = read_json(self.input)
-        workables = [Path(x) for x in self.slice_data.keys()]
+        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output.mkdir(exist_ok=True)
+        workables = [Path(x) for x in self.input.keys()]
         multiproc(self.name, self.segment, workables)
 
 
 class FluidLoudness(FTISAnalyser):
-    def __init__(self):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.json
-        self.data_container = Manager().dict()
+    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1):
+        super().__init__()
+        self.windowsize = windowsize
+        self.hopsize = hopsize
+        self.kweighting = kweighting
+        self.truepeak = truepeak
 
-    def analyse(self, workable: str):
+    def analyse(self, workable):
         loudness = fluid.loudness(
             workable,
-            windowsize=self.parameters["windowsize"],
-            hopsize=self.parameters["hopsize"],
-            kweighting=self.parameters["kweighting"],
-            truepeak=self.parameters["truepeak"],
+            windowsize=self.windowsize,
+            hopsize=self.hopsize,
+            kweighting=self.kweighting,
+            truepeak=self.truepeak,
         )
 
-        self.data_container[str(workable)] = get_buffer(loudness)
+        self.buffer[str(workable)] = get_buffer(loudness)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def run(self):
+        self.buffer = Manager().dict()
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
-        write_json(self.output, dict(self.data_container))
-        cleanup()
+        self.output = dict(self.buffer)
 
 
 class FluidMFCC(FTISAnalyser):
-    def __init__(self):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.json
-        self.data_container = Manager().dict()
+    def __init__(
+        self,
+        fftsettings=[1024, 512, 1024],
+        numbands=40,
+        numcoeffs=13,
+        minfreq=80,
+        maxfreq=20000,
+    ):
+        super().__init__()
+        self.fftsettings = fftsettings
+        self.numbands = numbands
+        self.numcoeffs = numcoeffs
+        self.minfreq = minfreq
+        self.maxfreq = maxfreq
 
     def analyse(self, workable):
         mfcc = fluid.mfcc(
             workable,
-            fftsettings=self.parameters["fftsettings"],
-            numbands=self.parameters["numbands"],
-            numcoeffs=self.parameters["numcoeffs"],
+            fftsettings=self.fftsettings,
+            numbands=self.numbands,
+            numcoeffs=self.numcoeffs,
+            minfreq=self.minfreq,
+            maxfreq=self.maxfreq,
         )
+
         self.data_container[str(workable)] = get_buffer(mfcc)
 
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def run(self):
+        self.buffer = Manager().dict()
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
-        write_json(self.output, dict(self.data_container))
-        # cleanup()
+        self.output = dict(self.buffer)
 
 
 class FluidNoveltyslice(FTISAnalyser):
-    def __init__(self):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.json
-        self.data_container = Manager().dict()
+    def __init__(
+        self,
+        feature=0,
+        fftsettings=[1024, 512, 1024],
+        filtersize=1,
+        minslicelength=2048,
+        threshold=0.5,
+    ):
+        super().__init__()
+        self.feature = feature
+        self.fftsettings = fftsettings
+        self.filtersize = filtersize
+        self.minslicelength = minslicelength
+        self.threshold = threshold
 
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
             workable,
-            feature=self.parameters["feature"],
-            fftsettings=self.parameters["fftsettings"],
-            filtersize=self.parameters["filtersize"],
-            minslicelength=self.parameters["minslicelength"],
-            threshold=self.parameters["threshold"],
+            feature=self.feature,
+            fftsettings=self.fftsettings,
+            filtersize=self.filtersize,
+            minslicelength=self.minslicelength,
+            threshold=self.threshold,
         )
-        self.data_container[str(workable)] = get_buffer(noveltyslice)
+
+        self.buffer[str(workable)] = get_buffer(noveltyslice)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def run(self):
+        self.buffer = Manager().dict()
         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
         multiproc(self.name, self.analyse, workables)
-        write_json(self.output, dict(self.data_container))
-        cleanup()
-
-
-class FluidSines(FTISAnalyser):
-    def __init__(self):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.folder
-
-    def analyse(self, workable):
-        out_folder = self.output / workable.name
-        out_folder.mkdir(exist_ok=True)
-
-        sines = out_folder / f"sines_{workable.name}"
-        residual = out_folder / f"residual_{workable.name}"
-
-        fluid.sines(
-            workable,
-            sines=sines,
-            residual=residual,
-            bandwidth=self.parameters["bandwidth"],
-            birthhighthreshold=self.parameters["birthhighthreshold"],
-            birthlowthreshold=self.parameters["birthlowthreshold"],
-            detectionthreshold=self.parameters["detectionthreshold"],
-            fftsettings=self.parameters["fftsettings"],
-            mintracklen=self.parameters["mintracklen"],
-            trackingmethod=self.parameters["trackmethod"],
-            trackfreqrange=self.parameters["trackfreqrange"],
-            trackmagrange=self.parameters["trackmagrange"],
-            trackprob=self.parameters["trackprob"],
-        )
-
-    def run(self):
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
-        singleproc(self.name, self.analyse, workables)
-        cleanup()
-
-
-class FluidTransients(FTISAnalyser):
-    def __init__(self):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.folder
-
-    def analyse(self, workable):
-        out_folder = self.output / workable.name
-        out_folder.mkdir(exist_ok=True)
-
-        transients = out_folder / f"transients_{workable.name}"
-        residual = out_folder / f"residual_{workable.name}"
-
-        fluid.transients(
-            workable,
-            transients=transients,
-            residual=residual,
-            blocksize=self.parameters["blocksize"],
-            clumplength=self.parameters["clumplength"],
-            order=self.parameters["order"],
-            padsize=self.parameters["padsize"],
-            skew=self.parameters["skew"],
-            threshback=self.parameters["threshback"],
-            threshfwd=self.parameters["threshfwd"],
-            windowsize=self.parameters["windowsize"],
-        )
-
-    def run(self):
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
-        multiproc(self.name, self.analyse, workables)
-        cleanup()
+        self.output = dict(self.buffer)
 
 
 class HDBSClustering(FTISAnalyser):
-    def __init__(self):
-        super().__init__(config)
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
+    def __init__(self, minclustersize=2, minsamples=1):
+        super().__init__()
+        self.minclustersize = (minclustersize,)
+        self.minsamples = minsamples
 
     def analyse(self):
-        feature = read_json(self.input)
-        keys = [x for x in feature.keys()]
-        values = [x for x in feature.values()]
+        keys = [x for x in self.input.keys()]
+        values = [x for x in self.input.values()]
 
         data = np.array(values)
 
         db = hdbscan.HDBSCAN(
-            min_cluster_size=self.parameters["minclustersize"],
-            min_samples=self.parameters["minsamples"],
+            min_cluster_size=self.minclustersize, min_samples=self.minsamples,
         ).fit(data)
 
-        cluster_dict = {}
+        self.output = {}
 
         for audio, cluster in zip(keys, db.labels_):
-            if str(cluster) in cluster_dict:
-                cluster_dict[str(cluster)].append(audio)
+            if str(cluster) in self.output:
+                self.output[str(cluster)].append(audio)
             else:
-                cluster_dict[str(cluster)] = [audio]
+                self.output[str(cluster)] = [audio]
 
-        write_json(self.output, cluster_dict)
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def run(self):
         staticproc(self.name, self.analyse)
 
 
 class AGCluster(FTISAnalyser):
-    def __init__(self):
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
+    def __init__(self, numclusters=3):
+        super().__init__()
+        self.numclusters = numclusters
 
     def analyse(self):
-        feature = read_json(self.input)
-        keys = [x for x in feature.keys()]
-        values = [x for x in feature.values()]
+        keys = [x for x in self.input.keys()]
+        values = [x for x in self.input.values()]
 
         data = np.array(values)
 
-        db = AgglomerativeClustering(n_clusters=self.parameters["numclusters"]).fit(
-            data
-        )
+        db = AgglomerativeClustering(n_clusters=self.numclusters).fit(data)
 
-        cluster_dict = {}
+        self.output = {}
 
         for audio, cluster in zip(keys, db.labels_):
-            if str(cluster) in cluster_dict:
-                cluster_dict[str(cluster)].append(audio)
+            if str(cluster) in self.output:
+                self.output[str(cluster)].append(audio)
             else:
-                cluster_dict[str(cluster)] = [audio]
+                self.output[str(cluster)] = [audio]
 
-        write_json(self.output, cluster_dict)
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def run(self):
         staticproc(self.name, self.analyse)
+
+
+# class FluidSines(FTISAnalyser):
+#     def __init__(self,
+#     bandwidth=76,
+#     birthhighthreshold=-60,
+#     birthlowthreshold=-24,
+#     detectionthreshold=-96,
+#     fftsettings=[1024, 512, 1024],
+#     mintracklen=15,
+#     trackingmethod=0,
+#     trackfreqrange=50.0,
+#     trackmagrange=15.0,
+#     trackprob=0.5
+#     ):
+#         super().__init__()
+#         self.bandwidth = bandwidth,
+#         self.birthhighthreshold,
+#         self.birthlowthreshold,
+#         self.detectionthreshold,
+#         self.fftsettings,
+#         self.mintracklen
+
+#     def analyse(self, workable):
+#         out_folder = self.output / workable.name
+#         out_folder.mkdir(exist_ok=True)
+
+#         sines = out_folder / f"sines_{workable.name}"
+#         residual = out_folder / f"residual_{workable.name}"
+
+#         fluid.sines(
+#             workable,
+#             sines=sines,
+#             residual=residual,
+#             bandwidth=self.parameters["bandwidth"],
+#             birthhighthreshold=self.parameters["birthhighthreshold"],
+#             birthlowthreshold=self.parameters["birthlowthreshold"],
+#             detectionthreshold=self.parameters["detectionthreshold"],
+#             fftsettings=self.parameters["fftsettings"],
+#             mintracklen=self.parameters["mintracklen"],
+#             trackingmethod=self.parameters["trackmethod"],
+#             trackfreqrange=self.parameters["trackfreqrange"],
+#             trackmagrange=self.parameters["trackmagrange"],
+#             trackprob=self.parameters["trackprob"],
+#         )
+
+#     def run(self):
+#         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+#         singleproc(self.name, self.analyse, workables)
+#         self.output
+
+# class FluidTransients(FTISAnalyser):
+#     def __init__(self):
+#         super().__init__(parent_process)
+#         self.input_type = Ftypes.folder
+#         self.output_type = Ftypes.folder
+
+#     def analyse(self, workable):
+#         out_folder = self.output / workable.name
+#         out_folder.mkdir(exist_ok=True)
+
+#         transients = out_folder / f"transients_{workable.name}"
+#         residual = out_folder / f"residual_{workable.name}"
+
+#         fluid.transients(
+#             workable,
+#             transients=transients,
+#             residual=residual,
+#             blocksize=self.parameters["blocksize"],
+#             clumplength=self.parameters["clumplength"],
+#             order=self.parameters["order"],
+#             padsize=self.parameters["padsize"],
+#             skew=self.parameters["skew"],
+#             threshback=self.parameters["threshback"],
+#             threshfwd=self.parameters["threshfwd"],
+#             windowsize=self.parameters["windowsize"],
+#         )
+
+#     def run(self):
+#         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+#         multiproc(self.name, self.analyse, workables)
+#         cleanup()
