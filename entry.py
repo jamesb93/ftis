@@ -13,11 +13,17 @@ new_parser = subparsers.add_parser("new")
 run_parser = subparsers.add_parser("run")
 dry_parser = subparsers.add_parser("dry")
 
-new_parser.add_argument("-n", "--name", type=str, required=True, help="Name for the analyser.")
+new_parser.add_argument(
+    "-n", "--name", type=str, required=True, help="Name for the analyser."
+)
 
-run_parser.add_argument("-c", "--config", type=str, required=True, help="A YAML configuration.")
+run_parser.add_argument(
+    "-c", "--config", type=str, required=True, help="A YAML configuration."
+)
 
-dry_parser.add_argument("-c", "--config", type=str, required=True, help="A YAML configuration.")
+dry_parser.add_argument(
+    "-c", "--config", type=str, required=True, help="A YAML configuration."
+)
 
 args = parser.parse_args()
 
