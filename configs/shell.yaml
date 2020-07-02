@@ -1,6 +1,0 @@
-source: ~/dev/exhaust/
-folder: ~/dev/exhaust/
-
-analysers:
-    shell:
-      command: python3 /Users/james/dev/exhaust/test.py
