@@ -1,5 +1,0 @@
-numderivs:
-    default: 0
-
-flatten:
-    default: True

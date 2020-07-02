@@ -1,8 +1,0 @@
-input_scaling:
-    default: standardise
-    options: 
-        standardise
-        normalise
-
-numclusters:
-    default: 4

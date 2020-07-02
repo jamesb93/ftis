@@ -1,6 +1,0 @@
-
-# Parameters are declared first with a node being its name.
-# The default for this, and the type are specified in a child node from this.
-command:
-    default: ls # if you are providing a path to another script then you need to use absolute path and no tilde~
-    type: string

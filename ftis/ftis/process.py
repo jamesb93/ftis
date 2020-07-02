@@ -15,9 +15,7 @@ from ftis.common.types import Ftypes
 
 
 class FTISProcess:
-    """
-    Class that represents the life cycle of an 'ftis' execution.
-    """
+    """Class that represents the life cycle of an 'ftis' execution"""
 
     def __init__(self, config_path):
         self.config_path = config_path
