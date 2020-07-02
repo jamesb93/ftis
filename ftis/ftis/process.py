@@ -28,13 +28,12 @@ class FTISProcess:
 
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
-        
+
         assert self.source.exists()
         self.folder.mkdir(exist_ok=True)
 
         self.metapath = self.folder / "metadata.json"  # set a metadata path
 
-        
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
