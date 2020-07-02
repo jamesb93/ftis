@@ -4,6 +4,7 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import read_json, write_json, samps2ms
 from ftis.common.types import Ftypes
 from ftis.common.proc import staticproc, multiproc, singleproc
+from ftis.common.exceptions import NotYetImplemented
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.cluster import AgglomerativeClustering
 from multiprocessing import Manager
@@ -18,9 +19,145 @@ from scipy import stats
 from scipy.signal import savgol_filter
 
 
+class Stats(FTISAnalyser):
+    """Get various statistics and derivatives of those"""
+
+    def __init__(self):
+        super().__init__()
+        self.numderivs = 0
+        self.flatten = True
+
+    def dump(self):
+        write_json(self.dump_path, dict(self.buffer))
+
+    @staticmethod
+    def calc_stats(data):
+        """Given a time series calculate statistics"""
+        describe = stats.describe(data)
+        mean = describe.mean
+        stddev = math.sqrt(describe.variance)
+        skewness = describe.skewness
+        kurtosis = describe.kurtosis
+        minimum = describe.minmax[0]
+        median = np.median(data)
+        maximum = describe.minmax[1]
+        return [mean, stddev, skewness, kurtosis, minimum, median, maximum]
+
+    def get_stats(self, base_data, num_derivs: int) -> list:
+        """
+        Given stats on n number derivatives from initial data
+        """
+        container = []
+        if num_derivs > 0:
+            for i in range(num_derivs):
+                deriv = np.diff(base_data, i + 1)
+                stats = self.calc_stats(deriv)
+                container.append(stats)
+
+        elif num_derivs <= 0:
+            container = self.calc_stats(base_data)
+
+        return container
+
+    def analyse(self, workable):
+        # TODO: any dimensionality input
+        element_container = []
+        values = np.array(self.input[workable])
+        if len(values.shape) < 2:  # single row we run the stats on that
+            element_container.append(self.get_stats(values, self.numderivs))
+        else:
+            for row in values:  # for mfcc band in mfcc
+                element_container.append(self.get_stats(row, self.numderivs))
+
+        if self.flatten:
+            element_container = np.array(element_container)
+            element_container = element_container.flatten()
+            element_container = element_container.tolist()
+        self.buffer[workable] = element_container
+
+    def run(self):
+        self.buffer = Manager().dict()
+        workables = [x for x in self.input.keys()]
+        singleproc(self.name, self.analyse, workables)
+        self.output = dict(self.buffer)
+
+
+class Flux(FTISAnalyser):
+    """Computes spectral flux of an audio file"""
+
+    def __init__(self):
+        super().__init__()
+        self.windowsize = 1024
+        self.hopsize = 512
+
+    def flux(self, workable):
+        audio = data.Wave.read(str(workable))
+        if audio.is_stereo():
+            audio = np.sum(audio, axis=1)
+
+        fft = transforms.STFT(fft_size=self.windowsize, hop_size=self.hopsize).process(
+            audio
+        )
+
+        self.data[str(workable)] = list(
+            np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
+        )  # this is the flux calculation here
+
+    def dump(self):
+        write_json(self.dump_path, dict(self.data))
+
+    def run(self):
+        self.data = Manager().dict()
+        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        multiproc(self.name, self.flux, workables)
+        self.output = dict(self.data)
+
+
+class Normalise(FTISAnalyser):
+    def __init__(self):
+        super().__init__()
+        self.min = 0
+        self.max = 1
+
+    def analyse(self):
+        scaled_data = MinMaxScaler((self.min, self.max)).fit_transform(self.features)
+
+        self.output = {}
+        for k, v in zip(self.keys, scaled_data):
+            self.output[k] = list(v)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def run(self):
+        self.keys = [x for x in self.input.keys()]
+        self.features = [x for x in self.input.values()]
+        staticproc(self.name, self.analyse)
+
+
+class Standardise(FTISAnalyser):
+    def __init__(self):
+        super().__init__()
+
+    def analyse(self):
+        scaled_data = StandardScaler().fit_transform(self.features)
+
+        self.output = {}
+        for k, v in zip(self.keys, scaled_data):
+            self.output[k] = list(v)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def run(self):
+        self.keys = [x for x in self.input.keys()]
+        self.features = [x for x in self.input.values()]
+        staticproc(self.name, self.analyse)
+
+
 class ClusteredSegmentation(FTISAnalyser):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self):
+        super().__init__()
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
         self.data_container = Manager().dict()
@@ -40,7 +177,10 @@ class ClusteredSegmentation(FTISAnalyser):
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
 
                 mfcc = fluid.mfcc(
-                    workable, fftsettings=[2048, -1, -1], startframe=start, numframes=end - start,
+                    workable,
+                    fftsettings=[2048, -1, -1],
+                    startframe=start,
+                    numframes=end - start,
                 )
 
                 stats = get_buffer(fluid.stats(mfcc, numderivs=1), "numpy")
@@ -68,8 +208,11 @@ class ClusteredSegmentation(FTISAnalyser):
         multiproc(self.name, self.analyse, workables)
         write_json(self.output, dict(self.data_container))
 
+
 class UMAPDR(FTISAnalyser):
-    def __init__(self, config):
+    """Dimension reduction with UMAP algorithm"""
+
+    def __init__(self):
         super().__init__(config)
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
@@ -78,11 +221,6 @@ class UMAPDR(FTISAnalyser):
         analysis_data = read_json(self.input)
         data = [v for v in analysis_data.values()]
         keys = [k for k in analysis_data.keys()]
-
-        if self.parameters["scaling"] == "normalise":
-            scaler = MinMaxScaler()
-        if self.parameters["scaling"] == "standardise":
-            scaler = StandardScaler()
 
         data = np.array(data)
         data = scaler.fit_transform(data)
@@ -96,14 +234,6 @@ class UMAPDR(FTISAnalyser):
         # TODO Dump the fit out as part of the proces
         data = reduction.fit_transform(data)
 
-        # Normalisation
-        if self.parameters["post_scaling"] == "normalise":
-            post_scaling = MinMaxScaler()
-        if self.parameters["post_scaling"] == "standardise":
-            post_scaling = StandardScaler()
-        if self.parameters["post_scaling"] != "none":
-            data = post_scaling.fit_transform(data)
-
         dictionary_format_data = {}
 
         for key, value in zip(keys, data):
@@ -114,8 +244,9 @@ class UMAPDR(FTISAnalyser):
     def run(self):
         staticproc(self.name, self.analyse)
 
+
 class ExplodeAudio(FTISAnalyser):
-    def __init__(self, parent_process):
+    def __init__(self):
         super().__init__(parent_process)
         self.input_type = Ftypes.json
         self.output_type = Ftypes.folder
@@ -137,8 +268,9 @@ class ExplodeAudio(FTISAnalyser):
         workables = [Path(x) for x in self.slice_data.keys()]
         multiproc(self.name, self.segment, workables)
 
+
 class FluidLoudness(FTISAnalyser):
-    def __init__(self, parent_process):
+    def __init__(self):
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
@@ -161,8 +293,9 @@ class FluidLoudness(FTISAnalyser):
         write_json(self.output, dict(self.data_container))
         cleanup()
 
+
 class FluidMFCC(FTISAnalyser):
-    def __init__(self, parent_process):
+    def __init__(self):
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
@@ -185,7 +318,7 @@ class FluidMFCC(FTISAnalyser):
 
 
 class FluidNoveltyslice(FTISAnalyser):
-    def __init__(self, parent_process):
+    def __init__(self):
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.json
@@ -210,7 +343,7 @@ class FluidNoveltyslice(FTISAnalyser):
 
 
 class FluidSines(FTISAnalyser):
-    def __init__(self, parent_process):
+    def __init__(self):
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.folder
@@ -245,7 +378,7 @@ class FluidSines(FTISAnalyser):
 
 
 class FluidTransients(FTISAnalyser):
-    def __init__(self, parent_process):
+    def __init__(self):
         super().__init__(parent_process)
         self.input_type = Ftypes.folder
         self.output_type = Ftypes.folder
@@ -277,34 +410,8 @@ class FluidTransients(FTISAnalyser):
         cleanup()
 
 
-class Flux(FTISAnalyser):
-    def __init__(self, parent_process):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.folder
-        self.output_type = Ftypes.json
-
-    def flux(self, workable):
-        audio = data.Wave.read(str(workable))
-        if audio.is_stereo():
-            audio = np.sum(audio, axis=1)
-        fft = transforms.STFT(
-            fft_size=self.parameters["windowsize"],
-            hop_size=self.parameters["hopsize"]
-            ).process(audio)
-        
-        self.data[str(workable)] = list(
-            np.sum(np.abs(np.diff(np.abs(fft))),
-            axis=0)) #this is the flux calculation here
-
-    def run(self):
-        self.data = Manager().dict()
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
-        multiproc(self.name, self.flux, workables)
-        write_json(self.output, dict(self.data))
-
-
 class HDBSClustering(FTISAnalyser):
-    def __init__(self, config):
+    def __init__(self):
         super().__init__(config)
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
@@ -315,19 +422,11 @@ class HDBSClustering(FTISAnalyser):
         values = [x for x in feature.values()]
 
         data = np.array(values)
-        scaling = self.parameters["input_scaling"]
-        if scaling:
-            if scaling == "normalise":
-                scaler = MinMaxScaler()
-            if scaling == "standardise":
-                scaler = StandardScaler()
-            scaler.fit(data)
-            data = scaler.transform(data)
 
         db = hdbscan.HDBSCAN(
-            min_cluster_size = self.parameters["minclustersize"],
-            min_samples = self.parameters["minsamples"]
-            ).fit(data)
+            min_cluster_size=self.parameters["minclustersize"],
+            min_samples=self.parameters["minsamples"],
+        ).fit(data)
 
         cluster_dict = {}
 
@@ -343,29 +442,8 @@ class HDBSClustering(FTISAnalyser):
         staticproc(self.name, self.analyse)
 
 
-class Normalise(FTISAnalyser):
-    def __init__(self, parent_process):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
-
-    def analyse(self):
-        scaled_data = MinMaxScaler().fit_transform(self.features)
-        
-        self.stddata = {}
-        for k, v in zip(self.keys, scaled_data):
-            self.stddata[k] = list(v)
-
-    def run(self):
-        input_data = read_json(self.input)
-        self.keys = [x for x in input_data.keys()]
-        self.features = [x for x in input_data.values()]
-        staticproc(self.name, self.analyse)
-        write_json(self.output, self.stddata)
-
 class AGCluster(FTISAnalyser):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self):
         self.input_type = Ftypes.json
         self.output_type = Ftypes.json
 
@@ -375,16 +453,10 @@ class AGCluster(FTISAnalyser):
         values = [x for x in feature.values()]
 
         data = np.array(values)
-        scaling = self.parameters["input_scaling"]
-        if scaling:
-            if scaling == "normalise":
-                scaler = MinMaxScaler()
-            if scaling == "standardise":
-                scaler = StandardScaler()
-            scaler.fit(data)
-            data = scaler.transform(data)
 
-        db = AgglomerativeClustering(n_clusters=self.parameters["numclusters"]).fit(data)
+        db = AgglomerativeClustering(n_clusters=self.parameters["numclusters"]).fit(
+            data
+        )
 
         cluster_dict = {}
 
@@ -398,81 +470,3 @@ class AGCluster(FTISAnalyser):
 
     def run(self):
         staticproc(self.name, self.analyse)
-
-
-
-class Stats(FTISAnalyser):
-    def __init__(self, config):
-        super().__init__(config)
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
-        self.stats_dict = Manager().dict()
-
-    @staticmethod
-    def calc_stats(data):
-        """Given a time series calculate statistics"""
-        describe = stats.describe(data)
-        mean = describe.mean
-        stddev = math.sqrt(describe.variance)
-        skewness = describe.skewness
-        kurtosis = describe.kurtosis
-        minimum = describe.minmax[0]
-        median = np.median(data)
-        maximum = describe.minmax[1]
-        return [mean, stddev, skewness, kurtosis, minimum, median, maximum]
-
-    def get_stats(self, base_data, num_derivs: int) -> list:
-        """
-        Given stats on n number derivatives from initial data
-        """
-        container = []
-        if num_derivs > 0:
-            for i in range(num_derivs):
-                deriv = np.diff(base_data, i + 1)
-                stats = self.calc_stats(deriv)
-                container.append(stats)
-
-        elif num_derivs <= 0:
-            container = self.calc_stats(base_data)
-
-        return container
-
-    def analyse(self, workable):
-        # TODO: any dimensionality input
-        element_container = []
-        for row in self.data[workable]:  # for mfcc band in mfcc
-            row_stats = self.get_stats(row, self.parameters["numderivs"])
-            element_container.append(row_stats)
-
-        if self.parameters["flatten"]:
-            element_container = np.array(element_container)
-            element_container = element_container.flatten()
-            element_container = element_container.tolist()
-        self.stats_dict[workable] = element_container
-
-    def run(self):
-        self.data = read_json(self.input)
-        workables = [x for x in self.data.keys()]
-        multiproc(self.name, self.analyse, workables)
-        write_json(self.output, dict(self.stats_dict))
-
-
-class Standardise(FTISAnalyser):
-    def __init__(self, parent_process):
-        super().__init__(parent_process)
-        self.input_type = Ftypes.json
-        self.output_type = Ftypes.json
-
-    def analyse(self):
-        scaled_data = StandardScaler().fit_transform(self.features)
-        
-        self.stddata = {}
-        for k, v in zip(self.keys, scaled_data):
-            self.stddata[k] = list(v)
-
-    def run(self):
-        input_data = read_json(self.input)
-        self.keys = [x for x in input_data.keys()]
-        self.features = [x for x in input_data.values()]
-        staticproc(self.name, self.analyse)
-        write_json(self.output, self.stddata)
