@@ -257,7 +257,7 @@ class ExplodeAudio(FTISAnalyser):
             start = samps2ms(start, sr)
             end = samps2ms(end, sr)
             segment = src[start:end]
-            segment.export(self.output / f"{i}_{workable.name}", format="wav")
+            segment.export(self.output / f"{workable.name}_{i}", format="wav")
 
     def run(self):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
@@ -374,7 +374,7 @@ class FluidNoveltyslice(FTISAnalyser):
 class HDBSClustering(FTISAnalyser):
     def __init__(self, minclustersize=2, minsamples=1):
         super().__init__()
-        self.minclustersize = (minclustersize,)
+        self.minclustersize = minclustersize
         self.minsamples = minsamples
 
     def analyse(self):
@@ -428,6 +428,82 @@ class AGCluster(FTISAnalyser):
 
     def run(self):
         staticproc(self.name, self.analyse)
+
+import numpy as np
+import hdbscan
+from ftis.common.analyser import FTISAnalyser
+from ftis.common.utils import read_json, write_json
+from ftis.common.proc import singleproc
+from ftis.common.types import Ftypes
+from sklearn.cluster import AgglomerativeClustering
+from flucoma import fluid
+from flucoma.utils import get_buffer, cleanup
+from scipy.io import wavfile
+from scipy.signal import savgol_filter
+
+
+class ClusteredNMF(FTISAnalyser):
+    def __init__(self, 
+        iterations=100, 
+        components=10, 
+        fftsettings=[4096, 1024, 4096],
+        smoothing=11,
+        polynomial=2,
+        min_cluster_size=2,
+        min_samples=2,
+        cluster_selection_method="eom"
+    ):
+        super().__init__()
+        self.components = components
+        self.iterations = iterations
+        self.fftsettings = fftsettings
+        self.smoothing = smoothing
+        self.polynomial = polynomial
+        self.min_cluster_size = min_cluster_size
+        self.min_samples = min_samples
+        self.cluster_selection_method= cluster_selection_method
+
+    def analyse(self, workable):
+        nmf = fluid.nmf(
+            workable,
+            iterations=self.iterations,
+            components=self.components,
+            fftsettings=self.fftsettings,
+        )
+        bases = get_buffer(nmf.bases, "numpy")
+        bases_smoothed = np.zeros_like(bases)
+        
+        for i, x in enumerate(bases):
+            bases_smoothed[i] = savgol_filter(
+                x, self.smoothing, self.polynomial
+            )
+
+        clusterer = hdbscan.HDBSCAN(
+            min_cluster_size=self.min_cluster_size, 
+            min_samples=self.min_samples,
+            cluster_selection_method=self.cluster_selection_method
+        )
+
+        cluster_labels = clusterer.fit_predict(bases_smoothed)
+        unique_clusters = list(dict.fromkeys(cluster_labels))
+
+        sound = get_buffer(nmf.resynth, "numpy")
+
+        for x in unique_clusters:
+            summed = np.zeros_like(sound[0])  # make an empty numpy array of same size
+            base = workable.name
+            output = self.output / f"{base}_{x}.wav"
+            for idx, cluster in enumerate(cluster_labels):
+                if cluster == x:
+                    summed += sound[idx]
+            wavfile.write(output, 44100, summed)
+
+    def run(self):
+        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output.mkdir(exist_ok=True)
+        workables = [k for k in self.input.iterdir() if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"]
+        singleproc(self.name, self.analyse, workables)
+
 
 
 # class FluidSines(FTISAnalyser):
