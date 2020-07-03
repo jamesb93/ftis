@@ -454,18 +454,6 @@ class AGCluster(FTISAnalyser):
     def run(self):
         staticproc(self.name, self.analyse)
 
-import numpy as np
-import hdbscan
-from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import read_json, write_json
-from ftis.common.proc import singleproc
-from ftis.common.types import Ftypes
-from sklearn.cluster import AgglomerativeClustering
-from flucoma import fluid
-from flucoma.utils import get_buffer, cleanup
-from scipy.io import wavfile
-from scipy.signal import savgol_filter
-
 
 class ClusteredNMF(FTISAnalyser):
     def __init__(self, 
