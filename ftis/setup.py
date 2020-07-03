@@ -17,6 +17,8 @@ setuptools.setup(
         "untwist @ git+https://github.com/IoSR-Surrey/untwist",
         "python-flucoma",
         "pydub",
-        "scipy"
+        "scipy",
+        "rich",
+        "gitpython",
     ]
 )
