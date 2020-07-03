@@ -493,7 +493,7 @@ class ClusteredNMF(FTISAnalyser):
         clusterer = hdbscan.HDBSCAN(
             min_cluster_size=self.min_cluster_size, 
             min_samples=self.min_samples,
-            cluster_selection_method=self.cluster_selection_method
+            cluster_selection_method=self.cluster_selection_method,
         )
 
         cluster_labels = clusterer.fit_predict(bases_smoothed)
@@ -513,9 +513,12 @@ class ClusteredNMF(FTISAnalyser):
     def run(self):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
-        workables = [k for k in self.input.iterdir() if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"]
+        workables = [
+            k
+            for k in self.input.iterdir()
+            if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"
+        ]
         singleproc(self.name, self.analyse, workables)
-
 
 
 # class FluidSines(FTISAnalyser):
