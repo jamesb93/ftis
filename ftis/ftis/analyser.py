@@ -1,8 +1,8 @@
 import numpy as np
 import hdbscan, math, umap
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.utils import read_json, write_json, samps2ms
-from ftis.common.types import Ftypes
+from ftis.common.io import write_json, peek
+from ftis.common.conversion import samps2ms, ms2samps
 from ftis.common.proc import staticproc, multiproc, singleproc
 from ftis.common.exceptions import NotYetImplemented
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
