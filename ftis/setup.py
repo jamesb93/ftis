@@ -7,4 +7,16 @@ setuptools.setup(
     author_email="jamesbradbury93@gmail.com",
     description="The finding things in stuff package.",
     packages=["ftis"],
+    install_requires=[
+        "Soundfile",
+        "PyYAML",
+        "hdbscan",
+        "umap-learn",
+        "sklearn",
+        "python-rapidjson",
+        "untwist @ git+https://github.com/IoSR-Surrey/untwist",
+        "python-flucoma",
+        "pydub",
+        "scipy"
+    ]
 )
