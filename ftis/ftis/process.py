@@ -98,27 +98,19 @@ class FTISProcess:
     def create_metadata(self):
         # Time
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
-        metadata = {"time": time}
+        self.metadata["time"] = time
 
         # Git Hash
         repo = git.Repo(search_parent_directories=True)
         sha = repo.head.object.hexsha
-        metadata["commit_hash"] = sha
+        self.metadata["commit_hash"] = sha
 
         # Analyser chain
         io = [link.name for link in self.chain]
         io.insert(0, str(self.source))
-        metadata["io"] = str(io)
+        self.metadata["io"] = str(io)
 
-        # Analyer Parameters
-        # Instead of just copying the config, we're going to look at what parameters were actually set in each analyser
-        # This takes into account parameters being assigned in the case that no parameters were set in the config
-        # metadata_params = {}
-        # for analyser in self.chain:
-        #     metadata_params[analyser.__class__.__name__] = analyser.parameters
-        # metadata["analysers"] = metadata_params
-
-        write_json(self.metapath, metadata)
+        write_json(self.metapath, self.metadata)
 
     def run(self):
         # self.initial_parse()
