@@ -53,12 +53,31 @@ class FTISProcess:
     def add(self, *args):
         """Accepts any number of classes to chain together"""
         self.chain = args  # Lets store these classes somewhere
-
+        # Analyser parameters
+        super_keys = [
+            "process", 
+            "logger", 
+            "input", 
+            "output", 
+            "input_type", 
+            "dump_type",
+            "order",
+            "dumpout"]
+        analyser_params = {}
         for i, analyser in enumerate(self.chain):
-            analyser.process = self
             analyser.order = i
+            name = analyser.__class__.__name__
+
+            params = {}
+            for k, v in zip(vars(analyser).keys(), vars(analyser).values()):
+                if k not in super_keys:
+                    params[k] = v
+            
+            analyser_params[f"{i}_{name}"] = params
+            analyser.process = self
             analyser.logger = self.logger
             analyser.set_dump()
+        self.metadata["analyser"] = analyser_params
 
     def run_analysers(self):
         for i, obj in enumerate(self.chain):
