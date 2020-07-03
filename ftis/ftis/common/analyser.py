@@ -1,7 +1,3 @@
-from ftis.common.types import Ftypes
-from pathlib import Path
-
-
 class FTISAnalyser:
     """Every analyser inherits from this class"""
 
