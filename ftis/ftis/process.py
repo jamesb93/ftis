@@ -10,13 +10,13 @@ from ftis.common.io import write_json
 class FTISProcess:
     """Class that represents the life cycle of an 'ftis' execution"""
 
-    def __init__(self, source: Path, folder: Path):
+    def __init__(self, source: Path, folder: Path, mode="chain"):
         self.folder = Path(folder)
         self.source = Path(source)
         self.chain = []
         self.logger = None
         self.console = Console()
-        self.mode = "chain"
+        self.mode = mode
         self.setup()
 
     def setup(self):
