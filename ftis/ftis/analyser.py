@@ -4,7 +4,6 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, peek
 from ftis.common.conversion import samps2ms, ms2samps
 from ftis.common.proc import staticproc, multiproc, singleproc
-from ftis.common.exceptions import NotYetImplemented
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.cluster import AgglomerativeClustering
 from multiprocessing import Manager
@@ -257,7 +256,7 @@ class CollapseAudio(FTISAnalyser):
         else:
             audio = raw.sum(axis=0) / raw.ndim
         wavfile.write(out, sr, audio)
-        
+
     def run(self):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
@@ -277,7 +276,7 @@ class ExplodeAudio(FTISAnalyser):
         slices = self.input[str(workable)]
         src = AudioSegment.from_file(workable, format="wav")
         sr = int(mediainfo(workable)["sample_rate"])
-        
+
         for i, (start, end) in enumerate(zip(slices, slices[1:])):
             start = samps2ms(start, sr)
             end = samps2ms(end, sr)
@@ -458,8 +457,8 @@ class AGCluster(FTISAnalyser):
 class ClusteredNMF(FTISAnalyser):
     def __init__(
         self,
-        iterations=100, 
-        components=10, 
+        iterations=100,
+        components=10,
         fftsettings=[4096, 1024, 4096],
         smoothing=11,
         polynomial=2,
@@ -486,12 +485,12 @@ class ClusteredNMF(FTISAnalyser):
         )
         bases = get_buffer(nmf.bases, "numpy")
         bases_smoothed = np.zeros_like(bases)
-        
+
         for i, x in enumerate(bases):
             bases_smoothed[i] = savgol_filter(x, self.smoothing, self.polynomial)
 
         clusterer = hdbscan.HDBSCAN(
-            min_cluster_size=self.min_cluster_size, 
+            min_cluster_size=self.min_cluster_size,
             min_samples=self.min_samples,
             cluster_selection_method=self.cluster_selection_method,
         )
