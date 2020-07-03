@@ -18,11 +18,6 @@ class AnalyserExists(Exception):
         super().__init__("This analyser already exists")
 
 
-class BinError(Exception):
-    def __init__(self, msg: str):
-        super().__init__(msg)
-
-
 class NotYetImplemented(Exception):
     def __init__(self):
         super().__init__("This function is not implemented yet")
@@ -37,7 +32,6 @@ class ChainIOError(Exception):
         {analyser2.name} output: {analyser2.output_type}
         """
         )
-
 
 class SourceIOError(Exception):
     def __init__(self):
