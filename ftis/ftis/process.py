@@ -90,7 +90,7 @@ class FTISProcess:
                 if i == len(self.chain) - 1:
                     obj.dumpout = True
 
-            if self.mode == "batch":
+            else:
                 obj.input = self.source
                 obj.dumpout = True
             obj.do()
@@ -113,8 +113,6 @@ class FTISProcess:
         write_json(self.metapath, self.metadata)
 
     def run(self):
-        # self.initial_parse()
-        # Pretty table print out here
         md = "# **** FTIS v0.1 ****"
         md += f"\n\n**Source: {self.source}**"
         md += f"\n\n**Output: {self.folder}**"
@@ -122,5 +120,6 @@ class FTISProcess:
         md += "\n\nBeginning processing..."
         self.console.print(Markdown(md))
         print("\n")
+
         self.run_analysers()
         self.create_metadata()
