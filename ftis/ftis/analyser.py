@@ -276,7 +276,7 @@ class ExplodeAudio(FTISAnalyser):
             start = samps2ms(start, sr)
             end = samps2ms(end, sr)
             segment = src[start:end]
-            segment.export(self.output / f"{workable.name}_{i}", format="wav")
+            segment.export(self.output / f"{workable.stem}_{i}.wav", format="wav")
 
     def run(self):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
