@@ -30,4 +30,3 @@ def list_to_coll(list_input: list, out_file: str):
 def bytes_to_mb(val: int) -> float:
     """convert bytes to mb"""
     return val * 0.000001
-
