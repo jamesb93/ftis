@@ -243,6 +243,25 @@ class UMAPDR(FTISAnalyser):
     def run(self):
         staticproc(self.name, self.analyse)
 
+class CollapseAudio(FTISAnalyser):
+    def __init__(self):
+        super().__init__()
+
+    def collapse(self, workable):
+        out = self.output / workable.name
+        raw, sr = get_buffer(workable, "numpy")
+        audio = None
+        if raw.ndim == 1:
+            audio = raw
+        else:
+            audio = raw.sum(axis=0) / raw.ndim
+        wavfile.write(out, sr, audio)
+        
+    def run(self):
+        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output.mkdir(exist_ok=True)
+        workables = [Path(x) for x in self.input.iterdir() if x != ".DS_Store" and x.suffix == ".wav"]
+        multiproc(self.name, self.collapse, workables)
 
 class ExplodeAudio(FTISAnalyser):
     def __init__(self):
