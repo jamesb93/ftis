@@ -456,7 +456,8 @@ class AGCluster(FTISAnalyser):
 
 
 class ClusteredNMF(FTISAnalyser):
-    def __init__(self, 
+    def __init__(
+        self,
         iterations=100, 
         components=10, 
         fftsettings=[4096, 1024, 4096],
@@ -464,7 +465,7 @@ class ClusteredNMF(FTISAnalyser):
         polynomial=2,
         min_cluster_size=2,
         min_samples=2,
-        cluster_selection_method="eom"
+        cluster_selection_method="eom",
     ):
         super().__init__()
         self.components = components
@@ -474,7 +475,7 @@ class ClusteredNMF(FTISAnalyser):
         self.polynomial = polynomial
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
-        self.cluster_selection_method= cluster_selection_method
+        self.cluster_selection_method = cluster_selection_method
 
     def analyse(self, workable):
         nmf = fluid.nmf(
@@ -487,9 +488,7 @@ class ClusteredNMF(FTISAnalyser):
         bases_smoothed = np.zeros_like(bases)
         
         for i, x in enumerate(bases):
-            bases_smoothed[i] = savgol_filter(
-                x, self.smoothing, self.polynomial
-            )
+            bases_smoothed[i] = savgol_filter(x, self.smoothing, self.polynomial)
 
         clusterer = hdbscan.HDBSCAN(
             min_cluster_size=self.min_cluster_size, 
