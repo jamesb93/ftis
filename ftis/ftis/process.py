@@ -17,6 +17,7 @@ class FTISProcess:
         self.logger = None
         self.console = Console()
         self.mode = mode
+        self.metadata = {}
         self.setup()
 
     def setup(self):
