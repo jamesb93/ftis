@@ -69,28 +69,5 @@ class FTISAnalyser:
     #     pcopy.pop("cache", None)
     #     return pcopy == old_meta
 
-    # def dry(self):
-    #     self.log("Executing process")
-    #     if self.parameters["cache"] == True:
-    #         self.log("Intending to cache")
-
-    #         if self.cache_exists:
-    #             if self.process.metapath.exists() and self.compare_meta():
-    #                 self.process.fprint(
-    #                     f"{self.name} was cached!"
-    #                 )  # Display on console
-    #             elif not self.process.metapath.exists():
-    #                 self.dry_print(f"No metadata to cache against")
-    #         else:
-    #             self.process.dry_print(
-    #                 f"Cache was true but there was no cache or something changed"
-    #             )
-    #             self.log("Cache was true but there was no cache")
-    #     else:
-    #         self.process.dry_print(f"{self.name}: Ran without caching")
-    #         self.log("Ran without caching")
-
-    # self.log("Finished processing")
-
     def run(self):
         """Method for running the processing chain from input to output"""
