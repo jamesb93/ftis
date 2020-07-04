@@ -4,7 +4,7 @@ from ftis.common.exceptions import OutputNotFound
 class FTISAnalyser:
     """Every analyser inherits from this class"""
 
-    def __init__(self, dumpout=False):
+    def __init__(self, dumpout=False, cache=False):
         self.process = None  # pass the parent process in
         self.logger = None
         self.input = ""
@@ -13,8 +13,9 @@ class FTISAnalyser:
         self.dump_type = ""
         self.name = self.__class__.__name__
         self.order: int = -1
-        self.cache_exists = False
         self.dumpout = dumpout
+        self.cache = cache
+        self.cache_exists = False
 
     def log(self, log_text):
         self.logger.debug(f"{self.name}: {log_text}")
@@ -29,13 +30,23 @@ class FTISAnalyser:
 
     def do(self):
         self.log("Initiating")
-        self.run()
-        self.log("Ran Successfully")
-        assert self.output != None  # add this back in with a proper exception
-        if self.output == None:
+
+        if self.dump_path.exists(): # TODO: more comprehensive checking here depending on the types
+            self.cache_exists = True
+
+        if self.cache and self.cache_exists:
+            self.load_cache()
+            self.process.fprint(f"{self.name} caching!")
+        else:
+            self.run()
+            self.dump()
+
+        if self.output != None:
+            self.log("Ran Successfully")
+        else:
+            self.log("Ouput was invalid")
             raise OutputNotFound(self.name)
-        # if self.dumpout == True:
-        self.dump()
+        
         # self.log("Executing process")
         # if self.parameters["cache"] == True:
         #     self.log("Intending to cache")
@@ -57,8 +68,6 @@ class FTISAnalyser:
         # else:
         #     self.run()
         #     self.log("Ran without caching")
-
-        # self.log("Finished processing")
 
     # def compare_meta(self) -> bool:
     #     old_meta = read_yaml(self.process.metapath)["analysers"][
