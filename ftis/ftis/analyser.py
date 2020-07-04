@@ -21,8 +21,8 @@ from scipy.signal import savgol_filter
 class Stats(FTISAnalyser):
     """Get various statistics and derivatives of those"""
 
-    def __init__(self):
-        super().__init__(numdervs=0, flatten=True)
+    def __init__(self, numderivs=0, flatten=True):
+        super().__init__()
         self.numderivs = numderivs
         self.flatten = flatten
 
