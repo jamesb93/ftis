@@ -14,7 +14,7 @@ setuptools.setup(
         "umap-learn",
         "sklearn",
         "python-rapidjson",
-        "untwist @ git+https://github.com/IoSR-Surrey/untwist",
+        "untwist @ git+https://github.com/jamesb93/untwist.git",
         "python-flucoma",
         "pydub",
         "scipy",
