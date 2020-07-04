@@ -32,6 +32,8 @@ class FTISAnalyser:
         self.run()
         self.log("Ran Successfully")
         assert self.output != None  # add this back in with a proper exception
+        if self.output == None:
+            raise OutputNotFound(self.name)
         # if self.dumpout == True:
         self.dump()
         # self.log("Executing process")
