@@ -62,7 +62,9 @@ class FTISProcess:
             "input_type", 
             "dump_type",
             "order",
-            "dumpout"]
+            "dumpout",
+            "cache",
+            "cache_exists"]
         analyser_params = {}
         for i, analyser in enumerate(self.chain):
             analyser.order = i
