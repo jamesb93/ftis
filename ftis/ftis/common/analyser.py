@@ -1,3 +1,6 @@
+from ftis.common.exceptions import OutputNotFound
+
+
 class FTISAnalyser:
     """Every analyser inherits from this class"""
 
