@@ -100,7 +100,7 @@ class Flux(FTISAnalyser):
 
         self.data[str(workable)] = list(
             np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
-        )  # this is the flux calculation here
+        )  # Flux calculation here
 
     def dump(self):
         write_json(self.dump_path, dict(self.data))
