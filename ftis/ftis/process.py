@@ -23,7 +23,9 @@ class FTISProcess:
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
 
-        assert self.source.exists()
+        if not self.source.exists():
+            raise InvalidSource(self.source)
+
         self.folder.mkdir(exist_ok=True)
 
         self.metapath = self.folder / "metadata.json"  # set a metadata path
