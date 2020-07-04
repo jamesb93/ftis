@@ -27,11 +27,10 @@ class FTISProcess:
         self.folder.mkdir(exist_ok=True)
 
         self.metapath = self.folder / "metadata.json"  # set a metadata path
+        logfile_path = self.folder / "logfile.log"
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-
-        logfile_path = self.folder / "logfile.log"
 
         if logfile_path.exists():
             logfile_path.unlink()
