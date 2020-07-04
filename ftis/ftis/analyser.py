@@ -102,6 +102,9 @@ class Flux(FTISAnalyser):
             np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
         )  # Flux calculation here
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
     def dump(self):
         write_json(self.dump_path, dict(self.data))
 
