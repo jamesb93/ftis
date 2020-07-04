@@ -2,9 +2,15 @@ class InvalidYamlError(Exception):
     def __init__(self, msg: str):
         super().__init__(msg)
 
+
 class OutputNotFound(Exception):
     def __init__(self, analyser: str):
         super().__init__(f"Output not found or errored for {analyser}")
+
+
+class InvalidSource(Exception):
+    def __init__(self, source: str):
+        super().__init__(f"{source} does not exist or is invalid")
 
 
 class AnalyserNotFound(Exception):
