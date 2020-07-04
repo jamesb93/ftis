@@ -5,6 +5,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
 from ftis.common.io import write_json
+from ftis.common.exceptions import InvalidSource
 
 
 class FTISProcess:
