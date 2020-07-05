@@ -63,7 +63,9 @@ class FTISAnalyser:
             if self.dump_type == ftypes.folder:
                 return self.folder_integrity()
             else:
-                return True 
+                return True
+        else:
+            return False
 
     def update_success(self, status: bool):
         try: #FIXME combine these two try statements
