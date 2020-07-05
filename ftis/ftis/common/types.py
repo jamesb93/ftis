@@ -1,7 +1,3 @@
-# class Ftypes(object):
-#     json = ".json"
-#     text = ".txt"
-#     folder = ""
 from dataclasses import dataclass
 
 
@@ -13,4 +9,4 @@ class FTISTypes:
     python: str = ".py"
 
 
-Ftypes = FTISTypes()
+ftypes = FTISTypes()
