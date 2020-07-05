@@ -36,26 +36,27 @@ class FTISAnalyser:
         return True
 
     def compare_meta(self) -> bool:
-        old_meta = read_json(self.process.metapath)
-        success = old_meta["success"][f"{self.order}_{self.name}"]
-        pcopy = dict(old_meta)
-        ignored_keys = [
-            "process", 
-            "logger", 
-            "input", 
-            "output", 
-            "input_type", 
-            "dump_type",
-            "order",
-            "dumpout",
-            "cache",
-            "cache_possible"] #FIXME this should not be duplicated
-        
-        for x in ignored_keys:
-            old_meta.pop("cache", None)
-            pcopy.pop("cache", None)
+        new_meta = self.process.metadata
+        old_meta = self.process.prev_meta
+        ident = f"{self.order}_{self.name}"
+        #FIXME This needs to be refactored big time
 
-        return pcopy == old_meta and success
+        try:
+            new_params = new_meta["analyser"][ident]
+        except KeyError:
+            new_params = False
+
+        try:
+            old_params = old_meta["analyser"][ident]
+        except KeyError:
+            old_params = False
+
+        try:
+            success = old_meta["success"][f"{self.order}_{self.name}"]
+        except KeyError:
+            success = False
+
+        return old_params == new_params and success
 
     def cache_exists(self) -> bool:
         if self.dump_path.exists(): # TODO: type and metadata checking
