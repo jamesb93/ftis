@@ -45,6 +45,21 @@ class FTISProcess:
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
         self.logger.debug("Logging initialised")
+        
+    def general_metadata(self):
+        # Time
+        time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
+        self.metadata["time"] = time
+
+        # Git Hash
+        repo = git.Repo(search_parent_directories=True)
+        sha = repo.head.object.hexsha
+        self.metadata["commit_hash"] = sha
+
+        # Analyser chain
+        io = [link.name for link in self.chain]
+        io.insert(0, str(self.source))
+        self.metadata["io"] = str(io)
 
     def fprint(self, text):
         self.console.print(text, style="yellow underline")
