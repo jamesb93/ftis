@@ -19,7 +19,9 @@ class FTISProcess:
         self.console = Console()
         self.mode = mode
         self.metadata = {}
+        self.prev_meta = {}
         self.setup()
+        self.general_metadata()
 
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
