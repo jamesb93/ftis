@@ -120,23 +120,6 @@ class FTISProcess:
                 obj.dumpout = True
             obj.do()
 
-    def create_metadata(self):
-        # Time
-        time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
-        self.metadata["time"] = time
-
-        # Git Hash
-        repo = git.Repo(search_parent_directories=True)
-        sha = repo.head.object.hexsha
-        self.metadata["commit_hash"] = sha
-
-        # Analyser chain
-        io = [link.name for link in self.chain]
-        io.insert(0, str(self.source))
-        self.metadata["io"] = str(io)
-
-        write_json(self.metapath, self.metadata)
-
     def run(self):
         md = "# **** FTIS v0.3 ****"
         md += f"\n\n**Source: {self.source}**"
