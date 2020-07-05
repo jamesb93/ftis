@@ -7,7 +7,7 @@ folder = "/Users/james/dev/ftis_example_project/cached_analysis"
 process = FTISProcess(source=src,folder=folder)
 
 f = Flux(cache=True)
-g = Stats(numderivs=2)
+g = Stats(numderivs=2, cache=True)
 
 process.add(f, g)
 
