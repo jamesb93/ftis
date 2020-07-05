@@ -202,7 +202,7 @@ class ClusteredSegmentation(FTISAnalyser):
                     try:
                         slices.pop(j + count)
                     except IndexError:
-                        pass  # TODO fix later
+                        pass  # FIXME why are some indices erroring?
             count += 1
             self.buffer[workable] = slices
 
