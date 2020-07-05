@@ -138,7 +138,7 @@ class FTISProcess:
         write_json(self.metapath, self.metadata)
 
     def run(self):
-        md = "# **** FTIS v0.1 ****"
+        md = "# **** FTIS v0.3 ****"
         md += f"\n\n**Source: {self.source}**"
         md += f"\n\n**Output: {self.folder}**"
         md += "\n\n---------------------"
