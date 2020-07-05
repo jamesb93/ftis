@@ -77,6 +77,7 @@ class FTISAnalyser:
             success = {} # in the situation that progress doesnt exist yet
 
         success[f"{self.order}_{self.name}"] = status # update the status of this analyser
+        # here we need to join any existing data into the metadata
         self.process.metadata["success"] = success # modify the original
         write_json(self.process.metapath, self.process.metadata)
 
