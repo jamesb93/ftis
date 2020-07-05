@@ -29,6 +29,9 @@ class Stats(FTISAnalyser):
     def dump(self):
         write_json(self.dump_path, dict(self.buffer))
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
     @staticmethod
     def calc_stats(data):
         """Given a time series calculate statistics"""
