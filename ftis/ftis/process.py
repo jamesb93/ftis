@@ -84,10 +84,10 @@ class FTISProcess:
             "output", 
             "input_type", 
             "dump_type",
-            "order",
             "dumpout",
             "cache",
-            "cache_exists"]
+            "cache_possible"] #FIXME this needs to be not duplicated
+
         analyser_params = {}
         for i, analyser in enumerate(self.chain):
             analyser.order = i
