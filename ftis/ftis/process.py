@@ -66,9 +66,6 @@ class FTISProcess:
     def fprint(self, text):
         self.console.print(text, style="yellow underline")
 
-    def dry_print(self, text):
-        self.console.print(text, style="red underline")
-
     def add(self, *args):
         """Accepts any number of classes to chain together"""
         self.chain = args  # Lets store these classes somewhere
