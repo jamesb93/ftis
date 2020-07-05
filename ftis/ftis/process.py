@@ -31,8 +31,14 @@ class FTISProcess:
 
         self.folder.mkdir(exist_ok=True)
 
-        self.metapath = self.folder / "metadata.json"  # set a metadata path
+        self.metapath = self.folder / "metadata.json"
         logfile_path = self.folder / "logfile.log"
+
+        # Grab any old metadata
+        try:
+            self.prev_meta = read_json(self.metapath)
+        except FileNotFoundError:
+            self.prev_meta = None
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
