@@ -73,7 +73,8 @@ class FTISProcess:
         """Accepts any number of classes to chain together"""
         self.chain = args  # Lets store these classes somewhere
         # Analyser parameters
-        super_keys = [
+
+        ignored_keys = [ # keys to ignore from superclass
             "process", 
             "logger", 
             "input", 
@@ -91,7 +92,7 @@ class FTISProcess:
 
             params = {}
             for k, v in zip(vars(analyser).keys(), vars(analyser).values()):
-                if k not in super_keys:
+                if k not in ignored_keys:
                     params[k] = v
             
             analyser_params[f"{i}_{name}"] = params
