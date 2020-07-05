@@ -36,23 +36,23 @@ class FTISAnalyser:
         return True
 
     def compare_meta(self) -> bool:
-        new_meta = self.process.metadata
-        old_meta = self.process.prev_meta
+        self.process.metadata = self.process.metadata
+        self.process.prev_meta = self.process.prev_meta
         ident = f"{self.order}_{self.name}"
         #FIXME This needs to be refactored big time
 
         try:
-            new_params = new_meta["analyser"][ident]
+            new_params = self.process.metadata["analyser"][ident]
         except KeyError:
             new_params = False
 
         try:
-            old_params = old_meta["analyser"][ident]
+            old_params = self.process.prev_meta["analyser"][ident]
         except KeyError:
             old_params = False
 
         try:
-            success = old_meta["success"][f"{self.order}_{self.name}"]
+            success = self.process.prev_meta["success"][f"{self.order}_{self.name}"]
         except KeyError:
             success = False
 
@@ -67,12 +67,12 @@ class FTISAnalyser:
 
     def update_success(self, status: bool):
         try: #FIXME combine these two try statements
-            self.process.metadata = read_json(self.process.metapath)
+            existing_metadata = read_json(self.process.metapath)
         except FileNotFoundError:
-            self.process.metadata = {}
+            existing_metadata = {}
 
         try:
-            success = self.process.metadata["success"] # extract the progress dict
+            success = existing_metadata["success"] # extract the progress dict
         except KeyError:
             success = {} # in the situation that progress doesnt exist yet
 
