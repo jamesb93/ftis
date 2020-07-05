@@ -1,4 +1,6 @@
 from ftis.common.exceptions import OutputNotFound
+from ftis.common.types import ftypes
+from ftis.common.io import read_json
 
 
 class FTISAnalyser:
@@ -26,17 +28,34 @@ class FTISAnalyser:
         )
 
     def dump(self):
-        pass
+        """Defined in the analyser that inherits this class"""
+
+    def folder_integrity(self) -> bool:
+        # TODO: implement folder integirty checking for analysers like Explode/Collapse
+        # We can know this from looking at the previous outputs
+        return True
+
+    # def compare_meta(self) -> bool:
+    #     old_meta = read_json(self.process.metapath)["analysers"][
+    #         self.__class__.__name__
+    #     ]
+    #     pcopy = dict(self.parameters)
+    #     old_meta.pop("cache", None)
+    #     pcopy.pop("cache", None)
+    #     return pcopy == old_meta
 
     def do(self):
         self.log("Initiating")
+        if self.dump_path.exists(): # TODO: type and metadata checking
+            if self.dump_type == ftypes.folder:
+                self.cache_exists = self.folder_integrity()
+            else:
+                self.cache_exists = True
 
-        if self.dump_path.exists(): # TODO: more comprehensive checking here depending on the types
-            self.cache_exists = True
-
-        if self.cache and self.cache_exists:
+        # if self.cache and self.cache_exists and self.process.metapath.exists() and self.compare_meta():
+        if self.cache and self.cache_exists and self.process.metapath.exists():
             self.load_cache()
-            self.process.fprint(f"{self.name} caching!")
+            self.process.fprint(f"{self.name} was cached")
         else:
             self.run()
             self.dump()
@@ -46,37 +65,6 @@ class FTISAnalyser:
         else:
             self.log("Ouput was invalid")
             raise OutputNotFound(self.name)
-        
-        # self.log("Executing process")
-        # if self.parameters["cache"] == True:
-        #     self.log("Intending to cache")
-        #     if self.cache_exists:
-        #         if self.process.metapath.exists() and self.compare_meta():
-        #             self.process.fprint(
-        #                 f"{self.name} was cached!"
-        #             )  # Display on console
-        #         elif not self.process.metapath.exists():
-        #             self.log(
-        #                 "Cache was true but there was no metadata to compare parameters for"
-        #             )
-        #             self.process.fprint(
-        #                 f"{self.name} was cached!"
-        #             )  # Display on console
-        #     else:
-        #         self.run()
-        #         self.log("Cache was true but there was no cache")
-        # else:
-        #     self.run()
-        #     self.log("Ran without caching")
-
-    # def compare_meta(self) -> bool:
-    #     old_meta = read_yaml(self.process.metapath)["analysers"][
-    #         self.__class__.__name__
-    #     ]
-    #     pcopy = dict(self.parameters)
-    #     old_meta.pop("cache", None)
-    #     pcopy.pop("cache", None)
-    #     return pcopy == old_meta
 
     def run(self):
         """Method for running the processing chain from input to output"""
