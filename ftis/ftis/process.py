@@ -147,4 +147,4 @@ class FTISProcess:
         print("\n")
 
         self.run_analysers()
-        self.create_metadata()
+        write_json(self.metapath, self.metadata)
