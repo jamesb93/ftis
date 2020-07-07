@@ -126,15 +126,18 @@ class Normalise(FTISAnalyser):
         self.min = minimum
         self.max = maximum
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def analyse(self):
         scaled_data = MinMaxScaler((self.min, self.max)).fit_transform(self.features)
 
         self.output = {}
         for k, v in zip(self.keys, scaled_data):
             self.output[k] = list(v)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
 
     def run(self):
         self.keys = [x for x in self.input.keys()]
@@ -146,15 +149,18 @@ class Standardise(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def analyse(self):
         scaled_data = StandardScaler().fit_transform(self.features)
 
         self.output = {}
         for k, v in zip(self.keys, scaled_data):
             self.output[k] = list(v)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
 
     def run(self):
         self.keys = [x for x in self.input.keys()]
@@ -168,11 +174,11 @@ class ClusteredSegmentation(FTISAnalyser):
         self.numclusters = numclusters
         self.windowsize = windowsize
 
-    def dump(self):
-        write_json(self.dump_path, dict(self.buffer))
-
     def load_cache(self):
         self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
         slices = self.input[workable]
@@ -320,6 +326,12 @@ class FluidLoudness(FTISAnalyser):
         self.kweighting = kweighting
         self.truepeak = truepeak
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def analyse(self, workable):
         loudness = fluid.loudness(
             workable,
@@ -330,9 +342,6 @@ class FluidLoudness(FTISAnalyser):
         )
 
         self.buffer[str(workable)] = get_buffer(loudness)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
 
     def run(self):
         self.buffer = Manager().dict()
@@ -358,6 +367,12 @@ class FluidMFCC(FTISAnalyser):
         self.minfreq = minfreq
         self.maxfreq = maxfreq
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def analyse(self, workable):
         mfcc = fluid.mfcc(
             workable,
@@ -369,9 +384,6 @@ class FluidMFCC(FTISAnalyser):
         )
 
         self.data_container[str(workable)] = get_buffer(mfcc)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
 
     def run(self):
         self.buffer = Manager().dict()
@@ -400,6 +412,9 @@ class FluidNoveltyslice(FTISAnalyser):
     def load_cache(self):
         self.output = read_json(self.dump_path)
 
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
             workable,
@@ -411,9 +426,6 @@ class FluidNoveltyslice(FTISAnalyser):
         )
 
         self.buffer[str(workable)] = get_buffer(noveltyslice)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
 
     def run(self):
         self.buffer = Manager().dict()
@@ -427,6 +439,12 @@ class HDBSClustering(FTISAnalyser):
         super().__init__(cache=cache)
         self.minclustersize = minclustersize
         self.minsamples = minsamples
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def analyse(self):
         keys = [x for x in self.input.keys()]
@@ -446,9 +464,6 @@ class HDBSClustering(FTISAnalyser):
             else:
                 self.output[str(cluster)] = [audio]
 
-    def dump(self):
-        write_json(self.dump_path, self.output)
-
     def run(self):
         staticproc(self.name, self.analyse)
 
@@ -457,6 +472,12 @@ class AGCluster(FTISAnalyser):
     def __init__(self, numclusters=3, cache=False):
         super().__init__(cache=cache)
         self.numclusters = numclusters
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def analyse(self):
         keys = [x for x in self.input.keys()]
@@ -473,9 +494,6 @@ class AGCluster(FTISAnalyser):
                 self.output[str(cluster)].append(audio)
             else:
                 self.output[str(cluster)] = [audio]
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
 
     def run(self):
         staticproc(self.name, self.analyse)
@@ -503,6 +521,12 @@ class ClusteredNMF(FTISAnalyser):
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
         self.cluster_selection_method = cluster_selection_method
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
         nmf = fluid.nmf(
