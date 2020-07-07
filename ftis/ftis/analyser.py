@@ -226,8 +226,8 @@ class ClusteredSegmentation(FTISAnalyser):
 class UmapDR(FTISAnalyser):
     """Dimension reduction with UMAP algorithm"""
 
-    def __init__(self, mindist=0.01, neighbours=7, components=2):
-        super().__init__()
+    def __init__(self, mindist=0.01, neighbours=7, components=2, cache=False):
+        super().__init__(cache=cache)
         self.mindist = mindist
         self.neighbours = neighbours
         self.components = components
