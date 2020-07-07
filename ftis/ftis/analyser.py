@@ -232,6 +232,11 @@ class UmapDR(FTISAnalyser):
         self.neighbours = neighbours
         self.components = components
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
     def analyse(self):
         self.output = {}
         data = [v for v in self.input.values()]
