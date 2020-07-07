@@ -167,9 +167,18 @@ class ClusteredSegmentation(FTISAnalyser):
         self.numclusters = numclusters
         self.windowsize = windowsize
 
+    def dump(self):
+        write_json(self.dump_path, dict(self.buffer))
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
     def analyse(self, workable):
         slices = self.input[workable]
-        slices = [int(x) for x in slices]  # lets test this out later
+        slices = [int(x) for x in slices]
+        if len(slices) == 1:
+            self.buffer[workable] = slices
+            return
         count = 0
         standardise = StandardScaler()
         model = AgglomerativeClustering(n_clusters=self.numclusters)
