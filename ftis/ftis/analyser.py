@@ -214,7 +214,7 @@ class ClusteredSegmentation(FTISAnalyser):
                     except IndexError:
                         pass  # FIXME why are some indices erroring?
             count += 1
-            self.buffer[workable] = slices
+        self.buffer[workable] = slices
 
     def dump(self):
         write_json(self.dump_path, dict(self.buffer))
