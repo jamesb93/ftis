@@ -21,14 +21,13 @@ from shutil import copyfile
 
 class Stats(FTISAnalyser):
     """Get various statistics and derivatives of those"""
-
     def __init__(self, numderivs=0, flatten=True, cache=False):
         super().__init__(cache=cache)
         self.numderivs = numderivs
         self.flatten = flatten
 
     def dump(self):
-        write_json(self.dump_path, dict(self.buffer))
+        write_json(self.dump_path, self.output)
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -120,8 +119,8 @@ class Flux(FTISAnalyser):
 
 
 class Normalise(FTISAnalyser):
-    def __init__(self, minimum=0, maximum=1):
-        super().__init__()
+    def __init__(self, minimum=0, maximum=1, cache=False):
+        super().__init__(cache=cache)
         self.min = minimum
         self.max = maximum
 
@@ -142,8 +141,8 @@ class Normalise(FTISAnalyser):
 
 
 class Standardise(FTISAnalyser):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, cache=False):
+        super().__init__(cache=cache)
 
     def analyse(self):
         scaled_data = StandardScaler().fit_transform(self.features)
@@ -225,7 +224,6 @@ class ClusteredSegmentation(FTISAnalyser):
 
 class UmapDR(FTISAnalyser):
     """Dimension reduction with UMAP algorithm"""
-
     def __init__(self, mindist=0.01, neighbours=7, components=2, cache=False):
         super().__init__(cache=cache)
         self.mindist = mindist
@@ -313,8 +311,8 @@ class ExplodeAudio(FTISAnalyser):
 
 
 class FluidLoudness(FTISAnalyser):
-    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1):
-        super().__init__()
+    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, cache=False):
+        super().__init__(cache=cache)
         self.windowsize = windowsize
         self.hopsize = hopsize
         self.kweighting = kweighting
@@ -349,8 +347,9 @@ class FluidMFCC(FTISAnalyser):
         numcoeffs=13,
         minfreq=80,
         maxfreq=20000,
+        cache=False
     ):
-        super().__init__()
+        super().__init__(cache=cache)
         self.fftsettings = fftsettings
         self.numbands = numbands
         self.numcoeffs = numcoeffs
@@ -422,8 +421,8 @@ class FluidNoveltyslice(FTISAnalyser):
 
 
 class HDBSClustering(FTISAnalyser):
-    def __init__(self, minclustersize=2, minsamples=1):
-        super().__init__()
+    def __init__(self, minclustersize=2, minsamples=1, cache=False):
+        super().__init__(cache=cache)
         self.minclustersize = minclustersize
         self.minsamples = minsamples
 
@@ -453,8 +452,8 @@ class HDBSClustering(FTISAnalyser):
 
 
 class AGCluster(FTISAnalyser):
-    def __init__(self, numclusters=3):
-        super().__init__()
+    def __init__(self, numclusters=3, cache=False):
+        super().__init__(cache=cache)
         self.numclusters = numclusters
 
     def analyse(self):
