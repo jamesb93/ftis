@@ -12,8 +12,8 @@ class FTISProcess:
     """Class that represents the life cycle of an 'ftis' execution"""
 
     def __init__(self, source: Path, folder: Path, mode="chain"):
-        self.folder = Path(folder)
-        self.source = Path(source)
+        self.folder = Path(folder).expanduser().resolve()
+        self.source = Path(source).expanduser().resolve()
         self.chain = []
         self.logger = None
         self.console = Console()
@@ -75,7 +75,6 @@ class FTISProcess:
     def add(self, *args):
         """Accepts any number of classes to chain together"""
         self.chain = args  # Lets store these classes somewhere
-        # Analyser parameters
 
         ignored_keys = [ # keys to ignore from superclass
             "process", 
