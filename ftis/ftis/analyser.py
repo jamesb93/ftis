@@ -92,6 +92,12 @@ class Flux(FTISAnalyser):
         self.windowsize = windowsize
         self.hopsize = hopsize
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
     def flux(self, workable):
         audio = data.Wave.read(str(workable))
         if audio.is_stereo():
@@ -105,11 +111,7 @@ class Flux(FTISAnalyser):
             np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
         )  # Flux calculation here
 
-    def load_cache(self):
-        self.output = read_json(self.dump_path)
 
-    def dump(self):
-        write_json(self.dump_path, dict(self.data))
 
     def run(self):
         self.data = Manager().dict()
