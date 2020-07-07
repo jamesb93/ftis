@@ -485,8 +485,9 @@ class ClusteredNMF(FTISAnalyser):
         min_cluster_size=2,
         min_samples=2,
         cluster_selection_method="eom",
+        cache=False
     ):
-        super().__init__()
+        super().__init__(cache=cache)
         self.components = components
         self.iterations = iterations
         self.fftsettings = fftsettings
