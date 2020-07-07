@@ -382,8 +382,9 @@ class FluidNoveltyslice(FTISAnalyser):
         filtersize=1,
         minslicelength=2048,
         threshold=0.5,
+        cache=False
     ):
-        super().__init__()
+        super().__init__(cache=cache)
         self.feature = feature
         self.fftsettings = fftsettings
         self.filtersize = filtersize
