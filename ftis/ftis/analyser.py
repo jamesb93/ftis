@@ -216,9 +216,6 @@ class ClusteredSegmentation(FTISAnalyser):
             count += 1
         self.buffer[workable] = slices
 
-    def dump(self):
-        write_json(self.dump_path, dict(self.buffer))
-
     def run(self):
         self.buffer = Manager().dict()
         workables = [x for x in self.input]
