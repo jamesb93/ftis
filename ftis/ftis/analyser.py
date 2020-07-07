@@ -393,6 +393,9 @@ class FluidNoveltyslice(FTISAnalyser):
         self.minslicelength = minslicelength
         self.threshold = threshold
 
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
             workable,
