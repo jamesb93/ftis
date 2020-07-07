@@ -223,7 +223,7 @@ class ClusteredSegmentation(FTISAnalyser):
         self.output = dict(self.buffer)
 
 
-class UMAPDR(FTISAnalyser):
+class UmapDR(FTISAnalyser):
     """Dimension reduction with UMAP algorithm"""
 
     def __init__(self, mindist=0.01, neighbours=7, components=2):
