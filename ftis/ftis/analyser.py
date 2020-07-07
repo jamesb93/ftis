@@ -162,8 +162,8 @@ class Standardise(FTISAnalyser):
 
 
 class ClusteredSegmentation(FTISAnalyser):
-    def __init__(self, numclusters=2, windowsize=4):
-        super().__init__()
+    def __init__(self, numclusters=2, windowsize=4, cache=False):
+        super().__init__(cache=cache)
         self.numclusters = numclusters
         self.windowsize = windowsize
 
