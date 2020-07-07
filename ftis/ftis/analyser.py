@@ -281,6 +281,10 @@ class ExplodeAudio(FTISAnalyser):
 
     def segment(self, workable):
         slices = self.input[str(workable)]
+
+        if len(slices) == 1:
+            copyfile(workable, self.output / f"{workable.stem}_1.wav")
+
         src = AudioSegment.from_file(workable, format="wav")
         sr = int(mediainfo(workable)["sample_rate"])
 
