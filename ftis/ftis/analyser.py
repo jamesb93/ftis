@@ -237,6 +237,7 @@ class UmapDR(FTISAnalyser):
 
     def dump(self):
         write_json(self.dump_path, self.output)
+
     def analyse(self):
         self.output = {}
         data = [v for v in self.input.values()]
@@ -254,8 +255,7 @@ class UmapDR(FTISAnalyser):
         for key, value in zip(keys, data):
             self.output[key] = value.tolist()
 
-    def dump(self):
-        write_json(self.dump_path, self.output)
+
 
     def run(self):
         staticproc(self.name, self.analyse)
