@@ -16,6 +16,7 @@ from pydub.utils import mediainfo
 from scipy.io import wavfile
 from scipy import stats
 from scipy.signal import savgol_filter
+from shutil import copyfile
 
 
 class Stats(FTISAnalyser):
