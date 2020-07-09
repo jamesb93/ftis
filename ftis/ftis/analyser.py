@@ -433,6 +433,50 @@ class FluidNoveltyslice(FTISAnalyser):
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
+class FluidOnsetslice(FTISAnalyser):
+    def __init__(
+        self,
+        fftsettings=[1024, 512, 1024],
+        filtersize=5,
+        framedelta=0,
+        metric=0,
+        minslicelength=2,
+        threshold=0.5,
+        cache=False
+    ):
+        super().__init__(cache=cache)
+        self.fftsettings = fftsettings
+        self.filtersize = filtersize
+        self.framedelta = framedelta
+        self.metric = metric
+        self.minslicelength = minslicelength
+        self.threshold = threshold
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def analyse(self, workable):
+        onsetslice = fluid.onsetslice(
+            workable,
+            fftsettings=self.fftsettings,
+            filtersize=self.filtersize,
+            framedelta=self.framedelta,
+            metric=self.metric,
+            minslicelength=self.minslicelength,
+            threshold=self.threshold,
+        )
+
+        self.buffer[str(workable)] = get_buffer(onsetslice)
+
+    def run(self):
+        self.buffer = Manager().dict()
+        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        singleproc(self.name, self.analyse, workables)
+        self.output = dict(self.buffer)
+
 
 class HDBSClustering(FTISAnalyser):
     def __init__(self, minclustersize=2, minsamples=1, cache=False):
