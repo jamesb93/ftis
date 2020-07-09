@@ -13,11 +13,20 @@ class FTISAnalyser:
         self.output = None
         self.input_type = ""
         self.dump_type = ""
+        self.dump_path = ""
         self.name = self.__class__.__name__
         self.order: int = -1
         self.dumpout = dumpout
         self.cache = cache
         self.cache_possible = False
+
+    def __rshift__(self, right):
+        right.input = self.output
+        return self
+
+    def __lshift__(self, right):
+        self.input = right.output
+        return right
 
     def log(self, log_text):
         self.logger.debug(f"{self.name}: {log_text}")
