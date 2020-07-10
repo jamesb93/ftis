@@ -383,7 +383,7 @@ class FluidMFCC(FTISAnalyser):
             maxfreq=self.maxfreq,
         )
 
-        self.data_container[str(workable)] = get_buffer(mfcc)
+        self.buffer[str(workable)] = get_buffer(mfcc)
 
     def run(self):
         self.buffer = Manager().dict()
