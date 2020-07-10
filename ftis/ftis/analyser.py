@@ -478,7 +478,7 @@ class FluidOnsetslice(FTISAnalyser):
         self.output = dict(self.buffer)
 
 
-class HDBSClustering(FTISAnalyser):
+class HDBSCluster(FTISAnalyser):
     def __init__(self, minclustersize=2, minsamples=1, cache=False):
         super().__init__(cache=cache)
         self.minclustersize = minclustersize
