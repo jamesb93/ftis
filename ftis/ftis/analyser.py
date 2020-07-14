@@ -87,7 +87,7 @@ class Stats(FTISAnalyser):
 class Flux(FTISAnalyser):
     """Computes spectral flux of an audio file"""
 
-    def __init__(self, windowsize=1024, hopsize=512, cache=True):
+    def __init__(self, windowsize=1024, hopsize=512, cache=False):
         super().__init__(cache=cache)
         self.windowsize = windowsize
         self.hopsize = hopsize
