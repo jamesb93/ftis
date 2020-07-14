@@ -35,8 +35,8 @@ def peek(audio_file_path: str, output: str = "np"):
     The audio data can be a numpy array or list
     """
     data, sr = sf.read(audio_file_path)
-    data, sr = data.transpose()
+    data = data.transpose()
     if output == "list":
         return data.tolist(), sr
-    if output == "numpy":
+    if output == "np":
         return data, sr
