@@ -289,7 +289,7 @@ class CollapseAudio(FTISAnalyser):
             for x in self.input.iterdir()
             if x != ".DS_Store" and x.suffix == ".wav"
         ]
-        multiproc(self.name, self.collapse, workables)
+        singleproc(self.name, self.collapse, workables)
 
 
 class ExplodeAudio(FTISAnalyser):
@@ -315,7 +315,7 @@ class ExplodeAudio(FTISAnalyser):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
         workables = [Path(x) for x in self.input.keys()]
-        multiproc(self.name, self.segment, workables)
+        singleproc(self.name, self.segment, workables)
 
 
 class FluidLoudness(FTISAnalyser):
