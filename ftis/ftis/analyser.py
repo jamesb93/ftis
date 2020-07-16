@@ -433,6 +433,7 @@ class FluidNoveltyslice(FTISAnalyser):
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
+
 class FluidOnsetslice(FTISAnalyser):
     def __init__(
         self,
@@ -614,6 +615,23 @@ class ClusteredNMF(FTISAnalyser):
             if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"
         ]
         singleproc(self.name, self.analyse, workables)
+
+__all__ = [
+    'Stats', 
+    'Flux', 
+    'Normalise', 
+    'Standardise', 
+    'ClusteredSegmentation', 
+    'UmapDR',
+    'CollapseAudio',
+    'ExplodeAudio',
+    'FluidLoudness',
+    'FluidMFCC',
+    'FluidNoveltyslice',
+    'FluidOnsetslice',
+    'HDBSClustering',
+    'AGCluster',
+    'ClusteredNMF']
 
 
 # class FluidSines(FTISAnalyser):

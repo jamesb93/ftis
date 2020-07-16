@@ -9,8 +9,10 @@ class FTISAnalyser:
     def __init__(self, dumpout=False, cache=False):
         self.process = None  # pass the parent process in
         self.logger = None
-        self.input = ""
-        self.output = None
+        self.io = {
+            "inputs" = [],
+            "outputs" = []
+        }
         self.input_type = ""
         self.dump_type = ""
         self.dump_path = ""
@@ -20,6 +22,7 @@ class FTISAnalyser:
         self.cache = cache
         self.cache_possible = False
 
+
     def __rshift__(self, right):
         right.input = self.output
         return self
@@ -27,6 +30,12 @@ class FTISAnalyser:
     def __lshift__(self, right):
         self.input = right.output
         return right
+
+    def set_input(self):
+        
+
+    def enable_scripting_mode(self):
+        pass
 
     def log(self, log_text):
         self.logger.debug(f"{self.name}: {log_text}")
