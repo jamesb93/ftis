@@ -1,5 +1,6 @@
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import get_duration
+from ftis.common.proc import staticproc
 from pathlib import Path
 from pydub.utils import mediainfo
 import pickle
@@ -41,6 +42,10 @@ class CorpusLoader(FTISAnalyser):
         self.output = [x for x in self.output if x.suffix in self.file_type]
         if self.min_dur != 0 or self.max_dur != 36000: # if not defaults
             self.output = [x for x in self.output if self.filter_duration(x)]
+    def create_corpus(self):
         self.get_items()
         self.filter_items()
+
+    def run(self):
+        staticproc(self.name, self.create_corpus)
         
