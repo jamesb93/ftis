@@ -1,11 +1,6 @@
 import yaml
 import soundfile as sf
-# from pydub.utils import mediainfo
-
-try:
-    import rapidjson as rj
-except ImportError:
-    import json as rj
+import rapidjson as rj
 
 
 def write_json(json_file_path: str, in_dict: dict):
