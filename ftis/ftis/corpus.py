@@ -23,12 +23,12 @@ class CorpusLoader(FTISAnalyser):
 
     def filter_items(self):
         # Filter by the extension
-        self.output = [x for x in self.items if x.suffix in self.file_type]
+        self.output = [x for x in self.output if x.suffix in self.file_type]
         #TODO optimise this part to be one big ol' filter
         if self.min_dur:
-            self.output = [x for x in self.items if get_duration(x) > self.min_dur]
+            self.output = [x for x in self.output if get_duration(x) > self.min_dur]
         if self.max_dur:
-            self.output = [x for x in self.items if get_duration(x) < self.max_dur]
+            self.output = [x for x in self.output if get_duration(x) < self.max_dur]
 
     def run(self):
         self.get_items()
