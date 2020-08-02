@@ -12,11 +12,6 @@ def get_workables(pth):
     return temp_workables
 
 
-def filter_extensions(workables, valid_ext):
-    """Filters path objects from a list based on extension"""
-    return [x for x in workables if x.suffix in valid_ext]
-
-
 def list_to_coll(list_input: list, out_file: str):
     """Turns a list into a coll."""
     f = open(out_file, "w+")
