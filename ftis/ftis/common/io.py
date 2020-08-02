@@ -1,4 +1,3 @@
-import math
 import yaml
 import soundfile as sf
 
