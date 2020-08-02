@@ -1,5 +1,6 @@
 import yaml
 import soundfile as sf
+from pydub.utils import mediainfo
 
 try:
     import rapidjson as rj
@@ -39,3 +40,6 @@ def peek(audio_file_path: str, output: str = "np"):
         return data.tolist(), sr
     if output == "np":
         return data, sr
+    
+def get_duration(path):
+    return float(mediainfo(path)["duration"])
