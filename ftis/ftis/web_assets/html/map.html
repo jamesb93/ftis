@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>webgl - data explorer</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<script type="x-shader/x-vertex" id="vertexshader">
+
+			attribute float size;
+			attribute vec3 customColor;
+
+			varying vec3 vColor;
+
+			void main() {
+				vColor = customColor;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_PointSize = size * ( 300.0 / -mvPosition.z );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform vec3 color;
+			uniform sampler2D pointTexture;
+
+			varying vec3 vColor;
+
+			void main() {
+
+				gl_FragColor = vec4( color * vColor, 1.0 );
+
+				gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+
+			}
+
+		</script>
+
+		<script type="module">
+			import * as THREE from '../js/node_modules/three/build/three.module.js';
+			import Stats from '../js/node_modules/three/examples/jsm/libs/stats.module.js';
+			import { GUI } from '../js/node_modules/three/examples/jsm/libs/dat.gui.module.js';
+			import { OrbitControls } from '../js/node_modules/three/examples/jsm/controls/OrbitControls.js';
+			import { FlyControls } from '../js/node_modules/three/examples/jsm/controls/FlyControls.js';
+
+			var renderer, scene, camera, stats, controls;
+			var particles;
+			var raycaster, intersects;
+			var mouse, INTERSECTED;
+			var listener, sound, audioLoader;
+			var data;
+
+			// Set up some global parameters
+			var params = {
+				config: 'reduce.json',
+				baseParticleSize: 10,
+				backgroundColor: 'black',
+				volume: -12.0,
+			};
+
+			function loadData(json) {
+				data = json.data;
+				init();
+				animate();
+			}
+			
+			fetch("../plot.json")
+				.then(response => response.json())
+				.then(json => loadData(json))
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 2000;
+				// Audio
+				audioLoader = new THREE.AudioLoader();
+				listener = new THREE.AudioListener();
+				camera.add(listener);
+				sound = new THREE.Audio(listener);
+				sound.setLoop(false);
+				sound.setVolume(0.25);
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(params.backgroundColor);
+
+				var colors = new Float32Array(data.length * 3);
+				var coords = new Float32Array(data.length * 3);
+				var sizes = new Float32Array(data.length);
+
+				for (var i=0; i < data.length; i++) {
+					coords[(i * 3) + 0] = data[i].x * 2000 - 1000;
+					coords[(i * 3) + 1] = data[i].y * 2000 - 1000;
+					coords[(i * 3) + 2] = data[i].z * 2000 - 1000;
+					// Sizes
+					sizes[i] = params.baseParticleSize;
+					// Colour
+					// var hue;
+					// var sat;
+					// if (data[i].cluster != -1) {
+					// 	hue = data[i].cluster / metadata[0];
+					// 	sat = 1 - hue;
+					// } else {
+					// 	hue = 0.0;
+					// 	sat = 1 - huge;
+					// }
+					var color = new THREE.Color('skyblue');
+					// color.setHSL(1.0, 1.0, 1.0);
+					color.toArray(colors, i*3);
+				}
+			
+				var geometry = new THREE.BufferGeometry();
+				geometry.setAttribute( 'position', new THREE.BufferAttribute(coords, 3));
+				geometry.setAttribute( 'customColor', new THREE.BufferAttribute(colors, 3));
+				geometry.setAttribute( 'size', new THREE.BufferAttribute(sizes, 1));
+
+
+				var material = new THREE.ShaderMaterial({
+					uniforms: {
+						color: {value: new THREE.Color(0xffffff)},
+						pointTexture: {value: new THREE.TextureLoader().load("../textures/circle.png")}
+					},
+					vertexShader: document.getElementById( 'vertexshader' ).textContent,
+					fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+				});
+
+				particles = new THREE.Points(geometry, material);
+				scene.add( particles );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				// Camera Controls
+
+				controls = new OrbitControls(camera, renderer.domElement);
+				controls.enableDamping = true;
+				controls.dampingFactor = 0.1;
+				controls.screenSpacePanning = false;
+				controls.minDistance = 30;
+				controls.maxDistance = 3000;
+				controls.maxPolarAngle = Math.PI / 2;
+
+				// Mouse intersection Logic
+				raycaster = new THREE.Raycaster();
+				mouse = new THREE.Vector2();
+
+				// Display stats
+				stats = new Stats();
+				document.body.appendChild( stats.dom );
+				
+				// GUI
+				var gui = new GUI();
+
+				// Add controls here
+				gui.add(camera, 'fov', 45, 160).onChange(function () {
+					camera.updateProjectionMatrix()
+				});
+				
+				gui.add(params, 'baseParticleSize', 10, 400).onChange(function() {
+					var geometry = particles.geometry;
+					var attributes = geometry.attributes;
+					for (var i=0; i < data.length; i++) {
+						attributes.size.array[i] = params.baseParticleSize;
+					}
+					attributes.size.needsUpdate = true;
+				});
+
+				gui.add(params, 'volume', -60, 0.0);
+
+				gui.open();
+				document.addEventListener('mousemove', onDocumentMouseMove, false );
+				window.addEventListener('resize', onWindowResize, false );
+			}
+
+			function onDocumentMouseMove( event ) {
+				event.preventDefault();
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = ( event.clientY / window.innerHeight ) * 2 + 1;
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				controls.update()
+				stats.update();
+				render();
+			}
+
+			function render() {
+				var geometry = particles.geometry;
+				var attributes = geometry.attributes;
+
+				raycaster.setFromCamera(mouse, camera)
+
+				intersects = raycaster.intersectObject(particles);
+				if (intersects.length > 0){
+					if (INTERSECTED != intersects[0].index) {
+						attributes.size.array[INTERSECTED] = params.baseParticleSize;
+						INTERSECTED = intersects[0].index;
+						attributes.size.array[INTERSECTED] = params.baseParticleSize * 4;
+						attributes.size.needsUpdate = true;
+
+						if (data[INTERSECTED].name) {
+							audioLoader.load( '../audio/' + data[INTERSECTED].name, 
+							function(buffer) {
+								sound.setBuffer(buffer);
+								sound.setVolume(Math.pow(10.0, params.volume / 20.0));
+								sound.play();
+							});
+						}
+
+					}
+				} else if (INTERSECTED !== null) {
+					attributes.size.array[INTERSECTED] = params.baseParticleSize;
+					attributes.size.needsUpdate = true;
+					INTERSECTED = null;
+					if (sound.isPlaying) {
+						sound.stop();
+					}
+				}
+				renderer.render(scene, camera);
+			}
+
+		</script>
+	</body>
+</html>
