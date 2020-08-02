@@ -10,7 +10,7 @@ class CorpusLoader(FTISAnalyser):
 
     def __init__(self, 
         min_dur=0, 
-        max_dur=0, 
+        max_dur=36000, # 10 hours of audio 
         file_type=[".wav"], 
         cache=False
     ):
@@ -19,6 +19,7 @@ class CorpusLoader(FTISAnalyser):
         self.min_dur:int = min_dur
         self.max_dur:int = max_dur
         self.file_type = file_type
+        self.dump_type = ".pkl"
 
     def get_items(self):
         self.output = [x for x in self.input.iterdir()]
@@ -42,6 +43,7 @@ class CorpusLoader(FTISAnalyser):
         self.output = [x for x in self.output if x.suffix in self.file_type]
         if self.min_dur != 0 or self.max_dur != 36000: # if not defaults
             self.output = [x for x in self.output if self.filter_duration(x)]
+    
     def create_corpus(self):
         self.get_items()
         self.filter_items()
