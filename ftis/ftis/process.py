@@ -1,6 +1,5 @@
 import datetime
 import logging
-import git
 from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
