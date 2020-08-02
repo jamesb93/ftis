@@ -164,7 +164,7 @@ class Standardise(FTISAnalyser):
 
     def run(self):
         self.keys = [x for x in self.input.keys()]
-        self.features = [x for x in self.input.values()]
+        self.features = [f for f in self.input.values()]
         staticproc(self.name, self.analyse)
 
 
@@ -272,7 +272,7 @@ class CollapseAudio(FTISAnalyser):
         super().__init__()
 
     def collapse(self, workable):
-        out = self.output / workable.name
+        out = self.outfolder / workable.name
         raw, sr = peek(workable)
         audio = None
         if raw.ndim == 1:
@@ -282,13 +282,10 @@ class CollapseAudio(FTISAnalyser):
         wavfile.write(out, sr, audio)
 
     def run(self):
-        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
-        self.output.mkdir(exist_ok=True)
-        workables = [
-            Path(x)
-            for x in self.input.iterdir()
-            if x != ".DS_Store" and x.suffix == ".wav"
-        ]
+        self.outfolder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.outfolder.mkdir(exist_ok=True)
+        workables = self.input
+        self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
         singleproc(self.name, self.collapse, workables)
 
 
