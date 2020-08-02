@@ -22,6 +22,10 @@ class CorpusLoader(FTISAnalyser):
     def get_items(self):
         self.output = [x for x in self.input.iterdir()]
 
+    def filter_duration(self, x):
+        dur = get_duration(x)
+        return dur < self.max_dur and dur > self.min_dur
+
     #TODO maybe make this a csv so its readable.
     def load_cache(self):
         # self.output = read_json(self.dump_path)
@@ -31,16 +35,12 @@ class CorpusLoader(FTISAnalyser):
     def dump(self):
         with open(self.dump_path, "wb") as f:
             pickle.dump(self.output, f)
+
     def filter_items(self):
         # Filter by the extension
         self.output = [x for x in self.output if x.suffix in self.file_type]
-        #TODO optimise this part to be one big ol' filter
-        if self.min_dur:
-            self.output = [x for x in self.output if get_duration(x) > self.min_dur]
-        if self.max_dur:
-            self.output = [x for x in self.output if get_duration(x) < self.max_dur]
-
-    def run(self):
+        if self.min_dur != 0 or self.max_dur != 36000: # if not defaults
+            self.output = [x for x in self.output if self.filter_duration(x)]
         self.get_items()
         self.filter_items()
         
