@@ -115,7 +115,7 @@ class Flux(FTISAnalyser):
 
     def run(self):
         self.data = Manager().dict()
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        workables = self.input
         multiproc(self.name, self.flux, workables)
         self.output = dict(self.data)
 
@@ -345,7 +345,7 @@ class FluidLoudness(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        workables = self.input
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
@@ -387,7 +387,7 @@ class FluidMFCC(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        workables = self.input
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
@@ -429,7 +429,7 @@ class FluidNoveltyslice(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        workables = self.input
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
@@ -473,7 +473,7 @@ class FluidOnsetslice(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+        workables = self.input
         singleproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
@@ -661,7 +661,7 @@ class ClusteredNMF(FTISAnalyser):
 #         )
 
 #     def run(self):
-#         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+#         workables = self.input
 #         singleproc(self.name, self.analyse, workables)
 #         self.output
 
@@ -693,6 +693,6 @@ class ClusteredNMF(FTISAnalyser):
 #         )
 
 #     def run(self):
-#         workables = [x for x in self.input.iterdir() if x.suffix == ".wav"]
+#         workables = self.input
 #         multiproc(self.name, self.analyse, workables)
 #         cleanup()
