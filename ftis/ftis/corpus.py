@@ -2,12 +2,10 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import get_duration
 from ftis.common.proc import staticproc
 from pathlib import Path
-from pydub.utils import mediainfo
 import pickle
 # The corpusloader will be a special kind of analyser used for preparing sound file batches
 
 class CorpusLoader(FTISAnalyser):
-
     def __init__(self, 
         min_dur=0, 
         max_dur=36000, # 10 hours of audio 
@@ -19,7 +17,7 @@ class CorpusLoader(FTISAnalyser):
         self.min_dur:int = min_dur
         self.max_dur:int = max_dur
         self.file_type = file_type
-        self.dump_type = ".pkl"
+        self.dump_type = ".json"
 
     def get_items(self):
         self.output = [x for x in self.input.iterdir()]
@@ -30,13 +28,13 @@ class CorpusLoader(FTISAnalyser):
 
     #TODO maybe make this a csv so its readable.
     def load_cache(self):
-        # self.output = read_json(self.dump_path)
-        with open(self.dump_path, "rb") as f:
-            self.output = pickle.load(f)
+        d = read_json(self.dump_path)
+        self.output = [x for x in d["corpus_items"]]
 
     def dump(self):
-        with open(self.dump_path, "wb") as f:
-            pickle.dump(self.output, f)
+        d = {"corpus_items" = [x for x in self.output]}
+        write_json(self.dump_path, d)
+            
 
     def filter_items(self):
         # Filter by the extension
