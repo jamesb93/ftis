@@ -1,5 +1,5 @@
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.io import get_duration
+from ftis.common.io import get_duration, write_json, read_json
 from ftis.common.proc import staticproc
 from pathlib import Path
 import pickle
@@ -29,10 +29,10 @@ class CorpusLoader(FTISAnalyser):
     #TODO maybe make this a csv so its readable.
     def load_cache(self):
         d = read_json(self.dump_path)
-        self.output = [x for x in d["corpus_items"]]
+        self.output = [Path(x) for x in d["corpus_items"]]
 
     def dump(self):
-        d = {"corpus_items" = [x for x in self.output]}
+        d = {"corpus_items" : [str(x) for x in self.output]}
         write_json(self.dump_path, d)
             
 
