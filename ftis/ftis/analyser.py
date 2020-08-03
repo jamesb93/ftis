@@ -667,10 +667,9 @@ class ClusteredNMF(FTISAnalyser):
         singleproc(self.name, self.analyse, workables)
 
 class LibroCQT(FTISAnalyser):
-    def __init__(
-        self,
+    def __init__(self,
         hop_length=512,
-        fmin=110,
+        minfreq=110,
         n_bins=84,
         bins_per_octave=12,
         tuning=0.0,
@@ -683,17 +682,17 @@ class LibroCQT(FTISAnalyser):
         cache=False
     ):
         super().__init__(cache=cache)
-        self.hop_length = hop_length,
-        self.fmin = fmin,
-        self.n_bins = n_bins,
-        self.bins_per_octave = bins_per_octave,
-        self.tuning = tuning,
-        self.filter_scale = filter_scale,
-        self.norm = norm,
-        self.sparsity = 0.01,
-        self.window = window,
-        self.scale = scale,
-        self.pad_mode = pad_mode,
+        self.hop_length = hop_length
+        self.minfreq = minfreq
+        self.n_bins = n_bins
+        self.bins_per_octave = bins_per_octave
+        self.tuning = tuning
+        self.filter_scale = filter_scale
+        self.norm = norm
+        self.sparsity = sparsity
+        self.window = window
+        self.scale = scale
+        self.pad_mode = pad_mode
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
