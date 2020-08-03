@@ -408,7 +408,6 @@ class LibroMFCC(FTISAnalyser):
         cache=False
     ):
         super().__init__(cache=cache)
-        self.fftsettings = fftsettings
         self.numbands = numbands
         self.numcoeffs = numcoeffs
         self.minfreq = minfreq
@@ -702,8 +701,8 @@ class LibroCQT(FTISAnalyser):
 
     def analyse(self, workable):
         y, sr = librosa.load(workable, sr=None, mono=True)
-        self.buffer[str(workable)] = np.abs(librosa.cqt(y, sr, 
-            fmin=self.fmin,
+        cqt = librosa.cqt(y, sr, 
+            fmin=self.minfreq,
             n_bins=self.n_bins,
             bins_per_octave=self.bins_per_octave,
             tuning=self.tuning,
@@ -712,7 +711,9 @@ class LibroCQT(FTISAnalyser):
             sparsity=self.sparsity,
             window=self.window,
             scale=self.scale,
-            pad_mode=self.pad_mode))
+            pad_mode=self.pad_mode
+        )
+        self.buffer[str(workable)] = np.abs(cqt).tolist()
 
     def run(self):
         self.buffer = Manager().dict()
