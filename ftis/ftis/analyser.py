@@ -1,5 +1,8 @@
 import numpy as np
-import hdbscan, math, umap, librosa
+import librosa
+from hdbscan import HDBSCAN
+from math import sqrt
+from umap import UMAP
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json, peek
 from ftis.common.conversion import samps2ms, ms2samps
