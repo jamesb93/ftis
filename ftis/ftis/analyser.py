@@ -40,7 +40,7 @@ class Stats(FTISAnalyser):
         """Given a time series calculate statistics"""
         describe = stats.describe(data)
         mean = describe.mean
-        stddev = math.sqrt(describe.variance)
+        stddev = sqrt(describe.variance)
         skewness = describe.skewness
         kurtosis = describe.kurtosis
         minimum = describe.minmax[0]
@@ -254,7 +254,7 @@ class UmapDR(FTISAnalyser):
 
         data = np.array(data)
 
-        reduction = umap.UMAP(
+        reduction = UMAP(
             n_components=self.components,
             n_neighbors=self.neighbours,
             min_dist=self.mindist,
@@ -547,7 +547,7 @@ class HDBSCluster(FTISAnalyser):
 
         data = np.array(values)
 
-        db = hdbscan.HDBSCAN(
+        db = HDBSCAN(
             min_cluster_size=self.minclustersize, min_samples=self.minsamples,
         ).fit(data)
 
