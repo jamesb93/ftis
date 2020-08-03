@@ -1,6 +1,5 @@
 import datetime
 import logging
-import git
 from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
@@ -58,11 +57,6 @@ class FTISProcess:
         # Time
         time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
         self.metadata["time"] = time
-
-        # Git Hash
-        repo = git.Repo(search_parent_directories=True)
-        sha = repo.head.object.hexsha
-        self.metadata["commit_hash"] = sha
 
         # Analyser chain
         io = [link.name for link in self.chain]

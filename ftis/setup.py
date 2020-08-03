@@ -19,6 +19,6 @@ setuptools.setup(
         "pydub",
         "scipy",
         "rich",
-        "gitpython",
+        "librosa",
     ]
 )
