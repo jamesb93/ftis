@@ -9,7 +9,6 @@ setuptools.setup(
     packages=["ftis"],
     install_requires=[
         "Soundfile",
-        "PyYAML",
         "hdbscan",
         "umap-learn",
         "sklearn",
