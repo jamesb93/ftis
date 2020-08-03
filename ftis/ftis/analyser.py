@@ -435,7 +435,7 @@ class LibroMFCC(FTISAnalyser):
             n_fft=self.window,
         )
 
-        self.buffer[str(workable)] = mfcc
+        self.buffer[str(workable)] = mfcc.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
