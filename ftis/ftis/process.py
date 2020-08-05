@@ -19,7 +19,6 @@ class FTISProcess:
         self.mode = mode
         self.metadata = {}
         self.prev_meta = {}
-        self.setup()
         self.general_metadata()
 
     def setup(self):
@@ -105,6 +104,7 @@ class FTISProcess:
             obj.do()
 
     def run(self):
+        self.setup()
         md = "# **** FTIS v0.3 ****"
         md += f"\n\n**Source: {self.source}**"
         md += f"\n\n**Output: {self.folder}**"
