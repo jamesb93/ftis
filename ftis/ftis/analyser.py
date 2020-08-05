@@ -50,9 +50,7 @@ class Stats(FTISAnalyser):
         return [mean, stddev, skewness, kurtosis, minimum, median, maximum]
 
     def get_stats(self, base_data, num_derivs: int) -> list:
-        """
-        Given stats on n number derivatives from initial data
-        """
+        """Given stats on n number derivatives from initial data"""
         container = []
         if num_derivs > 0:
             for i in range(num_derivs):
@@ -164,10 +162,7 @@ class Standardise(FTISAnalyser):
 
     def analyse(self):
         scaled_data = StandardScaler().fit_transform(self.features)
-
-        self.output = {}
-        for k, v in zip(self.keys, scaled_data):
-            self.output[k] = list(v)
+        self.output = {k: list(v) for k, v in zip(self.keys, scaled_data)}
 
     def run(self):
         self.keys = [x for x in self.input.keys()]
@@ -255,7 +250,6 @@ class UmapDR(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self):
-        self.output = {}
         data = [v for v in self.input.values()]
         keys = [k for k in self.input.keys()]
 
@@ -268,10 +262,7 @@ class UmapDR(FTISAnalyser):
         )
         data = reduction.fit_transform(data)
 
-        for key, value in zip(keys, data):
-            self.output[key] = value.tolist()
-
-
+        self.output = [k: v.tolist() for k, v in zip(keys, data)] 
 
     def run(self):
         staticproc(self.name, self.analyse)
