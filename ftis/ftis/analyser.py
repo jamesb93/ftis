@@ -28,6 +28,7 @@ class Stats(FTISAnalyser):
         super().__init__(cache=cache)
         self.numderivs = numderivs
         self.flatten = flatten
+        self.dump_type = ".json"
 
     def dump(self):
         write_json(self.dump_path, self.output)
@@ -94,6 +95,7 @@ class Flux(FTISAnalyser):
         super().__init__(cache=cache)
         self.windowsize = windowsize
         self.hopsize = hopsize
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -128,6 +130,7 @@ class Normalise(FTISAnalyser):
         super().__init__(cache=cache)
         self.min = minimum
         self.max = maximum
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -151,6 +154,7 @@ class Normalise(FTISAnalyser):
 class Standardise(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -176,6 +180,7 @@ class ClusteredSegmentation(FTISAnalyser):
         super().__init__(cache=cache)
         self.numclusters = numclusters
         self.windowsize = windowsize
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -240,6 +245,8 @@ class UmapDR(FTISAnalyser):
         self.mindist = mindist
         self.neighbours = neighbours
         self.components = components
+        self.output = {}
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -325,6 +332,7 @@ class FluidLoudness(FTISAnalyser):
         self.hopsize = hopsize
         self.kweighting = kweighting
         self.truepeak = truepeak
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -358,6 +366,7 @@ class FluidMFCC(FTISAnalyser):
         numcoeffs=13,
         minfreq=80,
         maxfreq=20000,
+        discard=False,
         cache=False
     ):
         super().__init__(cache=cache)
@@ -366,6 +375,8 @@ class FluidMFCC(FTISAnalyser):
         self.numcoeffs = numcoeffs
         self.minfreq = minfreq
         self.maxfreq = maxfreq
+        self.discard = discard
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -417,6 +428,7 @@ class LibroMFCC(FTISAnalyser):
         self.window = window
         self.hop = hop
         self.dct = dct
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -460,6 +472,7 @@ class FluidNoveltyslice(FTISAnalyser):
         self.filtersize = filtersize
         self.minslicelength = minslicelength
         self.threshold = threshold
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -503,6 +516,7 @@ class FluidOnsetslice(FTISAnalyser):
         self.metric = metric
         self.minslicelength = minslicelength
         self.threshold = threshold
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -535,6 +549,7 @@ class HDBSCluster(FTISAnalyser):
         super().__init__(cache=cache)
         self.minclustersize = minclustersize
         self.minsamples = minsamples
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -568,6 +583,7 @@ class AGCluster(FTISAnalyser):
     def __init__(self, numclusters=3, cache=False):
         super().__init__(cache=cache)
         self.numclusters = numclusters
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -617,6 +633,7 @@ class ClusteredNMF(FTISAnalyser):
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
         self.cluster_selection_method = cluster_selection_method
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -694,6 +711,7 @@ class LibroCQT(FTISAnalyser):
         self.window = window
         self.scale = scale
         self.pad_mode = pad_mode
+        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
