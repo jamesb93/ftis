@@ -72,12 +72,10 @@ class FTISProcess:
 
         ignored_keys = [ # keys to ignore from superclass
             "process", 
-            "logger", 
             "input", 
             "output", 
             "input_type", 
             "dump_type",
-            "dumpout",
             "cache",
             "cache_possible"] #FIXME this needs to be not duplicated
 
@@ -85,15 +83,13 @@ class FTISProcess:
         for i, analyser in enumerate(self.chain):
             analyser.order = i
             name = analyser.__class__.__name__
-
-            params = {}
-            for k, v in zip(vars(analyser).keys(), vars(analyser).values()):
-                if k not in ignored_keys:
-                    params[k] = v
             
-            analyser_params[f"{i}_{name}"] = params
+            analyser_params[f"{i}_{name}"] = {
+                k: v 
+                for k, v in vars(analyser).items() 
+                if k not in ignored_keys
+            }
             analyser.process = self
-            analyser.logger = self.logger
             analyser.set_dump()
         self.metadata["analyser"] = analyser_params
 
@@ -104,13 +100,8 @@ class FTISProcess:
                     obj.input = self.source
                 else:
                     obj.input = self.chain[i - 1].output
-
-                if i == len(self.chain) - 1:
-                    obj.dumpout = True
-
             else:
                 obj.input = self.source
-                obj.dumpout = True
             obj.do()
 
     def run(self):
