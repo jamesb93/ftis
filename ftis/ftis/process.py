@@ -14,7 +14,7 @@ class FTISProcess:
         self.folder = Path(folder).expanduser().resolve()
         self.source = Path(source).expanduser().resolve()
         self.chain = []
-        self.logger = None
+        self.logger = logging.getLogger(__name__)
         self.console = Console()
         self.mode = mode
         self.metadata = {}
