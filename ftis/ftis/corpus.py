@@ -2,7 +2,10 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import get_duration, write_json, read_json
 from ftis.common.proc import staticproc
 from pathlib import Path
-import pickle
+from flucoma.fluid import loudness, stats
+from flucoma.utils import get_buffer
+from ftis.common.exceptions import AnalyserParameterInvalid
+import numpy as np
 # The corpusloader will be a special kind of analyser used for preparing sound file batches
 
 class CorpusLoader(FTISAnalyser):
@@ -26,7 +29,6 @@ class CorpusLoader(FTISAnalyser):
         dur = get_duration(x)
         return dur < self.max_dur and dur > self.min_dur
 
-    #TODO maybe make this a csv so its readable.
     def load_cache(self):
         d = read_json(self.dump_path)
         self.output = [Path(x) for x in d["corpus_items"]]
