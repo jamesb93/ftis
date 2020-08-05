@@ -33,7 +33,7 @@ class Visualiser(FTISAnalyser):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
         self.check_dimensions()
-        self.copy_audio()
+        # self.copy_audio()
         self.fmt() 
         script = Path(__file__).resolve()
         # copy data and assets
