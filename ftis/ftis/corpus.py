@@ -48,4 +48,55 @@ class CorpusLoader(FTISAnalyser):
 
     def run(self):
         staticproc(self.name, self.create_corpus)
+
+class CorpusFilter(FTISAnalyser):
+    """A way to filter corpus items after they have been loaded by the corpus loader"""
+    def __init__(self,
+        min_loudness=0,
+        max_loudness=100,
+        cache=False
+    ):
+        super().__init__(cache=cache)
+        self.output = []
+        self.median_loudness:dict = {} # get the median loudness
+        self.filter_loudness:dict = {} # filtered items from median loudness go here
+        self.min_loudness:float = min_loudness
+        self.max_loudness:float = max_loudness
+        self.dump_type = ".json"
+
+    def load_cache(self):
+        d = read_json(self.dump_path)
+        self.output = [Path(x) for x in d["corpus_items"]]
+
+    def dump(self):
+        d = {"corpus_items" : [str(x) for x in self.output]}
+        write_json(self.dump_path, d)
+
+    def analyse_items(self):
+        for x in self.input:
+            med_loudness = get_buffer(
+                stats(
+                    loudness(x, hopsize=4410, windowsize=17640)
+                ), 
+                "numpy"
+            )
+            self.median_loudness[str(x)] = med_loudness[0][5]
+
+    def filter_items(self):
+        # get the required percentile
+        vals = np.array([x for x in self.median_loudness.values()])
+        self.min_perc = np.percentile(vals, self.min_loudness)
+        self.max_perc = np.percentile(vals, self.max_loudness)
+        self.output = [k for k, v in self.median_loudness.items() if v <= self.max_perc and v >= self.min_perc]
+
+    def filter_corpus(self):
+        self.analyse_items()
+        self.filter_items()
+
+    def run(self):
+        # let's do an idiot check
+        if self.min_loudness == 0 and self.max_loudness == 100:
+            self.output = self.input # bypass
+        else:
+            staticproc(self.name, self.filter_corpus)
         
