@@ -24,10 +24,24 @@ from shutil import copyfile
 
 class Stats(FTISAnalyser):
     """Get various statistics and derivatives of those"""
-    def __init__(self, numderivs=0, flatten=True, cache=False):
+    def __init__(self, 
+        numderivs=0, 
+        flatten=True, 
+        spec = [
+            "mean", 
+            "stddev", 
+            "skewness", 
+            "kurtosis", 
+            "min", 
+            "median", 
+            "max"
+        ],
+        cache=False):
+
         super().__init__(cache=cache)
         self.numderivs = numderivs
         self.flatten = flatten
+        self.spec = spec
         self.dump_type = ".json"
 
     def dump(self):
@@ -37,17 +51,25 @@ class Stats(FTISAnalyser):
         self.output = read_json(self.dump_path)
 
     @staticmethod
-    def calc_stats(data):
-        """Given a time series calculate statistics"""
+    def calc_stats(data, spec):
+        
         describe = stats.describe(data)
-        mean = describe.mean
-        stddev = sqrt(describe.variance)
-        skewness = describe.skewness
-        kurtosis = describe.kurtosis
-        minimum = describe.minmax[0]
-        median = np.median(data)
-        maximum = describe.minmax[1]
-        return [mean, stddev, skewness, kurtosis, minimum, median, maximum]
+        output = []
+        if "mean" in spec:
+            output.append(describe.mean)
+        if "stddev" in spec:
+            output.append(sqrt(describe.variance))
+        if "skewness" in spec:
+            output.append(describe.skewness)
+        if "kurtosis" in spec:
+            output.append(describe.kurtosis)
+        if "minimum" in spec:
+            output.append(describe.minmax[0])
+        if "median" in spec:
+            output.append(np.median(data))
+        if "maximum" in spec:
+            output.append(describe.minmax[1])
+        return output
 
     def get_stats(self, base_data, num_derivs: int) -> list:
         """Given stats on n number derivatives from initial data"""
@@ -55,11 +77,10 @@ class Stats(FTISAnalyser):
         if num_derivs > 0:
             for i in range(num_derivs):
                 deriv = np.diff(base_data, i + 1)
-                stats = self.calc_stats(deriv)
-                container.append(stats)
+                container.append(self.calc_stats(deriv, self.spec))
 
         elif num_derivs <= 0:
-            container = self.calc_stats(base_data)
+            container = self.calc_stats(base_data, self.spec)
 
         return container
 
