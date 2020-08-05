@@ -283,7 +283,7 @@ class UmapDR(FTISAnalyser):
         )
         data = reduction.fit_transform(data)
 
-        self.output = [k: v.tolist() for k, v in zip(keys, data)] 
+        self.output = {k: v.tolist() for k, v in zip(keys, data)} 
 
     def run(self):
         staticproc(self.name, self.analyse)
