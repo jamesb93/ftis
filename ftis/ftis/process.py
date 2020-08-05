@@ -38,7 +38,6 @@ class FTISProcess:
         except FileNotFoundError:
             self.prev_meta = None
 
-        self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
         if logfile_path.exists():
