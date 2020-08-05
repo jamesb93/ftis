@@ -374,16 +374,21 @@ class FluidMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        mfcc = fluid.mfcc(
-            workable,
-            fftsettings=self.fftsettings,
-            numbands=self.numbands,
-            numcoeffs=self.numcoeffs,
-            minfreq=self.minfreq,
-            maxfreq=self.maxfreq,
+        mfcc = get_buffer(
+            fluid.mfcc(
+                workable,
+                fftsettings=self.fftsettings,
+                numbands=self.numbands,
+                numcoeffs=self.numcoeffs,
+                minfreq=self.minfreq,
+                maxfreq=self.maxfreq,
+            )
         )
+        if self.discard:
+            self.buffer[str(workable)] = mfcc[1:]
+        else:
+            self.buffer[str(workable)] = mfcc 
 
-        self.buffer[str(workable)] = get_buffer(mfcc)
 
     def run(self):
         self.buffer = Manager().dict()
