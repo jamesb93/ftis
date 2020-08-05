@@ -22,13 +22,6 @@ class CorpusLoader(FTISAnalyser):
         self.file_type = file_type
         self.dump_type = ".json"
 
-    def get_items(self):
-        self.output = [x for x in self.input.iterdir()]
-
-    def filter_duration(self, x):
-        dur = get_duration(x)
-        return dur < self.max_dur and dur > self.min_dur
-
     def load_cache(self):
         d = read_json(self.dump_path)
         self.output = [Path(x) for x in d["corpus_items"]]
@@ -36,7 +29,13 @@ class CorpusLoader(FTISAnalyser):
     def dump(self):
         d = {"corpus_items" : [str(x) for x in self.output]}
         write_json(self.dump_path, d)
-            
+
+    def get_items(self):
+        self.output = [x for x in self.input.iterdir()]
+
+    def filter_duration(self, x):
+        dur = get_duration(x)
+        return dur < self.max_dur and dur > self.min_dur
 
     def filter_items(self):
         # Filter by the extension
@@ -59,9 +58,6 @@ class CorpusFilter(FTISAnalyser):
         cache=False
     ):
         super().__init__(cache=cache)
-        self.output = []
-        self.median_loudness:dict = {} # get the median loudness
-        self.filter_loudness:dict = {} # filtered items from median loudness go here
         self.min_loudness:float = min_loudness
         self.max_loudness:float = max_loudness
         self.dump_type = ".json"
@@ -75,6 +71,7 @@ class CorpusFilter(FTISAnalyser):
         write_json(self.dump_path, d)
 
     def analyse_items(self):
+        self.median_loudness = {}
         for x in self.input:
             med_loudness = get_buffer(
                 stats(
