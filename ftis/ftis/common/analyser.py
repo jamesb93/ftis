@@ -6,21 +6,19 @@ from ftis.common.io import read_json, write_json
 class FTISAnalyser:
     """Every analyser inherits from this class"""
 
-    def __init__(self, dumpout=False, cache=False):
+    def __init__(self, cache=False):
         self.process = None  # pass the parent process in
-        self.logger = None
-        self.input = ""
-        self.output = None
-        self.input_type = ""
-        self.dump_type = ""
+        self.input = None # This can be anything
+        self.output = None # This can be anything
+        self.input_type = "" #TODO Implement fixed types here
+        self.dump_type = "" #TODO implement fixed types here
         self.name = self.__class__.__name__
         self.order: int = -1
-        self.dumpout = dumpout
         self.cache = cache
         self.cache_possible = False
 
     def log(self, log_text):
-        self.logger.debug(f"{self.name}: {log_text}")
+        self.process.logger.debug(f"{self.name}: {log_text}")
 
     def set_dump(self):
         self.dump_path = (
@@ -40,7 +38,6 @@ class FTISAnalyser:
         self.process.prev_meta = self.process.prev_meta
         ident = f"{self.order}_{self.name}"
         #FIXME This needs to be refactored big time
-
         try:
             new_params = self.process.metadata["analyser"][ident]
         except KeyError:
