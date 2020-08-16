@@ -8,11 +8,12 @@ from ftis.common.exceptions import InvalidSource
 
 
 class FTISProcess:
-    """Class that represents the life cycle of an 'ftis' execution"""
+    """Class that represents the life cycle of a 'FTIS' execution"""
 
-    def __init__(self, source: Path, folder: Path, mode="chain"):
+    def __init__(self, source, folder, mode="chain"):
         self.folder = Path(folder).expanduser().resolve()
-        self.source = Path(source).expanduser().resolve()
+        self.corpus = source
+        self.source = source.items #FIXME this is confusing
         self.chain = []
         self.logger = logging.getLogger(__name__)
         self.console = Console()
@@ -23,9 +24,6 @@ class FTISProcess:
 
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
-
-        if not self.source.exists():
-            raise InvalidSource(self.source)
 
         self.folder.mkdir(exist_ok=True)
 
@@ -57,9 +55,7 @@ class FTISProcess:
         self.metadata["time"] = time
 
         # Analyser chain
-        io = [link.name for link in self.chain]
-        io.insert(0, str(self.source))
-        self.metadata["io"] = str(io)
+        self.metadata["io"] = str([link.name for link in self.chain])
 
     def fprint(self, text):
         self.console.print(text, style="yellow underline")
@@ -105,7 +101,7 @@ class FTISProcess:
     def run(self):
         self.setup()
         md = "# **** FTIS v0.3 ****"
-        md += f"\n\n**Source: {self.source}**"
+        md += f"\n\n**Source: {self.corpus.path}**"
         md += f"\n\n**Output: {self.folder}**"
         md += "\n\n---------------------"
         md += "\n\nBeginning processing..."
@@ -114,3 +110,5 @@ class FTISProcess:
 
         self.run_analysers()
         write_json(self.metapath, self.metadata)
+
+
