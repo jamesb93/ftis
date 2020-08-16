@@ -1,101 +1,59 @@
-from ftis.common.analyser import FTISAnalyser
-from ftis.common.io import get_duration, write_json, read_json
-from ftis.common.proc import staticproc
 from pathlib import Path
-from flucoma.fluid import loudness, stats
-from flucoma.utils import get_buffer
-from ftis.common.exceptions import AnalyserParameterInvalid
-import numpy as np
-# The corpusloader will be a special kind of analyser used for preparing sound file batches
+from ftis.common.exceptions import(
+    NoCorpusSource,
+    InvalidSource
+)
 
-class CorpusLoader(FTISAnalyser):
+class Corpus:
     def __init__(self, 
-        min_dur=0, 
-        max_dur=36000, # 10 hours of audio 
-        file_type=[".wav"], 
-        cache=False
+        path="",
+        file_type=[".wav", ".aiff", ".aif"]
     ):
-        super().__init__(cache=cache)
-        self.output = []
-        self.min_dur:int = min_dur
-        self.max_dur:int = max_dur
+        self.path = path
         self.file_type = file_type
-        self.dump_type = ".json"
+        self.items = []
+        self.get_items()
 
-    def load_cache(self):
-        d = read_json(self.dump_path)
-        self.output = [Path(x) for x in d["corpus_items"]]
-
-    def dump(self):
-        d = {"corpus_items" : [str(x) for x in self.output]}
-        write_json(self.dump_path, d)
+    def __add__(self, right):
+        try:
+            self.items += right.items # this is the fastest way to merge in place
+        except AttributeError:
+            raise 
+        return self
 
     def get_items(self):
-        self.output = [x for x in self.input.iterdir()]
+        if self.path == "":
+            raise NoCorpusSource("Please provide a valid path for the corpus")
+        
+        self.path = Path(self.path).expanduser().resolve()
 
-    def filter_duration(self, x):
-        dur = get_duration(x)
-        return dur < self.max_dur and dur > self.min_dur
+        if not self.path.exists():
+            raise InvalidSource(self.path)
 
-    def filter_items(self):
-        # Filter by the extension
-        self.output = [x for x in self.output if x.suffix in self.file_type]
-        if self.min_dur != 0 or self.max_dur != 36000: # if not defaults
-            self.output = [x for x in self.output if self.filter_duration(x)]
-    
-    def create_corpus(self):
+        self.items = [
+            x 
+            for x in self.path.iterdir() 
+            if x.suffix in self.file_type
+        ]
+
+class Analysis:
+    # TODO This could be merged directly into the corpus class where it would directly determine the type from the extension
+    """This class lets you directly use analysis as an entry point to FTIS"""
+    def __init__(self, path=""):
+        self.path = path
+        self.items = None
         self.get_items()
-        self.filter_items()
+    
+    def get_items(self):
+        if self.path == "":
+            raise NoCorpusSource("Please provide a valid path for the analysis")
+        
+        self.path = Path(self.path).expanduser().resolve()
 
-    def run(self):
-        staticproc(self.name, self.create_corpus)
+        if not self.path.exists():
+            raise InvalidSource(self.path)
 
-class CorpusFilter(FTISAnalyser):
-    """A way to filter corpus items after they have been loaded by the corpus loader"""
-    def __init__(self,
-        min_loudness=0,
-        max_loudness=100,
-        cache=False
-    ):
-        super().__init__(cache=cache)
-        self.min_loudness:float = min_loudness
-        self.max_loudness:float = max_loudness
-        self.dump_type = ".json"
+        self.items = path
 
-    def load_cache(self):
-        d = read_json(self.dump_path)
-        self.output = [Path(x) for x in d["corpus_items"]]
 
-    def dump(self):
-        d = {"corpus_items" : [str(x) for x in self.output]}
-        write_json(self.dump_path, d)
-
-    def analyse_items(self):
-        self.median_loudness = {}
-        for x in self.input:
-            med_loudness = get_buffer(
-                stats(
-                    loudness(x, hopsize=4410, windowsize=17640)
-                ), 
-                "numpy"
-            )
-            self.median_loudness[str(x)] = med_loudness[0][5]
-
-    def filter_items(self):
-        # get the required percentile
-        vals = np.array([x for x in self.median_loudness.values()])
-        self.min_perc = np.percentile(vals, self.min_loudness)
-        self.max_perc = np.percentile(vals, self.max_loudness)
-        self.output = [k for k, v in self.median_loudness.items() if v <= self.max_perc and v >= self.min_perc]
-
-    def filter_corpus(self):
-        self.analyse_items()
-        self.filter_items()
-
-    def run(self):
-        # let's do an idiot check
-        if self.min_loudness == 0 and self.max_loudness == 100:
-            self.output = self.input # bypass
-        else:
-            staticproc(self.name, self.filter_corpus)
         
