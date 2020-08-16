@@ -1,10 +1,13 @@
 from ftis.analyser import CollapseAudio
+from ftis.corpus import Corpus
 from ftis.process import FTISProcess
 
-src = "/home/james/Documents/media"
-folder = "/home/james/Documents/analysis"
+folder = "~/Documents/analysis"
 
-process = FTISProcess(source=src, folder=folder)
+process = FTISProcess(
+    source=Corpus("~/Documents/media"), 
+    folder=folder
+)
 
 process.add(
     CollapseAudio()

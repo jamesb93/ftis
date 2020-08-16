@@ -1,7 +1,8 @@
 from ftis.analyser import FluidNoveltyslice, ExplodeAudio, CollapseAudio
 from ftis.process import FTISProcess
+from ftis.corpus import Corpus
 
-src = "/home/james/Documents/media"
+src = Corpus("/home/james/Documents/media")
 folder = "/home/james/Documents/analysis"
 
 process = FTISProcess(source=src, folder=folder)

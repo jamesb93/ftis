@@ -1,8 +1,9 @@
 from ftis.analyser import ClusteredNMF
 from ftis.process import FTISProcess as Chain
+from ftis.corpus import Corpus
 
-src = "/home/james/Documents/media"
-folder = "/home/james/Documents/analysis"
+src = Corpus("~/Documents/media")
+folder = "~/Documents/analysis"
 
 process = Chain(source=src, folder=folder)
 

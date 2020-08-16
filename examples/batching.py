@@ -1,12 +1,13 @@
 from ftis.analyser import FluidNoveltyslice, FluidMFCC, FluidLoudness
+from ftis.corpus import Corpus
 from ftis.process import FTISProcess
 
-src = "/home/james/Documents/media"
+
 folder = "/home/james/Documents/analysis"
 
 process = FTISProcess(
-    source=src, 
-    folder=folder, 
+    source = Corpus("/home/james/Documents/media"), 
+    folder = folder, 
     mode="batch" # set the mode to batch
     )
 

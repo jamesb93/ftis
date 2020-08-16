@@ -1,15 +1,17 @@
 from ftis.analyser import LibroCQT
-from ftis.corpus import CorpusLoader
+from ftis.corpus import Corpus
+from ftis.analyser import LibroCQT
 from ftis.process import FTISProcess
 
-src = "~/dev/cqt/sounds"
 
 folder = "/Users/james/dev/ftis_example_project/"
 
-process = FTISProcess(source=src,folder=folder)
+process = FTISProcess(
+    source=Corpus("~/dev/cqt/sounds"),
+    folder=folder
+)
 
 process.add(
-    CorpusLoader(cache=1),
     LibroCQT()
 )
 
