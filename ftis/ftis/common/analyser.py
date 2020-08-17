@@ -12,6 +12,8 @@ class FTISAnalyser:
         self.output = None # This can be anything
         self.input_type = "" #TODO Implement fixed types here
         self.dump_type = ""
+        self.dump_path = None
+        self.model_dump = None #
         self.name = self.__class__.__name__
         self.order: int = -1
         self.cache = cache
@@ -23,6 +25,9 @@ class FTISAnalyser:
     def set_dump(self):
         self.dump_path = (
             self.process.folder / f"{self.order}_{self.name}{self.dump_type}"
+        )
+        self.model_dump = (
+            self.process.folder / f"{self.order}_{self.name}.joblib" 
         )
 
     def dump(self):
