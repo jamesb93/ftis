@@ -9,6 +9,7 @@ from ftis.common.conversion import samps2ms, ms2samps
 from ftis.common.proc import staticproc, multiproc, singleproc
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.neighbors import KDTree as SKKDTree
 from multiprocessing import Manager
 from pathlib import Path
 from untwist import transforms, data
@@ -20,6 +21,25 @@ from scipy.io import wavfile
 from scipy import stats
 from scipy.signal import savgol_filter
 from shutil import copyfile
+from joblib import dump as jdump
+from joblib import load as jload
+
+class KDTree(FTISAnalyser):
+    def __init__(self, cache=False):
+        super().__init__(cache=cache)
+    
+    def dump(self):
+        jdump(self.model, self.model_path)
+
+    def analyse(self):
+        data = [v for v in self.input.values()]
+        keys = [k for k in self.input.keys()]
+
+        data = np.array(data)
+        self.model = SKKDTree(data)
+
+    def run(self):
+        singleproc(self.name, self.analyse)
 
 
 class Stats(FTISAnalyser):
