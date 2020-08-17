@@ -71,7 +71,7 @@ class FTISProcess:
             "input_type", 
             "dump_type",
             "cache",
-            "cache_possible"] #FIXME this needs to be not duplicated
+            "cache_possible"]
 
         analyser_params = {}
         for i, analyser in enumerate(self.chain):
