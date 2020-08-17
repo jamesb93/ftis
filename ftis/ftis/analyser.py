@@ -199,10 +199,13 @@ class Standardise(FTISAnalyser):
         self.output = read_json(self.dump_path)
 
     def dump(self):
+        jdump(self.model, self.model_dump)
         write_json(self.dump_path, self.output)
 
     def analyse(self):
-        scaled_data = StandardScaler().fit_transform(self.features)
+        self.model = StandardScaler()
+        self.model.fit(self.features)
+        scaled_data = self.model.transform(self.features)
         self.output = {k: list(v) for k, v in zip(self.keys, scaled_data)}
 
     def run(self):
@@ -288,6 +291,7 @@ class UmapDR(FTISAnalyser):
         self.output = read_json(self.dump_path)
 
     def dump(self):
+        jdump(self.model, self.model_dump)
         write_json(self.dump_path, self.output)
 
     def analyse(self):
@@ -296,14 +300,15 @@ class UmapDR(FTISAnalyser):
 
         data = np.array(data)
 
-        reduction = UMAP(
+        self.model = UMAP(
             n_components=self.components,
             n_neighbors=self.neighbours,
             min_dist=self.mindist,
         )
-        data = reduction.fit_transform(data)
+        self.model.fit(data)
+        transformed_data = self.model.transform(data)
 
-        self.output = {k: v.tolist() for k, v in zip(keys, data)} 
+        self.output = {k: v.tolist() for k, v in zip(keys, transformed_data)} 
 
     def run(self):
         staticproc(self.name, self.analyse)
