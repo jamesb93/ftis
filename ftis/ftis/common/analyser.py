@@ -11,7 +11,7 @@ class FTISAnalyser:
         self.input = None # This can be anything
         self.output = None # This can be anything
         self.input_type = "" #TODO Implement fixed types here
-        self.dump_type = "" #TODO implement fixed types here
+        self.dump_type = ""
         self.name = self.__class__.__name__
         self.order: int = -1
         self.cache = cache
@@ -37,7 +37,6 @@ class FTISAnalyser:
         self.process.metadata = self.process.metadata
         self.process.prev_meta = self.process.prev_meta
         ident = f"{self.order}_{self.name}"
-        #FIXME This needs to be refactored big time
         try:
             new_params = self.process.metadata["analyser"][ident]
         except KeyError:
@@ -56,7 +55,7 @@ class FTISAnalyser:
         return old_params == new_params and success
 
     def cache_exists(self) -> bool:
-        if self.dump_path.exists(): # TODO: type and metadata checking
+        if self.dump_path.exists():
             if self.dump_type == ftypes.folder:
                 return self.folder_integrity()
             else:
@@ -65,7 +64,7 @@ class FTISAnalyser:
             return False
 
     def update_success(self, status: bool):
-        try: #FIXME combine these two try statements
+        try:
             existing_metadata = read_json(self.process.metapath)
         except FileNotFoundError:
             existing_metadata = {}
