@@ -1,5 +1,6 @@
-import os, math
+import os, math, hashlib
 import soundfile as sf
+import numpy as np
 from pathlib import Path
 
 
@@ -25,3 +26,11 @@ def list_to_coll(list_input: list, out_file: str):
 def bytes_to_mb(val: int) -> float:
     """convert bytes to mb"""
     return val * 0.000001
+
+def create_hash(*items) -> str:
+    """Create a hash from a list of items"""
+    m = hashlib.blake2b(digest_size=32)
+    for item in items:
+        m.update(str(item).encode('utf-8'))
+    return m.hexdigest()
+
