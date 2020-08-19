@@ -2,6 +2,7 @@ import numpy as np
 from flucoma.fluid import loudness, stats
 from flucoma.utils import get_buffer
 from ftis.common.proc import staticproc
+from ftis.common.utils import create_hash
 from ftis.common.io import get_duration, write_json, read_json
 from ftis.common.analyser import FTISAnalyser
 from pathlib import Path
@@ -64,13 +65,18 @@ class Loudness(FTISAnalyser):
     def analyse_items(self):
         self.median_loudness = {}
         for x in self.input:
-            med_loudness = get_buffer(
-                stats(
-                    loudness(x, hopsize=4410, windowsize=17640)
-                ), 
-                "numpy"
-            )
+            hsh = create_hash(x, self.min_loudness, self.max_loudness)
+            cache = self.process.cache / f"{hsh}.npy"
+            if not cache.exists():
+                med_loudness = get_buffer(
+                    stats(loudness(x, hopsize=4410, windowsize=17640)), 
+                    "numpy")
+                np.save(cache, med_loudness)
+            else:
+                med_loudness = np.load(cache)
+
             self.median_loudness[str(x)] = med_loudness[0][5]
+                
 
     def filter_items(self):
         # get the required percentile
