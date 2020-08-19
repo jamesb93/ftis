@@ -26,11 +26,16 @@ class FTISProcess:
         """Makes an initial parse of the yaml file and initialises logging"""
 
         self.folder.mkdir(exist_ok=True)
+        
+        # Create a place to store microcached results
+        self.cache = self.folder / ".cache"
+        self.cache.mkdir(exist_ok=True)
 
+        # Setup logging and meta path
         self.metapath = self.folder / "metadata.json"
         logfile_path = self.folder / "logfile.log"
 
-        # Grab any old metadata
+        # Read in previous metadata if exists
         try:
             self.prev_meta = read_json(self.metapath)
         except FileNotFoundError:
