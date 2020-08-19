@@ -33,12 +33,14 @@ class FTISAnalyser:
     def dump(self):
         """Defined in the analyser that inherits this class"""
 
+
     def folder_integrity(self) -> bool:
         # TODO: implement folder integirty checking for analysers like Explode/Collapse
         # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
         return True
 
     def compare_meta(self) -> bool:
+        #TODO You could use a hashing function here to determine the similarity of the metadata
         self.process.metadata = self.process.metadata
         self.process.prev_meta = self.process.prev_meta
         ident = f"{self.order}_{self.name}"
@@ -77,10 +79,10 @@ class FTISAnalyser:
         try:
             success = existing_metadata["success"] # extract the progress dict
         except KeyError:
-            success = {} # in the situation that progress doesnt exist yet
+            success = {} # progress doesnt exist yet
 
         success[f"{self.order}_{self.name}"] = status # update the status of this analyser
-        # here we need to join any existing data into the metadata
+        # join any existing data into the metadata
         self.process.metadata["success"] = success # modify the original
         write_json(self.process.metapath, self.process.metadata)
 
