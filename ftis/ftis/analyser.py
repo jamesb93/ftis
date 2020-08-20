@@ -23,6 +23,7 @@ from scipy.signal import savgol_filter
 from shutil import copyfile
 from joblib import dump as jdump
 from joblib import load as jload
+from ftis.common.utils import create_hash, ignored_keys
 
 class KDTree(FTISAnalyser):
     def __init__(self, cache=False):
@@ -378,15 +379,22 @@ class FluidLoudness(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        loudness = fluid.loudness(
-            workable,
-            windowsize=self.windowsize,
-            hopsize=self.hopsize,
-            kweighting=self.kweighting,
-            truepeak=self.truepeak,
-        )
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
 
-        self.buffer[str(workable)] = get_buffer(loudness)
+        if not cache.exists():
+            loudness = get_buffer(
+                fluid.loudness(workable,
+                    windowsize=self.windowsize,
+                    hopsize=self.hopsize,
+                    kweighting=self.kweighting,
+                    truepeak=self.truepeak
+                ), "numpy"
+            )
+            np.save(cache, loudness)
+        else:
+            loudness = np.load(cache, allow_pickle=True)
+        self.buffer[str(workable)] = loudness.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
@@ -396,8 +404,7 @@ class FluidLoudness(FTISAnalyser):
 
 
 class FluidMFCC(FTISAnalyser):
-    def __init__(
-        self,
+    def __init__(self,
         fftsettings=[1024, 512, 1024],
         numbands=40,
         numcoeffs=13,
@@ -422,26 +429,32 @@ class FluidMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        mfcc = get_buffer(
-            fluid.mfcc(
-                workable,
-                fftsettings=self.fftsettings,
-                numbands=self.numbands,
-                numcoeffs=self.numcoeffs,
-                minfreq=self.minfreq,
-                maxfreq=self.maxfreq,
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+        if cache.exists():
+            mfcc = np.load(cache, allow_pickle=True)
+        else:
+            mfcc = get_buffer(
+                fluid.mfcc(
+                    workable,
+                    fftsettings=self.fftsettings,
+                    numbands=self.numbands,
+                    numcoeffs=self.numcoeffs,
+                    minfreq=self.minfreq,
+                    maxfreq=self.maxfreq,
+                ), "numpy"
             )
-        )
+            np.save(cache, mfcc)
+
         if self.discard:
             self.buffer[str(workable)] = mfcc[1:]
         else:
-            self.buffer[str(workable)] = mfcc 
-
+            self.buffer[str(workable)] = mfcc.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
         workables = self.input
-        multiproc(self.name, self.analyse, workables)
+        singleproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
 
@@ -493,6 +506,63 @@ class LibroMFCC(FTISAnalyser):
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
+class LibroCQT(FTISAnalyser):
+    def __init__(self,
+        hop_length=512,
+        minfreq=110,
+        n_bins=84,
+        bins_per_octave=12,
+        tuning=0.0,
+        filter_scale=1,
+        norm=1,
+        sparsity=0.01,
+        window='hann',
+        scale=True,
+        pad_mode='reflect',
+        cache=False
+    ):
+        super().__init__(cache=cache)
+        self.hop_length = hop_length
+        self.minfreq = minfreq
+        self.n_bins = n_bins
+        self.bins_per_octave = bins_per_octave
+        self.tuning = tuning
+        self.filter_scale = filter_scale
+        self.norm = norm
+        self.sparsity = sparsity
+        self.window = window
+        self.scale = scale
+        self.pad_mode = pad_mode
+        self.dump_type = ".json"
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def analyse(self, workable):
+        y, sr = librosa.load(workable, sr=None, mono=True)
+        cqt = librosa.cqt(y, sr, 
+            fmin=self.minfreq,
+            n_bins=self.n_bins,
+            bins_per_octave=self.bins_per_octave,
+            tuning=self.tuning,
+            filter_scale=self.filter_scale,
+            norm=self.norm,
+            sparsity=self.sparsity,
+            window=self.window,
+            scale=self.scale,
+            pad_mode=self.pad_mode
+        )
+        self.buffer[str(workable)] = np.abs(cqt).tolist()
+
+    def run(self):
+        self.buffer = Manager().dict()
+        singleproc(self.name, self.analyse, self.input)
+        self.output = dict(self.buffer)
+
+
 class FluidNoveltyslice(FTISAnalyser):
     def __init__(
         self,
@@ -534,6 +604,7 @@ class FluidNoveltyslice(FTISAnalyser):
         workables = self.input
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
+
 
 class FluidOnsetslice(FTISAnalyser):
     def __init__(
@@ -720,62 +791,6 @@ class ClusteredNMF(FTISAnalyser):
             if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"
         ]
         singleproc(self.name, self.analyse, workables)
-
-class LibroCQT(FTISAnalyser):
-    def __init__(self,
-        hop_length=512,
-        minfreq=110,
-        n_bins=84,
-        bins_per_octave=12,
-        tuning=0.0,
-        filter_scale=1,
-        norm=1,
-        sparsity=0.01,
-        window='hann',
-        scale=True,
-        pad_mode='reflect',
-        cache=False
-    ):
-        super().__init__(cache=cache)
-        self.hop_length = hop_length
-        self.minfreq = minfreq
-        self.n_bins = n_bins
-        self.bins_per_octave = bins_per_octave
-        self.tuning = tuning
-        self.filter_scale = filter_scale
-        self.norm = norm
-        self.sparsity = sparsity
-        self.window = window
-        self.scale = scale
-        self.pad_mode = pad_mode
-        self.dump_type = ".json"
-
-    def load_cache(self):
-        self.output = read_json(self.dump_path)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
-
-    def analyse(self, workable):
-        y, sr = librosa.load(workable, sr=None, mono=True)
-        cqt = librosa.cqt(y, sr, 
-            fmin=self.minfreq,
-            n_bins=self.n_bins,
-            bins_per_octave=self.bins_per_octave,
-            tuning=self.tuning,
-            filter_scale=self.filter_scale,
-            norm=self.norm,
-            sparsity=self.sparsity,
-            window=self.window,
-            scale=self.scale,
-            pad_mode=self.pad_mode
-        )
-        self.buffer[str(workable)] = np.abs(cqt).tolist()
-
-    def run(self):
-        self.buffer = Manager().dict()
-        singleproc(self.name, self.analyse, self.input)
-        self.output = dict(self.buffer)
 
 
 # class FluidSines(FTISAnalyser):
