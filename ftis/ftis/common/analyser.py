@@ -23,7 +23,7 @@ class FTISAnalyser:
 
     def create_identity(self):
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
-
+        # TODO account for batch mode
         previous_inputs = {}
         for obj in self.process.chain:
             previous_inputs[str(obj.name)] = {
@@ -48,7 +48,6 @@ class FTISAnalyser:
 
     def dump(self):
         """Defined in the analyser that inherits this class"""
-
 
     def folder_integrity(self) -> bool:
         # TODO: implement folder integirty checking for analysers like Explode/Collapse
