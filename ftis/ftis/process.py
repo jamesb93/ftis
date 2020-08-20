@@ -56,8 +56,7 @@ class FTISProcess:
         
     def general_metadata(self):
         # Time
-        time = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
-        self.metadata["time"] = time
+        self.metadata["time"] = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
 
         # Analyser chain
         self.metadata["io"] = str([link.name for link in self.chain])
