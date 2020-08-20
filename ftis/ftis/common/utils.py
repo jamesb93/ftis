@@ -25,3 +25,17 @@ def create_hash(*items) -> str:
     for item in items:
         m.update(str(item).encode('utf-8'))
     return m.hexdigest()
+
+ignored_keys = ( # keys to ignore from superclass
+    'process',
+    'dump_path',
+    'model_dump',
+    'input', 
+    'output', 
+    'input_type', 
+    'dump_type',
+    'cache',
+    'cache_possible',
+    'corpus_items',
+    'buffer'
+)

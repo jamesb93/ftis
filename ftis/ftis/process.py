@@ -68,15 +68,6 @@ class FTISProcess:
         """Accepts any number of classes to chain together"""
         self.chain = args  # Lets store these classes somewhere
 
-        ignored_keys = [ # keys to ignore from superclass
-            "process", 
-            "input", 
-            "output", 
-            "input_type", 
-            "dump_type",
-            "cache",
-            "cache_possible"]
-
         analyser_params = {}
         for i, analyser in enumerate(self.chain):
             analyser.order = i
