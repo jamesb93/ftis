@@ -1,6 +1,7 @@
 from ftis.common.exceptions import OutputNotFound
 from ftis.common.types import ftypes
 from ftis.common.io import read_json, write_json
+from ftis.common.utils import ignored_keys, create_hash
 
 
 class FTISAnalyser:
@@ -18,6 +19,21 @@ class FTISAnalyser:
         self.order: int = -1
         self.cache = cache
         self.cache_possible = False
+        self.input_order_hash = ""
+
+    def create_identity(self):
+        self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
+
+        previous_inputs = {}
+        for obj in self.process.chain:
+            previous_inputs[str(obj.name)] = {
+                k: v 
+                for k, v in vars(obj).items() 
+                if k not in ignored_keys
+            }
+
+        self.identity_hash = create_hash(previous_inputs)
+        self.identity["identity_hash"] = self.identity_hash
 
     def log(self, log_text):
         self.process.logger.debug(f"{self.name}: {log_text}")
