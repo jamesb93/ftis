@@ -5,3 +5,4 @@ __pycache__/
 *.egg-info
 ftis/ftis/web_assets/js/node_modules
 *.pyc
+.venv
