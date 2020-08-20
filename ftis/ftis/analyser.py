@@ -1,14 +1,11 @@
 import numpy as np
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json, peek
-from ftis.common.conversion import samps2ms, ms2samps
 from ftis.common.proc import staticproc, multiproc, singleproc
 from ftis.common.utils import create_hash, ignored_keys
 from multiprocessing import Manager
 from pathlib import Path
-from flucoma import fluid
-from flucoma.utils import get_buffer, cleanup
-from scipy.io import wavfile
+from flucoma.utils import get_buffer
 from joblib import dump as jdump
 
 class KDTree(FTISAnalyser):
@@ -269,7 +266,7 @@ class ClusteredSegmentation(FTISAnalyser):
         self.output = dict(self.buffer)
 
 
-class UmapDR(FTISAnalyser):
+class UMAP(FTISAnalyser):
     """Dimension reduction with UMAP algorithm"""
     def __init__(self, mindist=0.01, neighbours=7, components=2, cache=False):
         super().__init__(cache=cache)
@@ -278,7 +275,7 @@ class UmapDR(FTISAnalyser):
         self.components = components
         self.output = {}
         self.dump_type = ".json"
-        from umap import UMAP
+        from umap import UMAP as umapdr
 
 
     def load_cache(self):
@@ -294,7 +291,7 @@ class UmapDR(FTISAnalyser):
 
         data = np.array(data)
 
-        self.model = UMAP(
+        self.model = umapdr(
             n_components=self.components,
             n_neighbors=self.neighbours,
             min_dist=self.mindist,
@@ -311,6 +308,7 @@ class UmapDR(FTISAnalyser):
 class CollapseAudio(FTISAnalyser):
     def __init__(self):
         super().__init__()
+        from scipy.io import wavfile
 
     def collapse(self, workable):
         out = self.outfolder / workable.name
@@ -337,9 +335,9 @@ class ExplodeAudio(FTISAnalyser):
         from pydub import AudioSegment
         from pydub.utils import mediainfo
         from shutil import copyfile
+        from ftis.common.conversion import samps2ms
 
     def segment(self, workable):
-
         self.output_folder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output_folder.mkdir(exist_ok=True)
 
@@ -379,6 +377,7 @@ class FluidLoudness(FTISAnalyser):
         self.kweighting = kweighting
         self.truepeak = truepeak
         self.dump_type = ".json"
+        from flucoma.fluid import loudness
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -429,6 +428,8 @@ class FluidMFCC(FTISAnalyser):
         self.maxfreq = maxfreq
         self.discard = discard
         self.dump_type = ".json"
+        from flucoma.fluid import mfcc
+
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -754,6 +755,7 @@ class ClusteredNMF(FTISAnalyser):
         self.cluster_selection_method = cluster_selection_method
         self.dump_type = ".json"
         from scipy.signal import savgol_filter
+        from scipy.io import wavfile
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
