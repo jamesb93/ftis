@@ -59,6 +59,7 @@ class Loudness(FTISAnalyser):
         write_json(self.dump_path, d)
 
     def analyse_items(self):
+        #TODO import this function from a global place that can be used in CORPUS too
         median_loudness = {}
         for x in self.input:
             hsh = create_hash(x, self.min_loudness, self.max_loudness)
