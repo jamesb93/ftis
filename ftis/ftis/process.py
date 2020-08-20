@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from ftis.common.io import write_json, read_json
 from ftis.common.exceptions import InvalidSource
+from ftis.common.utils import ignored_keys, create_hash
 
 
 class FTISProcess:
@@ -79,18 +80,23 @@ class FTISProcess:
             }
             analyser.process = self
             analyser.set_dump()
+
         self.metadata["analyser"] = analyser_params
+        # self.order_hash = create_hash(*[x.name for x in self.chain]) #FIXME moot?
 
     def run_analysers(self):
-        for i, obj in enumerate(self.chain):
+        for i, analyser in enumerate(self.chain):
             if self.mode == "chain":
                 if i == 0:
-                    obj.input = self.source
+                    analyser.input = self.source
                 else:
-                    obj.input = self.chain[i - 1].output
+                    analyser.input = self.chain[i-1].output
             else:
-                obj.input = self.source
-            obj.do()
+                analyser.input = self.source
+            analyser.create_identity()
+            self.metadata["analyser"][f"{i}_{analyser.name}"]["identity_hash"] = analyser.identity_hash
+            analyser.do()
+        
 
     def run(self):
         self.setup()
