@@ -20,7 +20,6 @@ class FTISProcess:
         self.mode = mode
         self.metadata = {}
         self.prev_meta = {}
-        self.general_metadata()
 
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
@@ -102,8 +101,8 @@ class FTISProcess:
         md += "\n\nBeginning processing..."
         self.console.print(Markdown(md))
         print("\n")
-
         self.run_analysers()
+        self.general_metadata()
         write_json(self.metapath, self.metadata)
 
 
