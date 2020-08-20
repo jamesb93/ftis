@@ -1,8 +1,6 @@
-import os, math, hashlib
-import soundfile as sf
+import hashlib
 import numpy as np
 from pathlib import Path
-
 
 def list_to_coll(list_input: list, out_file: str):
     """Turns a list into a coll."""
