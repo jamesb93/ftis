@@ -36,7 +36,10 @@ class FTISAnalyser:
         self.identity["identity_hash"] = self.identity_hash
 
     def log(self, log_text):
-        self.process.logger.debug(f"{self.name}: {log_text}")
+        try:
+            self.process.logger.debug(f"{self.name}: {log_text}")
+        except AttributeError:
+            pass
 
     def set_dump(self):
         self.dump_path = (
