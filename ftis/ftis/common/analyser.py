@@ -71,7 +71,7 @@ class FTISAnalyser:
             old_params = False
 
         try:
-            success = self.process.prev_meta["success"][f"{self.order}_{self.name}"]
+            success = self.process.prev_meta["success"][ident]
         except KeyError:
             success = False
 
