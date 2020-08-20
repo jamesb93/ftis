@@ -1,33 +1,20 @@
 import numpy as np
-import librosa
-from hdbscan import HDBSCAN
-from math import sqrt
-from umap import UMAP
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json, peek
 from ftis.common.conversion import samps2ms, ms2samps
 from ftis.common.proc import staticproc, multiproc, singleproc
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.neighbors import KDTree as SKKDTree
+from ftis.common.utils import create_hash, ignored_keys
 from multiprocessing import Manager
 from pathlib import Path
-from untwist import transforms, data
 from flucoma import fluid
 from flucoma.utils import get_buffer, cleanup
-from pydub import AudioSegment
-from pydub.utils import mediainfo
 from scipy.io import wavfile
-from scipy import stats
-from scipy.signal import savgol_filter
-from shutil import copyfile
 from joblib import dump as jdump
-from joblib import load as jload
-from ftis.common.utils import create_hash, ignored_keys
 
 class KDTree(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
+        from sklearn.neighbors import KDTree as SKKDTree
     
     def dump(self):
         jdump(self.model, self.model_path)
@@ -64,6 +51,8 @@ class Stats(FTISAnalyser):
         self.flatten = flatten
         self.spec = spec
         self.dump_type = ".json"
+        from math import sqrt
+        from scipy import stats
 
     def dump(self):
         write_json(self.dump_path, self.output)
@@ -136,6 +125,7 @@ class Flux(FTISAnalyser):
         self.windowsize = windowsize
         self.hopsize = hopsize
         self.dump_type = ".json"
+        from untwist import transforms, data
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -152,17 +142,14 @@ class Flux(FTISAnalyser):
             audio
         )
 
-        self.data[str(workable)] = list(
+        self.buffer[str(workable)] = list(
             np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
         )  # Flux calculation here
 
-
-
     def run(self):
-        self.data = Manager().dict()
-        workables = self.input
-        multiproc(self.name, self.flux, workables)
-        self.output = dict(self.data)
+        self.buffer = Manager().dict()
+        multiproc(self.name, self.flux, self.input)
+        self.output = dict(self.buffer)
 
 
 class Normalise(FTISAnalyser):
@@ -171,6 +158,7 @@ class Normalise(FTISAnalyser):
         self.min = minimum
         self.max = maximum
         self.dump_type = ".json"
+        from sklearn.preprocessing import MinMaxScaler
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -195,6 +183,7 @@ class Standardise(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
         self.dump_type = ".json"
+        from sklearn.preprocessing import StandardScaler
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -221,6 +210,8 @@ class ClusteredSegmentation(FTISAnalyser):
         self.numclusters = numclusters
         self.windowsize = windowsize
         self.dump_type = ".json"
+        from sklearn.cluster import AgglomerativeClustering
+
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -287,6 +278,8 @@ class UmapDR(FTISAnalyser):
         self.components = components
         self.output = {}
         self.dump_type = ".json"
+        from umap import UMAP
+
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -341,6 +334,9 @@ class ExplodeAudio(FTISAnalyser):
     def __init__(self):
         super().__init__()
         self.dump_type = ".json"
+        from pydub import AudioSegment
+        from pydub.utils import mediainfo
+        from shutil import copyfile
 
     def segment(self, workable):
 
@@ -490,6 +486,8 @@ class LibroMFCC(FTISAnalyser):
         self.hop = hop
         self.dct = dct
         self.dump_type = ".json"
+        import librosa
+
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -669,6 +667,8 @@ class HDBSCluster(FTISAnalyser):
         self.minclustersize = minclustersize
         self.minsamples = minsamples
         self.dump_type = ".json"
+        from hdbscan import HDBSCAN
+
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -753,6 +753,7 @@ class ClusteredNMF(FTISAnalyser):
         self.min_samples = min_samples
         self.cluster_selection_method = cluster_selection_method
         self.dump_type = ".json"
+        from scipy.signal import savgol_filter
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
