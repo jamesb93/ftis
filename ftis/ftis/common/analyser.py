@@ -21,7 +21,7 @@ class FTISAnalyser:
         self.cache_possible = False
         self.input_order_hash = ""
 
-    def create_identity(self):
+    def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
         # TODO account for batch mode
         previous_inputs = {}
@@ -35,13 +35,13 @@ class FTISAnalyser:
         self.identity_hash = create_hash(previous_inputs)
         self.identity["identity_hash"] = self.identity_hash
 
-    def log(self, log_text):
+    def log(self, log_text: str) -> None:
         try:
             self.process.logger.debug(f"{self.name}: {log_text}")
         except AttributeError:
             pass
 
-    def set_dump(self):
+    def set_dump(self) -> None:
         self.dump_path = (
             self.process.folder / f"{self.order}_{self.name}{self.dump_type}"
         )
@@ -49,7 +49,7 @@ class FTISAnalyser:
             self.process.folder / f"{self.order}_{self.name}.joblib" 
         )
 
-    def dump(self):
+    def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
 
     def folder_integrity(self) -> bool:
@@ -88,7 +88,7 @@ class FTISAnalyser:
         else:
             return False
 
-    def update_success(self, status: bool):
+    def update_success(self, status: bool) -> None:
         try:
             existing_metadata = read_json(self.process.metapath)
         except FileNotFoundError:
@@ -104,7 +104,7 @@ class FTISAnalyser:
         self.process.metadata["success"] = success # modify the original
         write_json(self.process.metapath, self.process.metadata)
 
-    def do(self):
+    def do(self) -> None:
         self.log("Initiating")
 
         # Determine whether we caching is possible
@@ -127,5 +127,5 @@ class FTISAnalyser:
             self.log("Ouput was invalid")
             raise OutputNotFound(self.name)
 
-    def run(self):
+    def run(self) -> None:
         """Method for running the processing chain from input to output"""

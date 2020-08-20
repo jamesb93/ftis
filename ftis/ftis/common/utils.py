@@ -2,7 +2,7 @@ import hashlib
 import numpy as np
 from pathlib import Path
 
-def list_to_coll(list_input: list, out_file: str):
+def list_to_coll(list_input: list, out_file: str) -> None:
     """Turns a list into a coll."""
     f = open(out_file, "w+")
     counter = 0

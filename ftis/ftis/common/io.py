@@ -1,8 +1,10 @@
 import soundfile as sf
 import simdjson
+from typing import Union, Tuple, List
+from pathlib import Path
 
 
-def write_json(json_file_path: str, in_dict: dict):
+def write_json(json_file_path: str, in_dict: dict) -> None:
     """Takes a dictionary and writes it to JSON file"""
     with open(json_file_path, "w+") as fp:
         simdjson.dump(in_dict, fp, indent=4)
@@ -13,7 +15,7 @@ def read_json(json_file_path: str) -> dict:
         data = simdjson.load(fp)
         return data
 
-def peek(audio_file_path: str, output: str = "np"):
+def peek(audio_file_path: Union[str, Path], output: str = "np") -> Union[Tuple(np.ndarray, int), Tuple(List[float], int)]:
     """
     Returns a tuple of audio data and its sampling rate
     The audio data can be a numpy array or list
@@ -25,7 +27,7 @@ def peek(audio_file_path: str, output: str = "np"):
     if output == "np":
         return data, sr
 
-def get_duration(path):
+def get_duration(path: Union[str, Path]) -> float:
     data, sr = peek(path)
     return len(data) / sr
 
