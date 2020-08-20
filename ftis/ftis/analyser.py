@@ -340,12 +340,17 @@ class CollapseAudio(FTISAnalyser):
 class ExplodeAudio(FTISAnalyser):
     def __init__(self):
         super().__init__()
+        self.dump_type = ".json"
 
     def segment(self, workable):
+
+        self.output_folder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output_folder.mkdir(exist_ok=True)
+
         slices = self.input[str(workable)]
 
         if len(slices) == 1:
-            copyfile(workable, self.output / f"{workable.stem}_1.wav")
+            copyfile(workable, self.output_folder / f"{workable.stem}_0.wav")
 
         src = AudioSegment.from_file(workable, format="wav")
         sr = int(mediainfo(workable)["sample_rate"])
@@ -354,13 +359,20 @@ class ExplodeAudio(FTISAnalyser):
             start = samps2ms(start, sr)
             end = samps2ms(end, sr)
             segment = src[start:end]
-            segment.export(self.output / f"{workable.stem}_{i}.wav", format="wav")
+            segment.export(self.output_folder / f"{workable.stem}_{i}.wav", format="wav")
+
+    def load_cache(self):
+        d = read_json(self.dump_path)
+        self.output = [Path(x) for x in d["corpus_items"]]
+
+    def dump(self):
+        d = {"corpus_items" : [str(x) for x in self.output]}
+        write_json(self.dump_path, d)
 
     def run(self):
-        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
-        self.output.mkdir(exist_ok=True)
         workables = [Path(x) for x in self.input.keys()]
         singleproc(self.name, self.segment, workables)
+        self.output = [x for x in self.output_folder.iterdir() if x.suffix in ['.wav', '.aiff', '.aif']]
 
 
 class FluidLoudness(FTISAnalyser):
@@ -445,16 +457,15 @@ class FluidMFCC(FTISAnalyser):
                 ), "numpy"
             )
             np.save(cache, mfcc)
-
+        mfcc = mfcc.tolist()
         if self.discard:
             self.buffer[str(workable)] = mfcc[1:]
         else:
-            self.buffer[str(workable)] = mfcc.tolist()
+            self.buffer[str(workable)] = mfcc
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = self.input
-        singleproc(self.name, self.analyse, workables)
+        singleproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
 
 
