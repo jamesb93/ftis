@@ -1,11 +1,15 @@
 from pathlib import Path
+import numpy as np
 from ftis.common.exceptions import(
     NoCorpusSource,
     InvalidSource
 )
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.proc import staticproc
-from ftis.common.io import write_json, read_json
+from ftis.common.io import write_json, read_json, get_duration
+from ftis.common.utils import create_hash
+from flucoma.utils import get_buffer
+from flucoma.fluid import stats, loudness
 
 class Corpus:
     def __init__(self, 
@@ -15,6 +19,7 @@ class Corpus:
         self.path = path
         self.file_type = file_type
         self.items = []
+        self.is_filtering = False
         self.get_items()
 
     def __add__(self, right):
@@ -33,11 +38,62 @@ class Corpus:
         if not self.path.exists():
             raise InvalidSource(self.path)
 
-        self.items = [
+        self.items = [ # filter bad file types (i'm looking at you .DS_Store)
             x 
             for x in self.path.iterdir() 
             if x.suffix in self.file_type
         ]
+
+    def loudness(self, min_loudness=0, max_loudness=100):
+        print('Filtering Loudness')
+        self.is_filtering = True #FIXME might not use this flag for anything
+
+        median_loudness = {}
+        for x in self.items:
+            hsh = create_hash(x, min_loudness, max_loudness)
+
+            # Make sure a sane temporary path exists
+            tmp = Path("/tmp") / "ftis_cache"
+            tmp.mkdir(exist_ok=True)
+
+            cache = tmp / f"{hsh}.npy"
+            if not cache.exists():
+                med_loudness = get_buffer(
+                    stats(loudness(x, hopsize=4410, windowsize=17640)), 
+                    "numpy"
+                )
+                np.save(cache, med_loudness)
+            else:
+                med_loudness = np.load(cache, allow_pickle=True)
+
+            median_loudness[str(x)] = med_loudness[0][5]
+        
+        # Get percentiles and filter
+        vals = np.array([x for x in median_loudness.values()])
+        min_perc = np.percentile(vals, min_loudness)
+        max_perc = np.percentile(vals, max_loudness)
+        self.items = [k for k, v in median_loudness.items() if v <= max_perc and v >= min_perc]
+        return self
+
+    # Duration Filtering
+    @staticmethod
+    def filter_duration(x, low, high):
+        dur = get_duration(x)
+        return dur < high and dur > low
+
+    def duration(self, min_duration=0, max_duration=36000):
+        print('Filtering Duration')
+        # TODO handle the min/max types that can come in so you can do percentages
+        self.is_filtering = True
+        self.items = [
+            x 
+            for x in self.items 
+            if self.filter_duration(x, min_duration, max_duration)
+        ]
+        return self
+
+
+
 
 class Analysis:
     # TODO This could be merged directly into the corpus class where it would directly determine the type from the extension
