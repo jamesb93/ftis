@@ -19,7 +19,6 @@ class FTISAnalyser:
         self.order: int = -1
         self.cache = cache
         self.cache_possible = False
-        self.input_order_hash = ""
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
