@@ -6,14 +6,9 @@ from ftis.common.utils import create_hash, ignored_keys
 from multiprocessing import Manager
 from pathlib import Path
 from flucoma.utils import get_buffer
-from flucoma.fluid import (
-    mfcc, 
-    stats, 
-    onsetslice, 
-    noveltyslice,
-    loudness
-)
-
+from flucoma import fluid
+from importlib import import_module
+import librosa
 from joblib import dump as jdump
 
 class KDTree(FTISAnalyser):
@@ -335,15 +330,17 @@ class CollapseAudio(FTISAnalyser):
 
 
 class ExplodeAudio(FTISAnalyser):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, cache=False):
+        super().__init__(cache=cache)
         self.dump_type = ".json"
-        from pydub import AudioSegment
-        from pydub.utils import mediainfo
-        from shutil import copyfile
-        from ftis.common.conversion import samps2ms
 
     def segment(self, workable):
+        # FIXME why do i need to mport here for it to not complain
+        # FIXME Can maybe just move to the top if not a slow import
+        from ftis.common.conversion import samps2ms
+        from shutil import copyfile
+        from pydub import AudioSegment
+        from pydub.utils import mediainfo
         self.output_folder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output_folder.mkdir(exist_ok=True)
 
@@ -396,7 +393,7 @@ class FluidLoudness(FTISAnalyser):
 
         if not cache.exists():
             loudness = get_buffer(
-                loudness(workable,
+                fluid.loudness(workable,
                     windowsize=self.windowsize,
                     hopsize=self.hopsize,
                     kweighting=self.kweighting,
@@ -444,9 +441,10 @@ class FluidMFCC(FTISAnalyser):
         hsh = create_hash(workable, self.identity)
         cache = self.process.cache / f"{hsh}.npy"
         if cache.exists():
-            mfcc = np.load(cache, allow_pickle=True)
+            print(cache)
+            f = np.load(cache, allow_pickle=True)
         else:
-            mfcc = get_buffer(
+            f = get_buffer(
                 fluid.mfcc(
                     workable,
                     fftsettings=self.fftsettings,
@@ -456,16 +454,15 @@ class FluidMFCC(FTISAnalyser):
                     maxfreq=self.maxfreq,
                 ), "numpy"
             )
-            np.save(cache, mfcc)
-        mfcc = mfcc.tolist()
+            np.save(cache, f)
         if self.discard:
-            self.buffer[str(workable)] = mfcc[1:]
+            self.buffer[str(workable)] = f.tolist()[1:]
         else:
-            self.buffer[str(workable)] = mfcc
+            self.buffer[str(workable)] = f.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
-        singleproc(self.name, self.analyse, self.input)
+        multiproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
 
 
@@ -479,6 +476,7 @@ class LibroMFCC(FTISAnalyser):
         window=2048,
         hop=512,
         dct=2,
+        discard=False,
         cache=False
     ):
         super().__init__(cache=cache)
@@ -489,9 +487,8 @@ class LibroMFCC(FTISAnalyser):
         self.window = window
         self.hop = hop
         self.dct = dct
+        self.discard = discard
         self.dump_type = ".json"
-        import librosa
-
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -500,23 +497,31 @@ class LibroMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        y, sr = librosa.load(workable, sr=None, mono=True)
-        mfcc = librosa.feature.mfcc(y=y, sr=sr,
-            n_mfcc=self.numcoeffs,
-            dct_type=self.dct,
-            n_mels=self.numbands,
-            fmax=self.maxfreq,
-            fmin=self.minfreq,
-            hop_length=self.hop,
-            n_fft=self.window,
-        )
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+        if not cache.exists():
+            y, sr = librosa.load(workable, sr=None, mono=True)
+            feature = librosa.feature.mfcc(y=y, sr=sr,
+                n_mfcc=self.numcoeffs,
+                dct_type=self.dct,
+                n_mels=self.numbands,
+                fmax=self.maxfreq,
+                fmin=self.minfreq,
+                hop_length=self.hop,
+                n_fft=self.window,
+            )
+            np.save(cache, feature)
+        else:
+            feature = np.load(cache, allow_pickle=True)
 
-        self.buffer[str(workable)] = mfcc.tolist()
+        if self.discard:
+            self.buffer[str(workable)] = feature.tolist()[1:]
+        else:
+            self.buffer[str(workable)] = feature.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = self.input
-        multiproc(self.name, self.analyse, workables)
+        singleproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
 
 
@@ -602,7 +607,7 @@ class FluidNoveltyslice(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        noveltyslice = noveltyslice(
+        noveltyslice = fluid.noveltyslice(
             workable,
             feature=self.feature,
             fftsettings=self.fftsettings,
@@ -646,17 +651,24 @@ class FluidOnsetslice(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        slice_output = onsetslice(
-            workable,
-            fftsettings=self.fftsettings,
-            filtersize=self.filtersize,
-            framedelta=self.framedelta,
-            metric=self.metric,
-            minslicelength=self.minslicelength,
-            threshold=self.threshold,
-        )
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.wav"
+        if not cache.exists():
+            slice_output = get_buffer(
+                fluid.onsetslice(workable,
+                    indices=cache,
+                    fftsettings=self.fftsettings,
+                    filtersize=self.filtersize,
+                    framedelta=self.framedelta,
+                    metric=self.metric,
+                    minslicelength=self.minslicelength,
+                    threshold=self.threshold
+                ), "numpy"
+            )
+        else:
+            slice_output = get_buffer(cache, "numpy")
 
-        self.buffer[str(workable)] = get_buffer(slice_output)
+        self.buffer[str(workable)] = slice_output.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
@@ -672,7 +684,6 @@ class HDBSCluster(FTISAnalyser):
         self.minsamples = minsamples
         self.dump_type = ".json"
         from hdbscan import HDBSCAN
-
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
