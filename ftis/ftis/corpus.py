@@ -78,7 +78,16 @@ class Corpus:
     # Duration Filtering
     @staticmethod
     def filter_duration(x, low, high):
-        dur = get_duration(x)
+        hsh = create_hash(x, low, high)
+        tmp = Path("/tmp") / "ftis_cache"
+        tmp.mkdir(exist_ok=True)
+
+        cache = tmp / f"{hsh}.npy"
+        if not cache.exists():
+            dur = get_duration(x)
+            np.save(cache, dur)
+        else:
+            dur = np.load(cache)
         return dur < high and dur > low
 
     def duration(self, min_duration=0, max_duration=36000):
