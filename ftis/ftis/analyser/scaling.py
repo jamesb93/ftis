@@ -2,6 +2,7 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json
 from ftis.common.proc import staticproc
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from joblib import dump as jdump
 import numpy as np
 
 
