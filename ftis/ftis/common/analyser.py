@@ -58,6 +58,7 @@ class FTISAnalyser:
 
     def compare_meta(self) -> bool:
         #TODO You could use a hashing function here to determine the similarity of the metadata
+        #TODO You should use a hashing function because adding things to the front of the chain makes it not equal between runs
         self.process.metadata = self.process.metadata
         self.process.prev_meta = self.process.prev_meta
         ident = f"{self.order}_{self.name}"
