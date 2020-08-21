@@ -19,7 +19,7 @@ class ClusteredNMF(FTISAnalyser):
         min_cluster_size=2,
         min_samples=2,
         cluster_selection_method="eom",
-        cache=False
+        cache=False,
     ):
         super().__init__(cache=cache)
         self.components = components
@@ -32,7 +32,6 @@ class ClusteredNMF(FTISAnalyser):
         self.cluster_selection_method = cluster_selection_method
         self.dump_type = ".json"
 
-
     def load_cache(self):
         self.output = read_json(self.dump_path)
 
@@ -41,10 +40,7 @@ class ClusteredNMF(FTISAnalyser):
 
     def analyse(self, workable):
         nmf = fluid.nmf(
-            workable,
-            iterations=self.iterations,
-            components=self.components,
-            fftsettings=self.fftsettings,
+            workable, iterations=self.iterations, components=self.components, fftsettings=self.fftsettings,
         )
         bases = get_buffer(nmf.bases, "numpy")
         bases_smoothed = np.zeros_like(bases)
@@ -76,9 +72,7 @@ class ClusteredNMF(FTISAnalyser):
         self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
         workables = [
-            k
-            for k in self.input.iterdir()
-            if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"
+            k for k in self.input.iterdir() if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"
         ]
         singleproc(self.name, self.analyse, workables)
 
@@ -107,18 +101,11 @@ class ClusteredSegmentation(FTISAnalyser):
         model = AgglomerativeClustering(n_clusters=self.numclusters)
 
         while (count + self.windowsize) <= len(slices):
-            indices = slices[
-                count : count + self.windowsize
-            ]  # create a section of the indices in question
+            indices = slices[count : count + self.windowsize]  # create a section of the indices in question
             data = []
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
 
-                mfcc = mfcc(
-                    workable,
-                    fftsettings=[2048, -1, -1],
-                    startframe=start,
-                    numframes=end - start,
-                )
+                mfcc = mfcc(workable, fftsettings=[2048, -1, -1], startframe=start, numframes=end - start,)
 
                 stats = get_buffer(stats(mfcc, numderivs=1), "numpy")
 

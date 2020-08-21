@@ -61,10 +61,10 @@ class ExplodeAudio(FTISAnalyser):
         self.output = [Path(x) for x in d["corpus_items"]]
 
     def dump(self):
-        d = {"corpus_items" : [str(x) for x in self.output]}
+        d = {"corpus_items": [str(x) for x in self.output]}
         write_json(self.dump_path, d)
 
     def run(self):
         workables = [Path(x) for x in self.input.keys()]
         singleproc(self.name, self.segment, workables)
-        self.output = [x for x in self.output_folder.iterdir() if x.suffix in ['.wav', '.aiff', '.aif']]
+        self.output = [x for x in self.output_folder.iterdir() if x.suffix in [".wav", ".aiff", ".aif"]]

@@ -59,9 +59,7 @@ class HDBSCAN(FTISAnalyser):
 
         data = np.array(values)
 
-        db = HdbscanClustering(
-            min_cluster_size=self.minclustersize, min_samples=self.minsamples,
-        ).fit(data)
+        db = HdbscanClustering(min_cluster_size=self.minclustersize, min_samples=self.minsamples,).fit(data)
 
         self.output = {}
 
@@ -74,10 +72,11 @@ class HDBSCAN(FTISAnalyser):
     def run(self):
         staticproc(self.name, self.analyse)
 
+
 class KDTree(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
-    
+
     def dump(self):
         jdump(self.model, self.model_path)
 

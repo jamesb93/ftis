@@ -5,10 +5,11 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json
 from subprocess import call
 
+
 class Visualiser(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
-        self.data:dict = {"data":[]}
+        self.data: dict = {"data": []}
 
     def check_dimensions(self):
         self.vals = [v for v in self.input.values()]
@@ -21,12 +22,7 @@ class Visualiser(FTISAnalyser):
     def fmt(self):
         """Format JSON for threejs"""
         for k, v in zip(self.keys, self.vals):
-            d = {
-                "name" : k,
-                "x" : v[0],
-                "y" : v[1],
-                "z" : v[2]
-            }
+            d = {"name": k, "x": v[0], "y": v[1], "z": v[2]}
             self.data["data"].append(d)
 
     def run(self):
@@ -34,7 +30,7 @@ class Visualiser(FTISAnalyser):
         self.output.mkdir(exist_ok=True)
         self.check_dimensions()
         # self.copy_audio()
-        self.fmt() 
+        self.fmt()
         script = Path(__file__).resolve()
         # copy data and assets
         web_assets = script.parent / "web_assets"
@@ -49,10 +45,8 @@ class Visualiser(FTISAnalyser):
         #     str(self.output / "web_assets" / "html"),
         #     "&&"
         #     "python",
-        #     "-m", 
+        #     "-m",
         #     "http.server"
         # ]
         # f = call(cmd)
         # print(f)
-        
-

@@ -2,6 +2,7 @@ import hashlib
 import numpy as np
 from pathlib import Path
 
+
 def list_to_coll(list_input: list, out_file: str) -> None:
     """Turns a list into a coll."""
     f = open(out_file, "w+")
@@ -21,19 +22,20 @@ def create_hash(*items) -> str:
     """Create a hash from a list of items"""
     m = hashlib.blake2b(digest_size=20)
     for item in items:
-        m.update(str(item).encode('utf-8'))
+        m.update(str(item).encode("utf-8"))
     return m.hexdigest()
 
-ignored_keys = ( # keys to ignore from superclass
-    'process',
-    'dump_path',
-    'model_dump',
-    'input', 
-    'output', 
-    'input_type', 
-    'dump_type',
-    'cache',
-    'cache_possible',
-    'corpus_items',
-    'buffer'
+
+ignored_keys = (  # keys to ignore from superclass
+    "process",
+    "dump_path",
+    "model_dump",
+    "input",
+    "output",
+    "input_type",
+    "dump_type",
+    "cache",
+    "cache_possible",
+    "corpus_items",
+    "buffer",
 )

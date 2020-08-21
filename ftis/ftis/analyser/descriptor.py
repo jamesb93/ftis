@@ -30,9 +30,7 @@ class Flux(FTISAnalyser):
         if audio.is_stereo():
             audio = np.sum(audio, axis=1)
 
-        fft = transforms.STFT(fft_size=self.windowsize, hop_size=self.hopsize).process(
-            audio
-        )
+        fft = transforms.STFT(fft_size=self.windowsize, hop_size=self.hopsize).process(audio)
 
         self.buffer[str(workable)] = list(
             np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
@@ -65,12 +63,14 @@ class FluidLoudness(FTISAnalyser):
 
         if not cache.exists():
             loudness = get_buffer(
-                fluid.loudness(workable,
+                fluid.loudness(
+                    workable,
                     windowsize=self.windowsize,
                     hopsize=self.hopsize,
                     kweighting=self.kweighting,
-                    truepeak=self.truepeak
-                ), "numpy"
+                    truepeak=self.truepeak,
+                ),
+                "numpy",
             )
             np.save(cache, loudness)
         else:
@@ -85,14 +85,15 @@ class FluidLoudness(FTISAnalyser):
 
 
 class FluidMFCC(FTISAnalyser):
-    def __init__(self,
+    def __init__(
+        self,
         fftsettings=[1024, 512, 1024],
         numbands=40,
         numcoeffs=13,
         minfreq=80,
         maxfreq=20000,
         discard=False,
-        cache=False
+        cache=False,
     ):
         super().__init__(cache=cache)
         self.fftsettings = fftsettings
@@ -123,7 +124,8 @@ class FluidMFCC(FTISAnalyser):
                     numcoeffs=self.numcoeffs,
                     minfreq=self.minfreq,
                     maxfreq=self.maxfreq,
-                ), "numpy"
+                ),
+                "numpy",
             )
             np.save(cache, f)
         if self.discard:
@@ -138,7 +140,8 @@ class FluidMFCC(FTISAnalyser):
 
 
 class LibroMFCC(FTISAnalyser):
-    def __init__(self,
+    def __init__(
+        self,
         numbands=40,
         numcoeffs=20,
         minfreq=80,
@@ -147,7 +150,7 @@ class LibroMFCC(FTISAnalyser):
         hop=512,
         dct=2,
         discard=False,
-        cache=False
+        cache=False,
     ):
         super().__init__(cache=cache)
         self.numbands = numbands
@@ -171,10 +174,12 @@ class LibroMFCC(FTISAnalyser):
         cache = self.process.cache / f"{hsh}.npy"
         if cache.exists():
             feature = np.load(cache, allow_pickle=True)
-            print('loaded cache')
+            print("loaded cache")
         else:
             y, sr = librosa.load(workable, sr=None, mono=True)
-            feature = librosa.feature.mfcc(y=y, sr=sr,
+            feature = librosa.feature.mfcc(
+                y=y,
+                sr=sr,
                 n_mfcc=self.numcoeffs,
                 dct_type=self.dct,
                 n_mels=self.numbands,
@@ -197,7 +202,8 @@ class LibroMFCC(FTISAnalyser):
 
 
 class LibroCQT(FTISAnalyser):
-    def __init__(self,
+    def __init__(
+        self,
         hop_length=512,
         minfreq=110,
         n_bins=84,
@@ -206,10 +212,10 @@ class LibroCQT(FTISAnalyser):
         filter_scale=1,
         norm=1,
         sparsity=0.01,
-        window='hann',
+        window="hann",
         scale=True,
-        pad_mode='reflect',
-        cache=False
+        pad_mode="reflect",
+        cache=False,
     ):
         super().__init__(cache=cache)
         self.hop_length = hop_length
@@ -233,7 +239,9 @@ class LibroCQT(FTISAnalyser):
 
     def analyse(self, workable):
         y, sr = librosa.load(workable, sr=None, mono=True)
-        cqt = librosa.cqt(y, sr, 
+        cqt = librosa.cqt(
+            y,
+            sr,
             fmin=self.minfreq,
             n_bins=self.n_bins,
             bins_per_octave=self.bins_per_octave,
@@ -243,7 +251,7 @@ class LibroCQT(FTISAnalyser):
             sparsity=self.sparsity,
             window=self.window,
             scale=self.scale,
-            pad_mode=self.pad_mode
+            pad_mode=self.pad_mode,
         )
         self.buffer[str(workable)] = np.abs(cqt).tolist()
 
@@ -251,8 +259,3 @@ class LibroCQT(FTISAnalyser):
         self.buffer = Manager().dict()
         singleproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
-
-
-
-
-

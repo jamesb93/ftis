@@ -9,6 +9,7 @@ import numpy as np
 
 class UMAP(FTISAnalyser):
     """Dimension reduction with UMAP algorithm"""
+
     def __init__(self, mindist=0.01, neighbours=7, components=2, cache=False):
         super().__init__(cache=cache)
         self.mindist = mindist
@@ -30,15 +31,11 @@ class UMAP(FTISAnalyser):
 
         data = np.array(data)
 
-        self.model = umapdr(
-            n_components=self.components,
-            n_neighbors=self.neighbours,
-            min_dist=self.mindist,
-        )
+        self.model = umapdr(n_components=self.components, n_neighbors=self.neighbours, min_dist=self.mindist,)
         self.model.fit(data)
         transformed_data = self.model.transform(data)
 
-        self.output = {k: v.tolist() for k, v in zip(keys, transformed_data)} 
+        self.output = {k: v.tolist() for k, v in zip(keys, transformed_data)}
 
     def run(self):
         staticproc(self.name, self.analyse)

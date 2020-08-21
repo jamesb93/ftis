@@ -20,7 +20,7 @@ class NoCorpusSource(Exception):
 
 class BadCorpusSource(Exception):
     def __init__(self):
-        super().__init__("The corpus source is not PURE") #TODO make this more descriptive
+        super().__init__("The corpus source is not PURE")  # TODO make this more descriptive
 
 
 class AnalyserNotFound(Exception):
@@ -47,6 +47,7 @@ class ChainIOError(Exception):
         {analyser2.name} output: {analyser2.output_type}
         """
         )
+
 
 class SourceIOError(Exception):
     def __init__(self):

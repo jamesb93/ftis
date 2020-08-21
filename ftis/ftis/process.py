@@ -14,7 +14,7 @@ class FTISProcess:
     def __init__(self, source, folder, mode="chain"):
         self.folder = Path(folder).expanduser().resolve()
         self.corpus = source
-        self.source = source.items #FIXME this is confusing
+        self.source = source.items  # FIXME this is confusing
         self.chain = []
         self.logger = logging.getLogger(__name__)
         self.console = Console()
@@ -25,7 +25,7 @@ class FTISProcess:
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
         self.folder.mkdir(exist_ok=True)
-        
+
         # Create a place to store microcached results
         self.cache = self.folder / ".cache"
         self.cache.mkdir(exist_ok=True)
@@ -46,13 +46,11 @@ class FTISProcess:
             logfile_path.unlink()
 
         logfile_handler = logging.FileHandler(logfile_path)
-        formatter = logging.Formatter(
-            "%(asctime)s : %(levelname)s : %(name)s : %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s : %(levelname)s : %(name)s : %(message)s")
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
         self.logger.debug("Logging initialised")
-        
+
     def general_metadata(self):
         # Time
         self.metadata["time"] = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
@@ -71,11 +69,9 @@ class FTISProcess:
         for i, analyser in enumerate(self.chain):
             analyser.order = i
             name = analyser.__class__.__name__
-            
+
             analyser_params[f"{i}_{name}"] = {
-                k: v 
-                for k, v in vars(analyser).items() 
-                if k not in ignored_keys
+                k: v for k, v in vars(analyser).items() if k not in ignored_keys
             }
             analyser.process = self
             analyser.set_dump()
@@ -89,13 +85,12 @@ class FTISProcess:
                 if i == 0:
                     analyser.input = self.source
                 else:
-                    analyser.input = self.chain[i-1].output
+                    analyser.input = self.chain[i - 1].output
             else:
                 analyser.input = self.source
             analyser.create_identity()
             self.metadata["analyser"][f"{i}_{analyser.name}"]["identity_hash"] = analyser.identity_hash
             analyser.do()
-        
 
     def run(self):
         self.setup()
@@ -109,5 +104,3 @@ class FTISProcess:
         self.run_analysers()
         self.general_metadata()
         write_json(self.metapath, self.metadata)
-
-

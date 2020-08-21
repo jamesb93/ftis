@@ -9,18 +9,14 @@ import numpy as np
 
 class Stats(FTISAnalyser):
     """Get various statistics and derivatives of those"""
-    def __init__(self, 
-        numderivs=0, 
-        flatten=True, 
-        spec = [
-            "mean", 
-            "stddev", 
-            "skewness", 
-            "kurtosis", 
-            "min", 
-            "median", 
-            "max"
-        ],cache=False):
+
+    def __init__(
+        self,
+        numderivs=0,
+        flatten=True,
+        spec=["mean", "stddev", "skewness", "kurtosis", "min", "median", "max"],
+        cache=False,
+    ):
 
         super().__init__(cache=cache)
         self.numderivs = numderivs

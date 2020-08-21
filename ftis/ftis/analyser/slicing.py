@@ -8,14 +8,15 @@ from flucoma import fluid
 
 
 class FluidOnsetslice(FTISAnalyser):
-    def __init__(self,
+    def __init__(
+        self,
         fftsettings=[1024, 512, 1024],
         filtersize=5,
         framedelta=0,
         metric=0,
         minslicelength=2,
         threshold=0.5,
-        cache=False
+        cache=False,
     ):
         super().__init__(cache=cache)
         self.fftsettings = fftsettings
@@ -37,15 +38,17 @@ class FluidOnsetslice(FTISAnalyser):
         cache = self.process.cache / f"{hsh}.wav"
         if not cache.exists():
             slice_output = get_buffer(
-                fluid.onsetslice(workable,
+                fluid.onsetslice(
+                    workable,
                     indices=cache,
                     fftsettings=self.fftsettings,
                     filtersize=self.filtersize,
                     framedelta=self.framedelta,
                     metric=self.metric,
                     minslicelength=self.minslicelength,
-                    threshold=self.threshold
-                ), "numpy"
+                    threshold=self.threshold,
+                ),
+                "numpy",
             )
         else:
             slice_output = get_buffer(cache, "numpy")
@@ -66,7 +69,7 @@ class FluidNoveltyslice(FTISAnalyser):
         filtersize=1,
         minslicelength=2048,
         threshold=0.5,
-        cache=False
+        cache=False,
     ):
         super().__init__(cache=cache)
         self.feature = feature
