@@ -2,7 +2,7 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json
 from ftis.common.proc import singleproc
 from multiprocessing import Manager
-from scipy import stats
+from scipy.stats import describe
 from math import sqrt
 import numpy as np
 
@@ -36,22 +36,22 @@ class Stats(FTISAnalyser):
 
     @staticmethod
     def calc_stats(data, spec):
-        describe = stats.describe(data)
+        description = describe(data)
         output = []
         if "mean" in spec:
-            output.append(describe.mean)
+            output.append(description.mean)
         if "stddev" in spec:
-            output.append(sqrt(describe.variance))
+            output.append(sqrt(description.variance))
         if "skewness" in spec:
-            output.append(describe.skewness)
+            output.append(description.skewness)
         if "kurtosis" in spec:
-            output.append(describe.kurtosis)
+            output.append(description.kurtosis)
         if "minimum" in spec:
-            output.append(describe.minmax[0])
+            output.append(description.minmax[0])
         if "median" in spec:
             output.append(np.median(data))
         if "maximum" in spec:
-            output.append(describe.minmax[1])
+            output.append(description.minmax[1])
         return output
 
     def get_stats(self, base_data, num_derivs: int) -> list:
