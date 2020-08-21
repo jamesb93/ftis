@@ -24,7 +24,6 @@ class FTISProcess:
 
     def setup(self):
         """Makes an initial parse of the yaml file and initialises logging"""
-
         self.folder.mkdir(exist_ok=True)
         
         # Create a place to store microcached results

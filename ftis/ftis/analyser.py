@@ -6,6 +6,14 @@ from ftis.common.utils import create_hash, ignored_keys
 from multiprocessing import Manager
 from pathlib import Path
 from flucoma.utils import get_buffer
+from flucoma.fluid import (
+    mfcc, 
+    stats, 
+    onsetslice, 
+    noveltyslice,
+    loudness
+)
+
 from joblib import dump as jdump
 
 class KDTree(FTISAnalyser):
@@ -209,7 +217,6 @@ class ClusteredSegmentation(FTISAnalyser):
         self.dump_type = ".json"
         from sklearn.cluster import AgglomerativeClustering
 
-
     def load_cache(self):
         self.output = read_json(self.dump_path)
 
@@ -233,14 +240,14 @@ class ClusteredSegmentation(FTISAnalyser):
             data = []
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
 
-                mfcc = fluid.mfcc(
+                mfcc = mfcc(
                     workable,
                     fftsettings=[2048, -1, -1],
                     startframe=start,
                     numframes=end - start,
                 )
 
-                stats = get_buffer(fluid.stats(mfcc, numderivs=1), "numpy")
+                stats = get_buffer(stats(mfcc, numderivs=1), "numpy")
 
                 data.append(stats.flatten())
 
@@ -276,7 +283,6 @@ class UMAP(FTISAnalyser):
         self.output = {}
         self.dump_type = ".json"
         from umap import UMAP as umapdr
-
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -377,7 +383,6 @@ class FluidLoudness(FTISAnalyser):
         self.kweighting = kweighting
         self.truepeak = truepeak
         self.dump_type = ".json"
-        from flucoma.fluid import loudness
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -391,7 +396,7 @@ class FluidLoudness(FTISAnalyser):
 
         if not cache.exists():
             loudness = get_buffer(
-                fluid.loudness(workable,
+                loudness(workable,
                     windowsize=self.windowsize,
                     hopsize=self.hopsize,
                     kweighting=self.kweighting,
@@ -428,8 +433,6 @@ class FluidMFCC(FTISAnalyser):
         self.maxfreq = maxfreq
         self.discard = discard
         self.dump_type = ".json"
-        from flucoma.fluid import mfcc
-
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -516,6 +519,7 @@ class LibroMFCC(FTISAnalyser):
         multiproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
+
 class LibroCQT(FTISAnalyser):
     def __init__(self,
         hop_length=512,
@@ -598,7 +602,7 @@ class FluidNoveltyslice(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        noveltyslice = fluid.noveltyslice(
+        noveltyslice = noveltyslice(
             workable,
             feature=self.feature,
             fftsettings=self.fftsettings,
@@ -611,8 +615,7 @@ class FluidNoveltyslice(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = self.input
-        multiproc(self.name, self.analyse, workables)
+        multiproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
 
 
@@ -643,7 +646,7 @@ class FluidOnsetslice(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        onsetslice = fluid.onsetslice(
+        slice_output = onsetslice(
             workable,
             fftsettings=self.fftsettings,
             filtersize=self.filtersize,
@@ -653,7 +656,7 @@ class FluidOnsetslice(FTISAnalyser):
             threshold=self.threshold,
         )
 
-        self.buffer[str(workable)] = get_buffer(onsetslice)
+        self.buffer[str(workable)] = get_buffer(slice_output)
 
     def run(self):
         self.buffer = Manager().dict()

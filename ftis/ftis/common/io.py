@@ -15,7 +15,7 @@ def read_json(json_file_path: str) -> dict:
         data = simdjson.load(fp)
         return data
 
-def peek(audio_file_path: Union[str, Path], output: str = "np") -> Union[Tuple(np.ndarray, int), Tuple(List[float], int)]:
+def peek(audio_file_path: Union[str, Path], output: str = "np"):
     """
     Returns a tuple of audio data and its sampling rate
     The audio data can be a numpy array or list
