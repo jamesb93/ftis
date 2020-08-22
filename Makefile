@@ -1,4 +1,4 @@
 format-check:
-	black -l 135 --check .
+	black -l 110 --check .
 format:
-	black . -l 135
+	black . -l 110
