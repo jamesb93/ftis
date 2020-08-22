@@ -33,9 +33,13 @@ class Corpus:
         if not self.path.exists():
             raise InvalidSource(self.path)
 
-        self.items = [  # filter bad file types (i'm looking at you .DS_Store)
-            x for x in self.path.iterdir() if x.suffix in self.file_type
-        ]
+        if self.path.is_dir():
+            self.items = [  # filter bad file types (i'm looking at you .DS_Store)
+                x for x in self.path.iterdir() if x.suffix in self.file_type
+            ]
+        else: # If a corpus is a single file
+            self.items = [str(self.path)]
+
 
     def loudness(self, min_loudness=0, max_loudness=100):
         print("Filtering Loudness")
