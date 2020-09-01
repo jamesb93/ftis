@@ -238,21 +238,26 @@ class LibroCQT(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        y, sr = librosa.load(workable, sr=None, mono=True)
-        cqt = librosa.cqt(
-            y,
-            sr,
-            fmin=self.minfreq,
-            n_bins=self.n_bins,
-            bins_per_octave=self.bins_per_octave,
-            tuning=self.tuning,
-            filter_scale=self.filter_scale,
-            norm=self.norm,
-            sparsity=self.sparsity,
-            window=self.window,
-            scale=self.scale,
-            pad_mode=self.pad_mode,
-        )
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+        if cache.exists():
+            cqt = np.load(cache, allow_pickle=True)
+        else:
+            y, sr = librosa.load(workable, sr=None, mono=True)
+            cqt = librosa.cqt(y, sr,
+                fmin=self.minfreq,
+                n_bins=self.n_bins,
+                bins_per_octave=self.bins_per_octave,
+                tuning=self.tuning,
+                filter_scale=self.filter_scale,
+                norm=self.norm,
+                sparsity=self.sparsity,
+                window=self.window,
+                scale=self.scale,
+                pad_mode=self.pad_mode,
+            )
+            np.save(cache, cqt)
+
         self.buffer[str(workable)] = np.abs(cqt).tolist()
 
     def run(self):

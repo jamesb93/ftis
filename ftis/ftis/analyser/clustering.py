@@ -1,14 +1,13 @@
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.proc import staticproc, singleproc
+from ftis.common.proc import staticproc
 from ftis.common.io import write_json, read_json
 from sklearn.neighbors import KDTree as SKKDTree
-from hdbscan import HDBSCAN as HdbscanClustering
-
+from sklearn.cluster import AgglomerativeClustering as AggCluster
 from joblib import dump as jdump
 import numpy as np
 
 
-class AGCluster(FTISAnalyser):
+class AgglomerativeClustering(FTISAnalyser):
     def __init__(self, numclusters=3, cache=False):
         super().__init__(cache=cache)
         self.numclusters = numclusters
@@ -26,7 +25,7 @@ class AGCluster(FTISAnalyser):
 
         data = np.array(values)
 
-        db = AgglomerativeClustering(n_clusters=self.numclusters).fit(data)
+        db = AggCluster(n_clusters=self.numclusters).fit(data)
 
         self.output = {}
 
@@ -78,14 +77,14 @@ class KDTree(FTISAnalyser):
         super().__init__(cache=cache)
 
     def dump(self):
-        jdump(self.model, self.model_path)
+        jdump(self.model, self.model_dump)
 
     def analyse(self):
         data = [v for v in self.input.values()]
         keys = [k for k in self.input.keys()]
-
         data = np.array(data)
         self.model = SKKDTree(data)
 
     def run(self):
-        singleproc(self.name, self.analyse)
+        staticproc(self.name, self.analyse)
+        self.output = self.model_dump

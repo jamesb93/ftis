@@ -31,7 +31,7 @@ class UMAP(FTISAnalyser):
 
         data = np.array(data)
 
-        self.model = umapdr(n_components=self.components, n_neighbors=self.neighbours, min_dist=self.mindist,)
+        self.model = umapdr(n_components=self.components, n_neighbors=self.neighbours, min_dist=self.mindist, random_state=42)
         self.model.fit(data)
         transformed_data = self.model.transform(data)
 

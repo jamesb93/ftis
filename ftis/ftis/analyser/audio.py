@@ -14,7 +14,7 @@ class CollapseAudio(FTISAnalyser):
         super().__init__()
 
     def collapse(self, workable):
-        out = self.outfolder / workable.name
+        out = self.outfolder / Path(workable).name
         raw, sr = peek(workable)
         audio = None
         if raw.ndim == 1:
@@ -26,9 +26,8 @@ class CollapseAudio(FTISAnalyser):
     def run(self):
         self.outfolder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.outfolder.mkdir(exist_ok=True)
-        self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
         singleproc(self.name, self.collapse, self.input)
-
+        self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
 
 class ExplodeAudio(FTISAnalyser):
     def __init__(self, cache=False):

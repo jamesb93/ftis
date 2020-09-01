@@ -1,4 +1,4 @@
-from ftis.analyser import FluidMFCC
+from ftis.analyser.descriptor import FluidMFCC
 from ftis.corpus import Corpus, CorpusFilter
 from ftis.process import FTISProcess
 
