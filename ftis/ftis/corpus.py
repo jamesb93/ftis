@@ -104,7 +104,7 @@ class Corpus:
         return self
 
     @staticmethod
-    def filter_duration(x, low, high):
+    def filter_duration(x, low: float, high: float) -> bool:
         hsh = create_hash(x, low, high)
         tmp = Path("/tmp") / "ftis_cache"
         tmp.mkdir(exist_ok=True)
@@ -117,7 +117,7 @@ class Corpus:
             dur = np.load(cache)
         return dur < high and dur > low
 
-    def duration(self, min_duration=0, max_duration=36000):
+    def duration(self, min_duration:int=0, max_duration:int=36000):
         print("Filtering Duration")
         # TODO handle min/max types that can come in so you can do percentages
         self.is_filtering = True
