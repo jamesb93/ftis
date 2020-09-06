@@ -40,8 +40,41 @@ class Corpus:
             ]
         else:
             self.items = [str(self.path)]
+    
+    def startswith(self, prefix: str):
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Corpus Filtering: Name (startswith)", total=len(self.items))
+            temp = []
+            for x in self.items:
+                if  str(x.stem).startswith(prefix):
+                    temp.append(x)
+                progress.update(task, advance=1)
+            self.items = temp
+        return self
 
-    def loudness(self, min_loudness=0, max_loudness=100):
+    def endswith(self, suffix: str):
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Corpus Filtering: Name (endswith)", total=len(self.items))
+            temp = []
+            for x in self.items:
+                if  str(x.stem).endswith(suffix):
+                    temp.append(x)
+                progress.update(task, advance=1)
+            self.items = temp
+        return self
+
+    def has(self, has: str):
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Corpus Filtering: Name (has)", total=len(self.items))
+            temp = []
+            for x in self.items:
+                if has in str(x):
+                    temp.append(x)
+                progress.update(task, advance=1)
+            self.items = temp
+        return self
+
+    def loudness(self, min_loudness: int=0, max_loudness: int=100):
         with Progress() as progress:
             task = progress.add_task("[cyan]Corpus Filtering: Loudness", total=len(self.items))
 
