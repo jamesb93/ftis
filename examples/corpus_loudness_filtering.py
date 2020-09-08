@@ -8,7 +8,6 @@ corpus = Corpus("~/corpus-folder/corpus1").loudness(min_loudness=90)
 
 # You can also use a more declarative syntax like so:
 new_corpus = (
-    Corpus("~/corpus-folder")
+    Corpus("~/corpus-folder/corpus1")
     .loudness(max_loudness=10) #filter to bottom 10%
-    .duration(min_duration=0.5, max_duration=1.0) #only sound files between 500ms and 1000ms
 )
