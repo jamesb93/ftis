@@ -118,7 +118,6 @@ class Corpus:
         return dur < high and dur > low
 
     def duration(self, min_duration:int=0, max_duration:int=36000):
-        print("Filtering Duration")
         # TODO handle min/max types that can come in so you can do percentages
         self.is_filtering = True
         self.items = [x for x in self.items if self.filter_duration(x, min_duration, max_duration)]

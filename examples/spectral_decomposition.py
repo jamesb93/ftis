@@ -1,11 +1,11 @@
-from ftis.analyser import ClusteredNMF
+from ftis.analyser.meta import ClusteredNMF
 from ftis.process import FTISProcess as Chain
 from ftis.corpus import Corpus
 
-src = Corpus("~/Documents/media")
-folder = "~/Documents/analysis"
+src = Corpus("~/corpus-folder/corpus1")
+out = "~/corpus-folder/batching"
 
-process = Chain(source=src, folder=folder)
+process = Chain(source=src, folder=out)
 
 process.add(
     ClusteredNMF(
