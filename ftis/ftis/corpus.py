@@ -75,12 +75,14 @@ class Corpus:
         return self
 
     def loudness(self, min_loudness: int=0, max_loudness: int=100):
+        hopsize = 4410
+        windowsize = 17640
         with Progress() as progress:
             task = progress.add_task("[cyan]Corpus Filtering: Loudness", total=len(self.items))
 
             median_loudness = {}
             for x in self.items:
-                hsh = create_hash(x, min_loudness, max_loudness)
+                hsh = create_hash(x, hopsize, windowsize)
 
                 # Make sure a sane temporary path exists
                 tmp = Path("/tmp") / "ftis_cache"
@@ -88,7 +90,7 @@ class Corpus:
 
                 cache = tmp / f"{hsh}.npy"
                 if not cache.exists():
-                    med_loudness = get_buffer(stats(loudness(x, hopsize=4410, windowsize=17640)), "numpy")
+                    med_loudness = get_buffer(stats(loudness(x, hopsize=hopsize, windowsize=windowsize)), "numpy")
                     np.save(cache, med_loudness)
                 else:
                     med_loudness = np.load(cache, allow_pickle=True)
