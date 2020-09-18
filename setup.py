@@ -1,14 +1,12 @@
-import setuptools
+from setuptools import setup, find_packages
 from pathlib import Path
 
-readme = Path("../readme.md")
-
-with open(readme, encoding="utf-8") as f:
+with open("readme.md", encoding="utf-8") as f:
     long_description = f.read()
 
-setuptools.setup(
+setup(
     name="ftis",
-    version="1.0.1",
+    version="1.0.2",
     author="James Bradbury",
     url="https://github.com/jamesb93/ftis",
     license="GLPv3+",
@@ -16,7 +14,7 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     description="The finding things in stuff package.",
-    packages=["ftis"],
+    packages=find_packages(),
     install_requires=[
         "Soundfile",
         "hdbscan",
