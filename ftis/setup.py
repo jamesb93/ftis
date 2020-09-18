@@ -8,7 +8,7 @@ with open(readme, encoding="utf-8") as f:
 
 setuptools.setup(
     name="ftis",
-    version="1.0",
+    version="1.0.1",
     author="James Bradbury",
     url="https://github.com/jamesb93/ftis",
     license="GLPv3+",
