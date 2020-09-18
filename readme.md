@@ -2,15 +2,19 @@
 
 `ftis` is a framework for data manipulation, management, creation and munging in Python 3.8+. It is designed for creative use, mainly for my own preoccupations with segmenting, analysing, organising, discovering structure within, and composing with audio corpora.
 
-The overall architecture can be conceived in two parts; 'analysers' and 'processes'. `ftis` generates connections between a source, the chains and a sink and ships with two behaviours for connectivity. In "chain" mode (the default) each analyser's output is connected to the input of the next one in the chain so data is transformed in a typical processing pipeline. In "batch" mode every analyser takes the source as its input and it applies each process to the same source.
+## Architecture
+The overall architecture can be conceived in two parts; 'analysers' and 'processes'. A `ftis` 'process' can house any number of 'analysers' that can be chained and connected in different ways. A python script can house any number of processes and therefore you can compose multiple processes. Inside of a process, `ftis` makes connections between a source, the analysers and an output.
 
-Analysers are classes making the framework extensible and simple to develop for. Inside the class a number of prefab methods help implement core functionality and complicated processes can work around these obligatory bits of code quite easily. The obligatory components are inherited through a superclass so most of the code that you write is related to the design of the class or algorithm rather than dealing with `ftis` itself. With this in mind, an analyser might perform web scraping, audio descriptor analysis, offline DSP processing, segmentation, call another command line tool or anything!
+<!-- ### Analysers
+Analysers are just classes, making the framework extensible and simple to develop for. Inside the class a number of prefabricated methods help implement core functionality and complicated processes can work around these obligatory bits of code. The obligatory components are inherited through a superclass so most of the code that you write is related to the design of the class or algorithm rather than dealing with `ftis` itself. With this in mind, an analyser might perform web scraping, audio descriptor analysis, offline DSP processing, segmentation, call another command line tool or anything!
 
-`ftis` has a strong concept of metadata retention (in a good way! ) where logs are automatically generated when a chain is run as well as creating a trace of all the artefacts that are created in the process. When you come back to the results of a process in the future, its not mysterious what the source material was, or what kind of processing occurred along the way.
+`ftis` has a strong concept of metadata retention (in a good way! ) where logs are automatically generated when a chain is run as well as creating a trace of all the artefacts that are created in the process. When you come back to the results of a process in the future, its not mysterious what the source material was, or what kind of processing occurred along the way. -->
 
 ## Installation
 
-Right now, the best way to use `ftis` is to fork this repository and to `clone` it to your machine. Refer to the "Workflow" section on how to use it.
+You can install `ftis` using `pip install ftis`. This will pull down the necessary dependencies so that all of the analysers that ship with `ftis` work straight away.
+
+You can also fork this repository and `clone` it to your machine.
 
 ## Workflow
 

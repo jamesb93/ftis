@@ -1,7 +1,7 @@
 import setuptools
 from pathlib import Path
 
-readme = Path("./README.md").resolve()
+readme = Path("../README.md")
 
 with open(readme, encoding="utf-8") as f:
     long_description = f.read()
