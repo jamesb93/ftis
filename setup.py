@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
-with open("readme.md", encoding="utf-8") as f:
+with open("readme.md", 'r') as f:
     long_description = f.read()
 
 setup(
