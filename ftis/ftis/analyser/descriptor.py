@@ -9,10 +9,7 @@ from multiprocessing import Manager
 import numpy as np
 import librosa
 
-
 class Flux(FTISAnalyser):
-    """Computes spectral flux of an audio file"""
-
     def __init__(self, windowsize=1024, hopsize=512, cache=False):
         super().__init__(cache=cache)
         self.windowsize = windowsize
@@ -26,21 +23,61 @@ class Flux(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def flux(self, workable):
-        audio = data.Wave.read(str(workable))
-        if audio.is_stereo():
-            audio = np.sum(audio, axis=1)
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
 
-        fft = transforms.STFT(fft_size=self.windowsize, hop_size=self.hopsize).process(audio)
-
-        self.buffer[str(workable)] = list(
-            np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
-        )  # Flux calculation here
-
+        if not cache.exists():   
+            y, _= librosa.load(workable)
+            fft = librosa.stft(y, win_length=self.windowsize, hop_length=self.hopsize)
+            flux = np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
+            np.save(cache, flux)
+        else:
+            flux = np.load(cache)
+        self.buffer[str(workable)] = flux.tolist()
+    
     def run(self):
         self.buffer = Manager().dict()
         multiproc(self.name, self.flux, self.input)
         self.output = dict(self.buffer)
 
+class Chroma(FTISAnalyser):
+    def __init__(self, 
+    numchroma=12,
+    numoctaves=7,
+    bins_per_octave=12,
+    hop_length=512,
+    fmin=None,
+    cache=False):
+        super().__init__(cache=cache)
+        self.numchroma = numchroma
+        self.hopsize = hop_length
+        self.fmin = fmin
+        self.numoctaves = numoctaves
+        self.bins_per_octave = bins_per_octave
+        self.dump_type = ".json"
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def chroma(self, workable):
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+
+        if not cache.exists():
+            y, sr = librosa.load(workable)
+            chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+            np.save(cache, chroma)
+        else:
+            chroma = np.load(cache)
+        self.buffer[str(workable)] = chroma.tolist()
+
+    def run(self):
+        self.buffer = Manager().dict()
+        multiproc(self.name, self.chroma, self.input)
+        self.output = dict(self.buffer)
 
 class FluidLoudness(FTISAnalyser):
     def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, cache=False):
