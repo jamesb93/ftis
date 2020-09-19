@@ -14,7 +14,7 @@ setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     description="The finding things in stuff package.",
-    packages=find_packages(),
+    packages=find_packages()
     install_requires=[
         "Soundfile",
         "hdbscan",
