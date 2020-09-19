@@ -1,7 +1,7 @@
 # Let's perform some analysis for creating datasets more easily!
 
 # import analysers
-from ftis.analyser.descriptors import Chroma
+from ftis.analyser.descriptor import Chroma
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.stats import Stats
 
@@ -18,16 +18,17 @@ out = "~/corpus-folder/chroma-dataset"
 
 process = FTISProcess(source=src, folder=out)
 
-chroma_data = Chroma(fmin=40) # use a non-anonymous class
+stats = Stats(numderivs=2, spec=["stddev", "mean"]) # use a non-anonymous class
 process.add(
     CollapseAudio(),
-    chroma_data
+    Chroma(fmin=40),
+    stats
 )
 
 if __name__ == "__main__":
     process.run()
 
     # Now that ftis has completed lets pack the data into a fluid dataset
-    dataset = dataset.pack(chroma_data.output) # use the pack function to marshall it to the right format
+    dataset = dataset.pack(stats.output) # use the pack function to marshall it to the right format
     dataset_path = Path(out) / "dataset.json" # create an output path
-    write_json(dataset, dataset_path) # write to disk
+    write_json(dataset_path.expanduser(), dataset) # write to disk
