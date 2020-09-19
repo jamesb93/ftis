@@ -2,7 +2,6 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.proc import staticproc, multiproc, singleproc
 from ftis.common.io import write_json, read_json
 from ftis.common.utils import create_hash
-from untwist import transforms, data
 from flucoma.utils import get_buffer
 from flucoma import fluid
 from multiprocessing import Manager
