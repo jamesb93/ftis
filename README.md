@@ -18,34 +18,35 @@ You can also fork this repository and `clone` it to your machine.
 
 ## Workflow
 
-The simplest setup is to have a virtual environment setup with ftis installed as a module. `cd` to the clone of your fork of `ftis` and enter the module (the directory containing `setup.py`). Once there run `pip install -e .` to install `ftis` to your activated virtual environment. Once you've designed your script you can easily run it with `python mycoolscript.py`.
+The simplest setup is to have a virtual environment setup with ftis installed as a module. `cd` to the clone of your fork of `ftis` and enter the module (the directory containing `setup.py`). Once there run `pip install -e .` to install `ftis` to your activated virtual environment. Once you've designed your script you can easily run it with `python mycoolscript.py`. Of course if you have used `pip` to install `ftis` then none of the previous advice applies.
 
 There are some good examples of scripts in the examples directory of this repository. Otherwise the basic structure looks like this:
 
 ```python
 
-from ftis.analyser import (
-    FluidNoveltyslice, 
-    ExplodeAudio, 
-    CollapseAudio
-) # import the analysers that you want to use from ftis.analyser
-from ftis.process import FTISProcess # import the FTISProcess class
+# import ftis modules that we need
+from ftis.analyser.slicing import FluidNoveltyslice # novelty slicing
+from ftis.process import FTISProcess # a ftis 'process'
+from ftis.corpus import Corpus # a corpus object
 
-src = "/home/james/Documents/media" # set up the source 
-folder = "/home/james/Documents/analysis" # set up the output folder
+src = Corpus("~/corpus-folder/corpus1") # corpus object collects audio files at this directory
+out = "~/corpus-folder/slicing" # set an output folder
 
-process = FTISProcess(source=src, folder=folder) # create an instance of the FTISProcess
+process = FTISProcess( # instantiate an instance of the process
+    source=src, # provide the source and the output to the process
+    folder=out
+)
 
-process.add(
+process.add( # now add different 'analysers' to the process
     FluidNoveltyslice(threshold=0.35, feature=1),
     ExplodeAudio()
-) # Add some analysers to your process (the order of the args is the order of the chain)
+)
 
-process.run() # call the run() method
-
+if __name__ == "__main__":
+    process.run() # and run (inside this block for multiprocessing to work)
 ```
 
-and thats it!
+and thats it! For more information read the full documentation.
 
 ## Contributing
 
