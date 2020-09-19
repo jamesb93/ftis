@@ -23,8 +23,7 @@ class FTISProcess:
         self.prev_meta = {}
 
     def setup(self):
-        """Makes an initial parse of the yaml file and initialises logging"""
-        self.folder.mkdir(exist_ok=True)
+        self.folder.mkdir(exist_ok=True, parents=True)
 
         # Create a place to store microcached results
         self.cache = self.folder / ".cache"
@@ -94,7 +93,7 @@ class FTISProcess:
 
     def run(self):
         self.setup()
-        md = "# **** FTIS v0.3 ****"
+        md = "# **** FTIS v1.0.6 ****"
         md += f"\n\n**Source: {self.corpus.path}**"
         md += f"\n\n**Output: {self.folder}**"
         md += "\n\n---------------------"

@@ -6,7 +6,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name="ftis",
-    version="1.0.5",
+    version="1.0.6",
     author="James Bradbury",
     url="https://github.com/jamesb93/ftis",
     license="GLPv3+",
