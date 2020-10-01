@@ -1,22 +1,19 @@
 import soundfile as sf
 from typing import Union, Tuple, List
 from pathlib import Path
-try:
-    import simdjson
-except ImportError:
-    import json as simdjson
+import json
 
 
 def write_json(json_file_path: str, in_dict: dict) -> None:
     """Takes a dictionary and writes it to JSON file"""
     with open(json_file_path, "w+") as fp:
-        simdjson.dump(in_dict, fp, indent=4)
+        json.dump(in_dict, fp, indent=4)
 
 
 def read_json(json_file_path: str) -> dict:
     """Takes a JSON file and returns a dictionary"""
     with open(json_file_path, "r") as fp:
-        data = simdjson.load(fp)
+        data = json.load(fp)
         return data
 
 
