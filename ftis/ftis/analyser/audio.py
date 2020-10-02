@@ -1,10 +1,9 @@
 from ftis.common.analyser import FTISAnalyser
-from ftis.common.io import write_json, read_json, peek
+from ftis.common.io import write_json, read_json, peek, get_sr
 from ftis.common.proc import singleproc
 from ftis.common.conversion import samps2ms
 from shutil import copyfile
 from pydub import AudioSegment
-from pydub.utils import mediainfo
 from pathlib import Path
 from scipy.io import wavfile
 
@@ -47,7 +46,7 @@ class ExplodeAudio(FTISAnalyser):
             copyfile(workable, self.output_folder / f"{workable.stem}_0.wav")
 
         src = AudioSegment.from_file(workable, format="wav")
-        sr = int(mediainfo(workable)["sample_rate"])
+        sr = get_sr(workable)
 
         for i, (start, end) in enumerate(zip(slices, slices[1:])):
             start = samps2ms(start, sr)
