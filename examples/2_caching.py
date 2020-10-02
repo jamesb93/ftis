@@ -10,6 +10,16 @@ parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=st
 parser.add_argument('-o', '--output', default="~/corpus-folder/caching", type=str, help='Folder for output. This will be made if it doesnt exist.')
 args = parser.parse_args()
 
+"""
+FTIS implements sink level caching when you run processes.
+FTIS always makes files in the output folder containing data such as slices, descriptors etc. 
+If the order of analysers doesnt change in a process and the inputs haven't been modified in anyway...
+...repeated runs can be sped up by simply reading the files from disk rather than re-running analysis
+Caching by default is set to true and is specified at the analyser level.
+This means you can switch it off for specific processes which you need to run from scratch.
+Try running this script twice in your terminal to watch the speed increase.
+"""
+
 src = Corpus(args.input)
 out = args.output
 

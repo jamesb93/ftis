@@ -1,4 +1,4 @@
-from ftis.analyser.descriptor import Chroma
+from ftis.analyser.descriptor import FluidMFCC
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.stats import Stats
 from ftis.corpus import Corpus
@@ -15,18 +15,24 @@ parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=st
 parser.add_argument('-o', '--output', default="~/corpus-folder/fluid-dataset", type=str, help='Folder for output. This will be made if it doesnt exist.')
 args = parser.parse_args()
 
+"""
+Using the python-flucoma package analyser outputs can be turned into datasets.
+To do this we have to specifically create an instance of the analyser we are interested in.
+After the FTISProcess has run we then extract the output from that instance.
+"""
+
 src = Corpus(args.input)
-out = args.ouput
+out = args.output
 
 process = FTISProcess(
     source=src, 
     sink=out
 )
 
-stats = Stats(numderivs=2, spec=["stddev", "mean"]) # use a non-anonymous class
+stats = Stats(numderivs=2, spec=["stddev", "mean"]) # create an instance of the stats class
 process.add(
     CollapseAudio(),
-    Chroma(fmin=40),
+    FluidMFCC(),
     stats
 )
 

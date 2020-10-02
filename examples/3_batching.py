@@ -10,6 +10,13 @@ parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=st
 parser.add_argument('-o', '--output', default="~/corpus-folder/batching", type=str, help='Folder for output. This will be made if it doesnt exist.')
 args = parser.parse_args()
 
+"""
+The default mode for FTIS to run in is "chain". This connects analysers in series to each other. 
+FTIS can also be run in "batch" mode where it uses the source as the input to every analyser that you have added.
+This can be useful for doing lots of repetitive tasks in one go.
+In the example below we will slice our corpus and produce MFCC / Loudness analysis all at the same time.
+"""
+
 src = Corpus(args.input)
 out = args.output
 
