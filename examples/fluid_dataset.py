@@ -1,22 +1,27 @@
-# Let's perform some analysis for creating datasets more easily!
-
-# import analysers
 from ftis.analyser.descriptor import Chroma
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.stats import Stats
-
-# import scaffolding
 from ftis.corpus import Corpus
 from ftis.process import FTISProcess
 from ftis.common.io import write_json
 from pathlib import Path
 # import the necessary flucoma materials
 from flucoma import dataset
+import argparse
 
-src = Corpus("~/corpus-folder/corpus1")
-out = "~/corpus-folder/chroma-dataset"
 
-process = FTISProcess(source=src, folder=out)
+parser = argparse.ArgumentParser(description="Process input and output location")
+parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=str, help="Folder for input. This should contain some audio files.")
+parser.add_argument('-o', '--output', default="~/corpus-folder/fluid-dataset", type=str, help='Folder for output. This will be made if it doesnt exist.')
+args = parser.parse_args()
+
+src = Corpus(args.input)
+out = args.ouput
+
+process = FTISProcess(
+    source=src, 
+    folder=out
+)
 
 stats = Stats(numderivs=2, spec=["stddev", "mean"]) # use a non-anonymous class
 process.add(

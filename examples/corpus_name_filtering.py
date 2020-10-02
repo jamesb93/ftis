@@ -1,4 +1,10 @@
 from ftis.corpus import Corpus
+import argparse
+
+
+parser = argparse.ArgumentParser(description="Process input and output location")
+parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=str, help="Folder for input. This should contain some audio files.")
+args = parser.parse_args()
 
 
 # Corpora can be pre-processed to remove files that match certain patterns or constraints

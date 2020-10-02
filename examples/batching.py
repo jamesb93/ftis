@@ -2,9 +2,16 @@ from ftis.analyser.descriptor import FluidMFCC, FluidLoudness
 from ftis.analyser.slicing import FluidNoveltyslice
 from ftis.corpus import Corpus
 from ftis.process import FTISProcess
+import argparse
 
-src = Corpus("~/corpus-folder/corpus1")
-out = "~/corpus-folder/batching"
+
+parser = argparse.ArgumentParser(description="Process input and output location")
+parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=str, help="Folder for input. This should contain some audio files.")
+parser.add_argument('-o', '--output', default="~/corpus-folder/batching", type=str, help='Folder for output. This will be made if it doesnt exist.')
+args = parser.parse_args()
+
+src = Corpus(args.input)
+out = args.output
 
 process = FTISProcess(
     source = src,

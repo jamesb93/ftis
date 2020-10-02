@@ -1,11 +1,19 @@
 from ftis.analyser.descriptor import FluidMFCC
 from ftis.corpus import Corpus
 from ftis.process import FTISProcess
+import argparse
 
 
-folder = "~/corpus-folder/management"
-em = Corpus("~/corpus-folder/corpus1") # corpus of electromagnetic samples
-db = Corpus("~/corpus-folder/corpus2") #corpus of databending samples
+parser = argparse.ArgumentParser(description="Process input and output location")
+parser.add_argument('--corpusone',  default="~/corpus-folder/corpus1", type=str, help="Folder for input. This should contain some audio files.")
+parser.add_argument('--corpustwo',  default="~/corpus-folder/corpus2", type=str, help="Folder for input. This should contain some audio files.")
+parser.add_argument('-o', '--output', default="~/corpus-folder/corpus-management", type=str, help='Folder for output. This will be made if it doesnt exist.')
+args = parser.parse_args()
+
+
+folder = args.output
+em = Corpus(args.corpusone) # first corpus
+db = Corpus(args.corpustwo) # second corpus
 corpus = em + db # compose a corpus of both sub-corpora
 
 # adding two Corpus() objects together modifies their contents
