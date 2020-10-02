@@ -1,4 +1,5 @@
 import soundfile as sf
+import audioread
 from typing import Union, Tuple, List
 from pathlib import Path
 import json
@@ -33,3 +34,11 @@ def peek(audio_file_path: Union[str, Path], output: str = "np"):
 def get_duration(path: Union[str, Path]) -> float:
     data, sr = peek(path)
     return len(data) / sr
+
+def get_sr(path) -> int:
+    try:
+        with sf.SoundFile(path) as f:
+            return int(f.samplerate)
+    except RuntimeError:
+        with audioread.audio_open(path) as f:
+            return int(f.samplerate)
