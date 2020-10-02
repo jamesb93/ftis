@@ -11,8 +11,8 @@ from ftis.common.utils import ignored_keys, create_hash
 class FTISProcess:
     """Class that represents the life cycle of a 'FTIS' execution"""
 
-    def __init__(self, source, sink, mode="chain"):
-        self.sink = Path(folder).expanduser().resolve()
+    def __init__(self, source=None, sink=None, mode="chain"):
+        self.sink = Path(sink).expanduser().resolve()
         self.corpus = source
         self.source = source.items  # FIXME this is confusing
         self.chain = []
@@ -93,9 +93,9 @@ class FTISProcess:
 
     def run(self):
         self.setup()
-        md = "# **** FTIS v1.0.6 ****"
+        md = "# **** FTIS v1.1.0 ****"
         md += f"\n\n**Source: {self.corpus.path}**"
-        md += f"\n\n**Output: {self.sink}**"
+        md += f"\n\n**Sink: {self.sink}**"
         md += "\n\n---------------------"
         md += "\n\nBeginning processing..."
         self.console.print(Markdown(md))
