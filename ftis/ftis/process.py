@@ -93,7 +93,7 @@ class FTISProcess:
 
     def run(self):
         self.setup()
-        md = "# **** FTIS v1.1.0 ****"
+        md = "# **** FTIS v1.1.1 ****"
         md += f"\n\n**Source: {self.corpus.path}**"
         md += f"\n\n**Sink: {self.sink}**"
         md += "\n\n---------------------"
