@@ -34,8 +34,6 @@ class ExplodeAudio(FTISAnalyser):
         self.dump_type = ".json"
 
     def segment(self, workable):
-        # FIXME why do i need to mport here for it to not complain
-        # FIXME Can maybe just move to the top if not a slow import
 
         self.output_folder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
         self.output_folder.mkdir(exist_ok=True)
