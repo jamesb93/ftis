@@ -146,25 +146,3 @@ class Analysis:
             raise InvalidSource(self.path)
 
         self.items = path
-
-
-class PathLoader(FTISAnalyser):
-    def __init__(self, file_type=[".wav", ".aiff", ".aif"], cache=False):
-        super().__init__(cache=cache)
-        self.output = []
-        self.file_type = file_type
-        self.dump_type = ".json"
-
-    def load_cache(self):
-        d = read_json(self.dump_path)
-        self.output = [Path(x) for x in d["corpus_items"]]
-
-    def dump(self):
-        d = {"corpus_items": [str(x) for x in self.output]}
-        write_json(self.dump_path, d)
-
-    def collect_files(self):
-        self.output = [x for x in self.input.iterdir() if x.suffix in self.file_type]
-
-    def run(self):
-        staticproc(self.name, self.collect_files)
