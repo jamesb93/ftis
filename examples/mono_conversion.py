@@ -1,16 +1,22 @@
 from ftis.analyser.audio import CollapseAudio
 from ftis.corpus import Corpus
 from ftis.process import FTISProcess
+import argparse
 
 
+parser = argparse.ArgumentParser(description="Process input and output location")
+parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=str, help="Folder for input. This should contain some audio files.")
+parser.add_argument('-o', '--output', default="~/corpus-folder/collapse", type=str, help='Folder for output. This will be made if it doesnt exist.')
+args = parser.parse_args()
 
 process = FTISProcess(
-    source = Corpus("~/corpus-folder/corpus1"), 
-    folder = "~/corpus-folder/collapse"
+    source = Corpus(args.input), 
+    folder = args.output
 )
 
 process.add(
     CollapseAudio()
 )
 
-process.run()
+if __name__ == "__main__":
+    process.run()
