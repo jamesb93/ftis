@@ -10,8 +10,6 @@ parser.add_argument('--corpustwo',  default="~/corpus-folder/corpus2", type=str,
 parser.add_argument('-o', '--output', default="~/corpus-folder/corpus-management", type=str, help='Folder for output. This will be made if it doesnt exist.')
 args = parser.parse_args()
 
-
-folder = args.output
 em = Corpus(args.corpusone) # first corpus
 db = Corpus(args.corpustwo) # second corpus
 corpus = em + db # compose a corpus of both sub-corpora
@@ -24,7 +22,7 @@ corpus = em + db # compose a corpus of both sub-corpora
 
 process = FTISProcess(
     source = corpus,
-    folder = folder
+    sink = args.output
 )
 
 process.add(

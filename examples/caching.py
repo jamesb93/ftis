@@ -15,7 +15,7 @@ out = args.output
 
 process = FTISProcess(
     source=src,
-    folder=out
+    sink=out
 )
 
 # we can also instantiate analysers as instances of their classes

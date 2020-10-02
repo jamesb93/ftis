@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 process = FTISProcess(
     source = Corpus(args.input), 
-    folder = args.output
+    sink = args.output
 )
 
 process.add(

@@ -14,7 +14,7 @@ out = args.output
 
 process = FTISProcess(
     source=src, 
-    folder=out
+    sink=out
 )
 
 process.add(

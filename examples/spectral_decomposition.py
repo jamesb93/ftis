@@ -13,7 +13,7 @@ out = args.output
 
 process = Chain(
     source=src, 
-    folder=out
+    sink=out
 )
 
 process.add(

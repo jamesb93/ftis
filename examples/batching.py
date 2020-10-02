@@ -15,7 +15,7 @@ out = args.output
 
 process = FTISProcess(
     source = src,
-    folder = out,
+    sink = out,
     mode="batch" # set the mode to batch
 )
 

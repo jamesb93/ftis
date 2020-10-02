@@ -13,7 +13,10 @@ args = parser.parse_args()
 src = Corpus(args.input)
 out = args.output
 
-process = FTISProcess(source=src, folder=out)
+process = FTISProcess(
+    source=src, 
+    sink=out
+)
 
 process.add(
     CollapseAudio(),

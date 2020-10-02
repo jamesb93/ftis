@@ -20,7 +20,7 @@ out = args.ouput
 
 process = FTISProcess(
     source=src, 
-    folder=out
+    sink=out
 )
 
 stats = Stats(numderivs=2, spec=["stddev", "mean"]) # use a non-anonymous class
