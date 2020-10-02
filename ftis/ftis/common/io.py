@@ -35,7 +35,7 @@ def get_duration(path: Union[str, Path]) -> float:
     data, sr = peek(path)
     return len(data) / sr
 
-def get_sr(path) -> int:
+def get_sr(path: Union[str, Path]) -> int:
     try:
         with sf.SoundFile(path) as f:
             return int(f.samplerate)
