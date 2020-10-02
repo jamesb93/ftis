@@ -23,7 +23,7 @@ class CollapseAudio(FTISAnalyser):
         wavfile.write(out, sr, audio)
 
     def run(self):
-        self.outfolder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.outfolder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.outfolder.mkdir(exist_ok=True)
         singleproc(self.name, self.collapse, self.input)
         self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
@@ -35,7 +35,7 @@ class ExplodeAudio(FTISAnalyser):
 
     def segment(self, workable):
 
-        self.output_folder = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output_folder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.output_folder.mkdir(exist_ok=True)
 
         slices = self.input[str(workable)]

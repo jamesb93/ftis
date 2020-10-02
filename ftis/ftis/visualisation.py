@@ -26,7 +26,7 @@ class Visualiser(FTISAnalyser):
             self.data["data"].append(d)
 
     def run(self):
-        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
         self.check_dimensions()
         # self.copy_audio()

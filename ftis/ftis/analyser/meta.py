@@ -69,7 +69,7 @@ class ClusteredNMF(FTISAnalyser):
             wavfile.write(output, 44100, summed)
 
     def run(self):
-        self.output = self.process.folder / f"{self.order}_{self.__class__.__name__}"
+        self.output = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
         workables = [
             k for k in self.input.iterdir() if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"

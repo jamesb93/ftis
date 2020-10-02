@@ -37,8 +37,8 @@ class FTISAnalyser:
             pass
 
     def set_dump(self) -> None:
-        self.dump_path = self.process.folder / f"{self.order}_{self.name}{self.dump_type}"
-        self.model_dump = self.process.folder / f"{self.order}_{self.name}.joblib"
+        self.dump_path = self.process.sink / f"{self.order}_{self.name}{self.dump_type}"
+        self.model_dump = self.process.sink / f"{self.order}_{self.name}.joblib"
 
     def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
