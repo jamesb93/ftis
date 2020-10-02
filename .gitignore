@@ -7,3 +7,4 @@ ftis/ftis/web_assets/js/node_modules
 *.pyc
 .venv
 dist
+ftis/build
