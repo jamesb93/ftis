@@ -23,7 +23,7 @@ def peek(audio_file_path: Union[str, Path], output: str = "np"):
     Returns a tuple of audio data and its sampling rate
     The audio data can be a numpy array or list
     """
-    data, sr = sf.read(audio_file_path)
+    data, sr = sf.read(audio_file_path, dtype='float32')
     data = data.transpose()
     if output == "list":
         return data.tolist(), sr
