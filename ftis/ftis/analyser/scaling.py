@@ -36,7 +36,6 @@ class Standardise(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
         self.dump_type = ".json"
-        from sklearn.preprocessing import StandardScaler
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -52,6 +51,6 @@ class Standardise(FTISAnalyser):
         self.output = {k: list(v) for k, v in zip(self.keys, scaled_data)}
 
     def run(self):
-        self.keys = [x for x in self.input.keys()]
-        self.features = [f for f in self.input.values()]
+        self.keys = [k for k in self.input.keys()]
+        self.features = [v for v in self.input.values()]
         staticproc(self.name, self.analyse)
