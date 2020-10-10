@@ -38,4 +38,6 @@ ignored_keys = (  # keys to ignore from superclass
     "cache_possible",
     "corpus_items",
     "buffer",
+    "transform",
+    "discard",
 )
