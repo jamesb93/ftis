@@ -10,7 +10,7 @@ from pathlib import Path
 class FTISAnalyser:
     """Every analyser inherits from this class"""
 
-    def __init__(self, cache=False, transform=None, discard=None):
+    def __init__(self, cache=False):
         self.process = None  # pass the parent process in
         self.input = None  # This can be anything
         self.output = None
@@ -25,14 +25,6 @@ class FTISAnalyser:
         self.transform: Callable = transform
         self.discard: Callable = discard
 
-    def _transform(self) -> None:
-        if self.transform:
-            self.output = list(map(self.transform, self.output))
-
-    def _discard(self) -> None:
-        if self.discard:
-            self.output = list(filter(self.discard, self.output))
-
     def load_cache(self) -> None:
         """Implemented in the analyser"""
         pass
@@ -42,6 +34,9 @@ class FTISAnalyser:
 
     def run(self) -> None:
         """Method for running the processing chain from input to output"""
+
+    def dump(self) -> None:
+        """Defined in the analyser that inherits this class"""
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
@@ -63,8 +58,7 @@ class FTISAnalyser:
         self.dump_path = self.process.sink / f"{self.order}_{self.name}{self.dump_type}"
         self.model_dump = self.process.sink / f"{self.order}_{self.name}.joblib"
 
-    def dump(self) -> None:
-        """Defined in the analyser that inherits this class"""
+
 
     def folder_integrity(self) -> bool:
         # TODO: implement folder integirty checking for analysers like Explode/Collapse
