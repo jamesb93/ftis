@@ -4,10 +4,22 @@ import argparse
 
 
 parser = argparse.ArgumentParser(description="Process input and output location")
-parser.add_argument('-i', '--input',  default="~/corpus-folder/corpus1", type=str, help="Folder for input. This should contain some audio files.")
-parser.add_argument('-o', '--output', default="~/corpus-folder/corpus-management", type=str, help='Folder for output. This will be made if it doesnt exist.')
+parser.add_argument(
+    "-i",
+    "--input",
+    default="~/corpus-folder/corpus1",
+    type=str,
+    help="Folder for input. This should contain some audio files.",
+)
+parser.add_argument(
+    "-o",
+    "--output",
+    default="~/corpus-folder/corpus-management",
+    type=str,
+    help="Folder for output. This will be made if it doesnt exist.",
+)
 args = parser.parse_args()
- 
+
 """
 Corpus objects come bundled with some filtering processes to remove items that you don't want or need.
 This example demonstrates filtering a corpus so only the top ten percent of samples by loudness are let through.
