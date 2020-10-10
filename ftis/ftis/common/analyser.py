@@ -3,22 +3,45 @@ from ftis.common.types import ftypes
 from ftis.common.io import read_json, write_json
 from ftis.common.utils import ignored_keys, create_hash
 
+from collections.abc import Callable
+from pathlib import Path
+
 
 class FTISAnalyser:
     """Every analyser inherits from this class"""
 
-    def __init__(self, cache=False):
+    def __init__(self, cache=False, transform=None, discard=None):
         self.process = None  # pass the parent process in
         self.input = None  # This can be anything
-        self.output = None  # This can be anything
-        self.input_type = ""  # TODO Implement fixed types here
-        self.dump_type = ""
-        self.dump_path = None
-        self.model_dump = None  #
+        self.output = None
+        self.input_type: str = ""
+        self.dump_type: str = ""
+        self.dump_path: Path = None
+        self.model_dump: Path = None  #
         self.name = self.__class__.__name__
         self.order: int = -1
-        self.cache = cache
-        self.cache_possible = False
+        self.cache: bool = cache
+        self.cache_possible: bool = False
+        self.transform: Callable = transform
+        self.discard: Callable = discard
+
+    def _transform(self) -> None:
+        if self.transform:
+            self.output = list(map(self.transform, self.output))
+
+    def _discard(self) -> None:
+        if self.discard:
+            self.output = list(filter(self.discard, self.output))
+
+    def load_cache(self) -> None:
+        """Implemented in the analyser"""
+        pass
+
+    def dump(self) -> None:
+        """Defined in the analyser that inherits this class"""
+
+    def run(self) -> None:
+        """Method for running the processing chain from input to output"""
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
