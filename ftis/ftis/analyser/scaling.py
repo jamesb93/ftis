@@ -24,7 +24,7 @@ class Normalise(FTISAnalyser):
 
         self.output = {}
         for k, v in zip(self.keys, scaled_data):
-            self.output[k] = list(v)
+            self.output[k] = v.tolist()
 
     def run(self):
         self.keys = [x for x in self.input.keys()]
