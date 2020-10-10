@@ -58,7 +58,10 @@ class HDBSCAN(FTISAnalyser):
 
         data = np.array(values)
 
-        db = HdbscanClustering(min_cluster_size=self.minclustersize, min_samples=self.minsamples,).fit(data)
+        db = HdbscanClustering(
+            min_cluster_size=self.minclustersize,
+            min_samples=self.minsamples,
+        ).fit(data)
 
         self.output = {}
 

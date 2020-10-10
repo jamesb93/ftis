@@ -15,20 +15,21 @@ class CollapseAudio(FTISAnalyser):
 
     def collapse(self, workable):
         out = self.outfolder / Path(workable).name
-        raw, sr = sf.read(workable, dtype='float32')
+        raw, sr = sf.read(workable, dtype="float32")
         audio = None
         if raw.ndim == 1:
             audio = raw
         else:
             audio = raw.transpose().sum(axis=0) / raw.ndim
         wavfile.write(out, sr, audio)
-        sf.write(out, audio, sr, 'PCM_32')
+        sf.write(out, audio, sr, "PCM_32")
 
     def run(self):
         self.outfolder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.outfolder.mkdir(exist_ok=True)
         singleproc(self.name, self.collapse, self.input)
         self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
+
 
 class ExplodeAudio(FTISAnalyser):
     def __init__(self, cache=False):
@@ -53,7 +54,7 @@ class ExplodeAudio(FTISAnalyser):
             end = samps2ms(end, sr)
             segment = src[start:end]
             segment.export(self.output_folder / f"{workable.stem}_{i}.wav", format="wav")
-    
+
     def segment2(self, workable):
         self.output_folder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.output_folder.mkdir(exist_ok=True)
@@ -62,7 +63,7 @@ class ExplodeAudio(FTISAnalyser):
         if len(slices) == 1:
             copyfile(workable, self.output_folder / f"{workable.stem}_0.wav")
         else:
-            data, sr = sf.read(workable, dtype='float32')
+            data, sr = sf.read(workable, dtype="float32")
             # Append the right boundary if it isnt already there
             if data.shape[0] != slices[-1]:
                 slices.append(data.shape[0])
@@ -70,10 +71,7 @@ class ExplodeAudio(FTISAnalyser):
             for i, (start, end) in enumerate(zip(slices, slices[1:])):
                 segment = data[start:end]
 
-                sf.write(
-                    self.output_folder / f"{workable.stem}_{i}.wav",
-                    segment, sr, 'PCM_32'
-                )
+                sf.write(self.output_folder / f"{workable.stem}_{i}.wav", segment, sr, "PCM_32")
 
     def load_cache(self):
         d = read_json(self.dump_path)

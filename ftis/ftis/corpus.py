@@ -8,14 +8,15 @@ from ftis.common.utils import create_hash
 from flucoma.utils import get_buffer
 from flucoma.fluid import stats, loudness
 from rich.progress import Progress
+from typing import List
 
 
 class Corpus:
-    def __init__(self, path="", file_type=[".wav", ".aiff", ".aif"]):
+    def __init__(self, path: str = "", file_type: List[str] = [".wav", ".aiff", ".aif"]):
         self.path = path
         self.file_type = file_type
-        self.items = []
-        self.is_filtering = False
+        self.items: List = []
+        self.is_filtering: bool = False
         self.get_items()
 
     def __add__(self, right):
@@ -25,7 +26,7 @@ class Corpus:
             raise
         return self
 
-    def get_items(self):
+    def get_items(self) -> None:
         if self.path == "":
             raise NoCorpusSource("Please provide a valid path for the corpus")
 
@@ -35,18 +36,16 @@ class Corpus:
             raise InvalidSource(self.path)
 
         if self.path.is_dir():
-            self.items = [
-                x for x in self.path.iterdir() if x.suffix in self.file_type
-            ]
+            self.items = [x for x in self.path.iterdir() if x.suffix in self.file_type]
         else:
             self.items = [str(self.path)]
-    
+
     def startswith(self, prefix: str):
         with Progress() as progress:
             task = progress.add_task("[cyan]Corpus Filtering: Name (startswith)", total=len(self.items))
             temp = []
             for x in self.items:
-                if  str(x.stem).startswith(prefix):
+                if str(x.stem).startswith(prefix):
                     temp.append(x)
                 progress.update(task, advance=1)
             self.items = temp
@@ -57,7 +56,7 @@ class Corpus:
             task = progress.add_task("[cyan]Corpus Filtering: Name (endswith)", total=len(self.items))
             temp = []
             for x in self.items:
-                if  str(x.stem).endswith(suffix):
+                if str(x.stem).endswith(suffix):
                     temp.append(x)
                 progress.update(task, advance=1)
             self.items = temp
@@ -74,7 +73,7 @@ class Corpus:
             self.items = temp
         return self
 
-    def loudness(self, min_loudness: int=0, max_loudness: int=100):
+    def loudness(self, min_loudness: int = 0, max_loudness: int = 100):
         hopsize = 4410
         windowsize = 17640
         with Progress() as progress:
@@ -90,7 +89,9 @@ class Corpus:
 
                 cache = tmp / f"{hsh}.npy"
                 if not cache.exists():
-                    med_loudness = get_buffer(stats(loudness(x, hopsize=hopsize, windowsize=windowsize)), "numpy")
+                    med_loudness = get_buffer(
+                        stats(loudness(x, hopsize=hopsize, windowsize=windowsize)), "numpy"
+                    )
                     np.save(cache, med_loudness)
                 else:
                     med_loudness = np.load(cache, allow_pickle=True)
@@ -119,7 +120,7 @@ class Corpus:
             dur = np.load(cache)
         return dur < high and dur > low
 
-    def duration(self, min_duration:int=0, max_duration:int=36000):
+    def duration(self, min_duration: int = 0, max_duration: int = 36000):
         # TODO handle min/max types that can come in so you can do percentages
         self.is_filtering = True
         self.items = [x for x in self.items if self.filter_duration(x, min_duration, max_duration)]
@@ -127,7 +128,7 @@ class Corpus:
 
 
 class Analysis:
-    # TODO This could be merged directly into the corpus class where it would 
+    # TODO This could be merged directly into the corpus class where it would
     # directly determine the type from the extension
     """This class lets you directly use analysis as an entry point to FTIS"""
 

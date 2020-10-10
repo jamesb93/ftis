@@ -40,7 +40,10 @@ class ClusteredNMF(FTISAnalyser):
 
     def analyse(self, workable):
         nmf = fluid.nmf(
-            workable, iterations=self.iterations, components=self.components, fftsettings=self.fftsettings,
+            workable,
+            iterations=self.iterations,
+            components=self.components,
+            fftsettings=self.fftsettings,
         )
         bases = get_buffer(nmf.bases, "numpy")
         bases_smoothed = np.zeros_like(bases)
@@ -105,7 +108,12 @@ class ClusteredSegmentation(FTISAnalyser):
             data = []
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
 
-                mfcc = mfcc(workable, fftsettings=[2048, -1, -1], startframe=start, numframes=end - start,)
+                mfcc = mfcc(
+                    workable,
+                    fftsettings=[2048, -1, -1],
+                    startframe=start,
+                    numframes=end - start,
+                )
 
                 stats = get_buffer(stats(mfcc, numderivs=1), "numpy")
 
