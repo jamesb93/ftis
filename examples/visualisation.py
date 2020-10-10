@@ -1,10 +1,10 @@
-print('Sorry, this example is currently a bit broken!')
+print("Sorry, this example is currently a bit broken!")
 # from ftis.analyser import (
 #     CollapseAudio,
 #     FluidMFCC,
-#     Stats, 
-#     Standardise, 
-#     Normalise 
+#     Stats,
+#     Standardise,
+#     Normalise
 # )
 # from ftis.corpus import Corpus
 # from ftis.visualisation import Visualiser
