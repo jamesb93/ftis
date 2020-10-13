@@ -120,6 +120,58 @@ class FluidLoudness(FTISAnalyser):
         self.output = dict(self.buffer)
 
 
+class FluidPitch(FTISAnalyser):
+    def __init__(self, 
+        algorithm=2,
+        minfreq=20,
+        maxfreq=10000,
+        unit=0,
+        fftsettings=[1024, -1, -1],
+        cache=False,
+        pre=None,
+        post=None):
+        super().__init__(cache=cache, pre=pre, post=post)
+        self.algorithm=algorithm
+        self.minfreq=minfreq,
+        self.maxfreq=maxfreq,
+        self.unit=unit,
+        self.fftsettings=fftsettings
+        self.dump_type = ".json"
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def analyse(self, workable):
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+
+        if not cache.exists():
+            pitch = get_buffer(
+                fluid.pitch(
+                    workable,
+                    algorithm=self.algorithm,
+                    minfreq=self.minfreq,
+                    maxfreq=self.maxfreq,
+                    unit=self.unit,
+                    fftsettings=self.fftsettings
+                ),
+                "numpy",
+            )
+            np.save(cache, pitch)
+        else:
+            pitch = np.load(cache, allow_pickle=True)
+        self.buffer[str(workable)] = pitch.tolist()
+
+    def run(self):
+        self.buffer = Manager().dict()
+        workables = self.input
+        multiproc(self.name, self.analyse, workables)
+        self.output = dict(self.buffer)
+
+
 class FluidMFCC(FTISAnalyser):
     def __init__(
         self,
