@@ -1,6 +1,7 @@
+from ftis.analyser.descriptor import Chroma
 from ftis.analyser.audio import CollapseAudio
-from ftis.corpus import Corpus
 from ftis.process import FTISProcess
+from ftis.corpus import Corpus
 import argparse
 
 
@@ -15,15 +16,18 @@ parser.add_argument(
 parser.add_argument(
     "-o",
     "--output",
-    default="~/corpus-folder/collapse",
+    default="~/corpus-folder/chroma",
     type=str,
     help="Folder for output. This will be made if it doesnt exist.",
 )
 args = parser.parse_args()
 
-process = FTISProcess(source=Corpus(args.input), sink=args.output)
+src = Corpus(args.input)
+out = args.output
 
-process.add(CollapseAudio())
+process = FTISProcess(source=src, sink=out)
+
+process.add(CollapseAudio(), Chroma())
 
 if __name__ == "__main__":
     process.run()

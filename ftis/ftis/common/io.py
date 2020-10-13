@@ -1,42 +1,45 @@
-import math
-import yaml
 import soundfile as sf
+import audioread
+from typing import Union, Tuple, List
+from pathlib import Path
+import json
 
-try:
-    import rapidjson as rj
-except ImportError:
-    import json as rj
 
-
-def write_json(json_file_path: str, in_dict: dict):
+def write_json(json_file_path: str, in_dict: dict) -> None:
     """Takes a dictionary and writes it to JSON file"""
     with open(json_file_path, "w+") as fp:
-        rj.dump(in_dict, fp, indent=4)
+        json.dump(in_dict, fp, indent=4)
 
 
 def read_json(json_file_path: str) -> dict:
     """Takes a JSON file and returns a dictionary"""
     with open(json_file_path, "r") as fp:
-        data = rj.load(fp)
+        data = json.load(fp)
         return data
 
 
-def read_yaml(yaml_file):
-    with open(yaml_file, "r") as stream:
-        try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
-
-
-def peek(audio_file_path: str, output: str = "np"):
+def peek(audio_file_path: Union[str, Path], output: str = "np"):
     """
     Returns a tuple of audio data and its sampling rate
     The audio data can be a numpy array or list
     """
-    data, sr = sf.read(audio_file_path)
-    data, sr = data.transpose()
+    data, sr = sf.read(audio_file_path, dtype="float32")
+    data = data.transpose()
     if output == "list":
         return data.tolist(), sr
-    if output == "numpy":
+    if output == "np":
         return data, sr
+
+
+def get_duration(path: Union[str, Path]) -> float:
+    data, sr = peek(path)
+    return len(data) / sr
+
+
+def get_sr(path: Union[str, Path]) -> int:
+    try:
+        with sf.SoundFile(path) as f:
+            return int(f.samplerate)
+    except RuntimeError:
+        with audioread.audio_open(path) as f:
+            return int(f.samplerate)

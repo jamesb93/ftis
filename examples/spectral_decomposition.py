@@ -1,10 +1,29 @@
-from ftis.analyser import ClusteredNMF
+from ftis.analyser.meta import ClusteredNMF
 from ftis.process import FTISProcess as Chain
+from ftis.corpus import Corpus
+import argparse
 
-src = "/home/james/Documents/media"
-folder = "/home/james/Documents/analysis"
+parser = argparse.ArgumentParser(description="Process input and output location")
+parser.add_argument(
+    "-i",
+    "--input",
+    default="~/corpus-folder/corpus1",
+    type=str,
+    help="Folder for input. This should contain some audio files.",
+)
+parser.add_argument(
+    "-o",
+    "--output",
+    default="~/corpus-folder/spec-decomposition",
+    type=str,
+    help="Folder for output. This will be made if it doesnt exist.",
+)
+args = parser.parse_args()
 
-process = Chain(source=src, folder=folder)
+src = Corpus(args.input)
+out = args.output
+
+process = Chain(source=src, sink=out)
 
 process.add(
     ClusteredNMF(
@@ -15,4 +34,5 @@ process.add(
     )
 )
 
-process.run()
+if __name__ == "__main__":
+    process.run()

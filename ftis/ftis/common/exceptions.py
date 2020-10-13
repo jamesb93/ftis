@@ -13,6 +13,16 @@ class InvalidSource(Exception):
         super().__init__(f"{source} does not exist or is invalid")
 
 
+class NoCorpusSource(Exception):
+    def __init__(self, source: str):
+        super().__init__(f"{source} does not exist or is invalid")
+
+
+class BadCorpusSource(Exception):
+    def __init__(self):
+        super().__init__("The corpus source is not PURE")  # TODO make this more descriptive
+
+
 class AnalyserNotFound(Exception):
     def __init__(self, msg: str):
         super().__init__(msg)
@@ -37,6 +47,7 @@ class ChainIOError(Exception):
         {analyser2.name} output: {analyser2.output_type}
         """
         )
+
 
 class SourceIOError(Exception):
     def __init__(self):

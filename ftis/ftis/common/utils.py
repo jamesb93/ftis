@@ -1,23 +1,9 @@
-import os, math
-import soundfile as sf
+import hashlib
+import numpy as np
 from pathlib import Path
 
 
-def get_workables(pth):
-    temp_workables = []
-    for root, _, files in os.walk(pth):
-        for f in files:
-            full_path = Path(root) / f
-            temp_workables.append(full_path)
-    return temp_workables
-
-
-def filter_extensions(workables, valid_ext):
-    """Filters path objects from a list based on extension"""
-    return [x for x in workables if x.suffix in valid_ext]
-
-
-def list_to_coll(list_input: list, out_file: str):
+def list_to_coll(list_input: list, out_file: str) -> None:
     """Turns a list into a coll."""
     f = open(out_file, "w+")
     counter = 0
@@ -30,3 +16,29 @@ def list_to_coll(list_input: list, out_file: str):
 def bytes_to_mb(val: int) -> float:
     """convert bytes to mb"""
     return val * 0.000001
+
+
+def create_hash(*items) -> str:
+    """Create a hash from a list of items"""
+    m = hashlib.blake2b(digest_size=20)
+    for item in items:
+        m.update(str(item).encode("utf-8"))
+    return m.hexdigest()
+
+
+ignored_keys = (  # keys to ignore from superclass
+    "process",
+    "dump_path",
+    "model_dump",
+    "input",
+    "output",
+    "input_type",
+    "dump_type",
+    "cache",
+    "cache_possible",
+    "corpus_items",
+    "buffer",
+    "transform",
+    "discard",
+    "pre", "post"
+)

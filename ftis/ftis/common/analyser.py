@@ -1,13 +1,17 @@
 from ftis.common.exceptions import OutputNotFound
 from ftis.common.types import ftypes
 from ftis.common.io import read_json, write_json
+from ftis.common.utils import ignored_keys, create_hash
+
+from collections.abc import Callable
+from pathlib import Path
 
 
 class FTISAnalyser:
     """Every analyser inherits from this class"""
-
-    def __init__(self, dumpout=False, cache=False):
+    def __init__(self, cache=False, pre=None, post=None):
         self.process = None  # pass the parent process in
+<<<<<<< HEAD
         self.logger = None
         self.io = {
             "inputs" = [],
@@ -16,12 +20,24 @@ class FTISAnalyser:
         self.input_type = ""
         self.dump_type = ""
         self.dump_path = ""
+=======
+        self.input = None  # This can be anything
+        self.output = None
+        self.input_type: str = ""
+        self.dump_type: str = ""
+        self.dump_path: Path = None
+        self.model_dump: Path = None  #
+>>>>>>> inplace-processing
         self.name = self.__class__.__name__
         self.order: int = -1
-        self.dumpout = dumpout
-        self.cache = cache
-        self.cache_possible = False
+        self.cache: bool = cache
+        self.cache_possible: bool = False
+        # self.transform: Callable = transform
+        # self.discard: Callable = discard
+        self.pre: Callable = pre
+        self.post: Callable = post
 
+<<<<<<< HEAD
 
     def __rshift__(self, right):
         right.input = self.output
@@ -39,26 +55,48 @@ class FTISAnalyser:
 
     def log(self, log_text):
         self.logger.debug(f"{self.name}: {log_text}")
+=======
+    def load_cache(self) -> None:
+        """Implemented in the analyser"""
+>>>>>>> inplace-processing
 
-    def set_dump(self):
-        self.dump_path = (
-            self.process.folder / f"{self.order}_{self.name}{self.dump_type}"
-        )
-
-    def dump(self):
+    def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
 
+    def run(self) -> None:
+        """Method for running the processing chain from input to output"""
+
+    def create_identity(self) -> None:
+        self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
+        # TODO account for batch mode
+        previous_inputs = {}
+        for obj in self.process.chain:
+            previous_inputs[str(obj.name)] = {k: v for k, v in vars(obj).items() if k not in ignored_keys}
+
+        self.identity_hash = create_hash(previous_inputs)
+        self.identity["identity_hash"] = self.identity_hash
+
+    def log(self, log_text: str) -> None:
+        try:
+            self.process.logger.debug(f"{self.name}: {log_text}")
+        except AttributeError:
+            pass
+
+    def set_dump(self) -> None:
+        self.dump_path = self.process.sink / f"{self.order}_{self.name}{self.dump_type}"
+        self.model_dump = self.process.sink / f"{self.order}_{self.name}.joblib"
+
     def folder_integrity(self) -> bool:
-        # TODO: implement folder integirty checking for analysers like Explode/Collapse
+        # TODO: implement folder integrity checking for analysers like Explode/Collapse
         # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
         return True
 
     def compare_meta(self) -> bool:
+        # TODO You could use a hashing function here to determine the similarity of the metadata
+        # TODO You should use a hashing function because adding things to the front of the chain makes it not equal between runs
         self.process.metadata = self.process.metadata
         self.process.prev_meta = self.process.prev_meta
         ident = f"{self.order}_{self.name}"
-        #FIXME This needs to be refactored big time
-
         try:
             new_params = self.process.metadata["analyser"][ident]
         except KeyError:
@@ -70,14 +108,14 @@ class FTISAnalyser:
             old_params = False
 
         try:
-            success = self.process.prev_meta["success"][f"{self.order}_{self.name}"]
+            success = self.process.prev_meta["success"][ident]
         except KeyError:
             success = False
 
         return old_params == new_params and success
 
     def cache_exists(self) -> bool:
-        if self.dump_path.exists(): # TODO: type and metadata checking
+        if self.dump_path.exists():
             if self.dump_type == ftypes.folder:
                 return self.folder_integrity()
             else:
@@ -85,27 +123,27 @@ class FTISAnalyser:
         else:
             return False
 
-    def update_success(self, status: bool):
-        try: #FIXME combine these two try statements
+    def update_success(self, status: bool) -> None:
+        try:
             existing_metadata = read_json(self.process.metapath)
         except FileNotFoundError:
             existing_metadata = {}
 
         try:
-            success = existing_metadata["success"] # extract the progress dict
+            success = existing_metadata["success"]  # extract the progress dict
         except KeyError:
-            success = {} # in the situation that progress doesnt exist yet
+            success = {}  # progress doesnt exist yet
 
-        success[f"{self.order}_{self.name}"] = status # update the status of this analyser
-        # here we need to join any existing data into the metadata
-        self.process.metadata["success"] = success # modify the original
+        success[f"{self.order}_{self.name}"] = status  # update the status of this analyser
+        # join any existing data into the metadata
+        self.process.metadata["success"] = success  # modify the original
         write_json(self.process.metapath, self.process.metadata)
 
-    def do(self):
+    def do(self) -> None:
         self.log("Initiating")
 
         # Determine whether we caching is possible
-        if self.cache and self.cache_exists()and self.compare_meta() and self.process.metapath.exists():
+        if self.cache and self.cache_exists() and self.compare_meta() and self.process.metapath.exists():
             self.cache_possible = True
 
         # Set the status to failure and only update to success if it all ends correctly
@@ -114,15 +152,16 @@ class FTISAnalyser:
             self.load_cache()
             self.process.fprint(f"{self.name} was cached")
         else:
+            if self.pre:
+                self.pre(self)
             self.run()
+            if self.post:
+                self.post(self)
             self.dump()
 
-        if self.output != None: #TODO comprehensive output checking
+        if self.output != None:  # TODO comprehensive output checking
             self.log("Ran Successfully")
             self.update_success(True)
         else:
-            self.log("Ouput was invalid")
+            self.log("Output was invalid")
             raise OutputNotFound(self.name)
-
-    def run(self):
-        """Method for running the processing chain from input to output"""

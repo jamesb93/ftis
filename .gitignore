@@ -3,3 +3,8 @@
 .DS_Store
 __pycache__/
 *.egg-info
+ftis/ftis/web_assets/js/node_modules
+*.pyc
+.venv
+dist
+ftis/build
