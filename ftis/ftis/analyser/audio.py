@@ -21,7 +21,7 @@ class CollapseAudio(FTISAnalyser):
             audio = raw
         else:
             audio = raw.transpose().sum(axis=0) / raw.ndim
-        wavfile.write(out, sr, audio)
+        # wavfile.write(out, sr, audio)
         sf.write(out, audio, sr, "PCM_32")
 
     def run(self):
