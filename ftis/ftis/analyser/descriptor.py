@@ -79,8 +79,11 @@ class Chroma(FTISAnalyser):
         self.output = dict(self.buffer)
 
 class FluidLoudness(FTISAnalyser):
-    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, cache=False):
-        super().__init__(cache=cache)
+    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, 
+        cache=False,
+        pre=None,
+        post=None):
+        super().__init__(cache=cache, pre=pre, post=post)
         self.windowsize = windowsize
         self.hopsize = hopsize
         self.kweighting = kweighting
