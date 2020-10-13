@@ -11,54 +11,41 @@ class FTISAnalyser:
     """Every analyser inherits from this class"""
     def __init__(self, cache=False, pre=None, post=None):
         self.process = None  # pass the parent process in
-<<<<<<< HEAD
-        self.logger = None
-        self.io = {
-            "inputs" = [],
-            "outputs" = []
-        }
-        self.input_type = ""
-        self.dump_type = ""
-        self.dump_path = ""
-=======
         self.input = None  # This can be anything
         self.output = None
         self.input_type: str = ""
         self.dump_type: str = ""
         self.dump_path: Path = None
         self.model_dump: Path = None  #
->>>>>>> inplace-processing
         self.name = self.__class__.__name__
         self.order: int = -1
         self.cache: bool = cache
         self.cache_possible: bool = False
-        # self.transform: Callable = transform
-        # self.discard: Callable = discard
         self.pre: Callable = pre
         self.post: Callable = post
-
-<<<<<<< HEAD
+        # Overloading Stuff
+        self.scripting_enabled = False
+        self.multi_in = []
+        self.multi_out = []
 
     def __rshift__(self, right):
+        self.scripting_enabled = True
         right.input = self.output
         return self
 
     def __lshift__(self, right):
+        self.scripting_enabled = True
         self.input = right.output
         return right
 
     def set_input(self):
-        
+        pass
 
     def enable_scripting_mode(self):
         pass
 
-    def log(self, log_text):
-        self.logger.debug(f"{self.name}: {log_text}")
-=======
     def load_cache(self) -> None:
         """Implemented in the analyser"""
->>>>>>> inplace-processing
 
     def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
