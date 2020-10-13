@@ -1,23 +1,20 @@
-from ftis.analyser import Flux, FluidMFCC
-from ftis.
-# from ftis.process import World
+from ftis.corpus import Corpus
+from ftis.process import FTISProcess
+from ftis.analyser.audio import CollapseAudio
+from ftis.analyser.descriptor import FluidLoudness, FluidPitch
 
-audio = "/Users/james/dev/ftis_example/project/audio"
-# some_files = [x for x in ]
-# source = Source() # maybe does some extra file management in here or something
-# world = FTISWorld() # a world in which objects are instantiated and then you connect them together
-# overloaded methods would then take care of everything for you!
-# world = World()
-# TODO Find a way to absorb inputs that are not FTISAnalysers.
-# One solution will be a special analyer that sets inputs.
-f = Flux()
-g = FluidMFCC()
+from pathlib import Path
 
-# world.add(f, g)
-f.set_input(audio)
-f >> g
+corpus = Corpus("~/corpus-folder/corpus")
 
-# world.execute()
+chain1 = CollapseAudio() >> FluidLoudness()
+chain2 =  CollapseAudio() >> FluidPitch()
 
-print(f.input)
-print(g.input)
+world = World(
+    source = corpus
+)
+
+world.add_nodes(
+    chain1,
+    chain2
+)`
