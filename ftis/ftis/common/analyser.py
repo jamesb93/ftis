@@ -9,8 +9,7 @@ from pathlib import Path
 
 class FTISAnalyser:
     """Every analyser inherits from this class"""
-
-    def __init__(self, cache=False):
+    def __init__(self, cache=False, pre=None, post=None):
         self.process = None  # pass the parent process in
         self.input = None  # This can be anything
         self.output = None
@@ -22,21 +21,19 @@ class FTISAnalyser:
         self.order: int = -1
         self.cache: bool = cache
         self.cache_possible: bool = False
-        self.transform: Callable = transform
-        self.discard: Callable = discard
+        # self.transform: Callable = transform
+        # self.discard: Callable = discard
+        self.pre: Callable = pre
+        self.post: Callable = post
 
     def load_cache(self) -> None:
         """Implemented in the analyser"""
-        pass
 
     def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
 
     def run(self) -> None:
         """Method for running the processing chain from input to output"""
-
-    def dump(self) -> None:
-        """Defined in the analyser that inherits this class"""
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
@@ -58,10 +55,8 @@ class FTISAnalyser:
         self.dump_path = self.process.sink / f"{self.order}_{self.name}{self.dump_type}"
         self.model_dump = self.process.sink / f"{self.order}_{self.name}.joblib"
 
-
-
     def folder_integrity(self) -> bool:
-        # TODO: implement folder integirty checking for analysers like Explode/Collapse
+        # TODO: implement folder integrity checking for analysers like Explode/Collapse
         # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
         return True
 
@@ -126,15 +121,16 @@ class FTISAnalyser:
             self.load_cache()
             self.process.fprint(f"{self.name} was cached")
         else:
+            if self.pre:
+                self.pre(self)
             self.run()
+            if self.post:
+                self.post(self)
             self.dump()
 
         if self.output != None:  # TODO comprehensive output checking
             self.log("Ran Successfully")
             self.update_success(True)
         else:
-            self.log("Ouput was invalid")
+            self.log("Output was invalid")
             raise OutputNotFound(self.name)
-
-    def run(self) -> None:
-        """Method for running the processing chain from input to output"""
