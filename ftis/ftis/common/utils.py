@@ -40,4 +40,5 @@ ignored_keys = (  # keys to ignore from superclass
     "buffer",
     "transform",
     "discard",
+    "pre", "post"
 )
