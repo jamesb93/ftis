@@ -67,7 +67,7 @@ class FluidNoveltyslice(FTISAnalyser):
         feature=0,
         fftsettings=[1024, 512, 1024],
         filtersize=1,
-        minslicelength=2048,
+        minslicelength=2,
         threshold=0.5,
         cache=False,
     ):
@@ -94,7 +94,6 @@ class FluidNoveltyslice(FTISAnalyser):
             minslicelength=self.minslicelength,
             threshold=self.threshold,
         )
-
         self.buffer[str(workable)] = get_buffer(noveltyslice)
 
     def run(self):
