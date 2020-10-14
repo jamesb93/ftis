@@ -44,7 +44,7 @@ process = FTISProcess(source=src, sink=out)
 
 # To add analysers, we simply pass the class along with its parameters to the process.add() function.
 # This will connect those process in series, passing their outputs to the next analyser in the chain.
-process.add(FluidNoveltyslice(threshold=0.35, feature=1), ExplodeAudio())
+process.add(FluidNoveltyslice(), ExplodeAudio())
 
 # Lastly we call process.run(). We should always call it inside the __name__ == "__main__" block
 # Why? We use multiprocessing to speed things up under the hood and running outside this results in errors.
