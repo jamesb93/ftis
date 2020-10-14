@@ -28,8 +28,9 @@ class Corpus:
         return self
 
     def __rshift__(self, right):
+        # print('corpus:', self, right)
         self.chain[right] = None
-        return self
+        return right
 
     def get_items(self) -> None:
         if self.path == "":

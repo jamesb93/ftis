@@ -28,10 +28,10 @@ class FTISAnalyser:
         self.chain = {}
 
     def __rshift__(self, right):
+        # print('analyser:', self, right)
         self.scripting_enabled = True
         self.chain[right] = None
-
-        return self # it might be possible to just return the multi-out partr with itself prepended
+        return right # it might be possible to just return the multi-out partr with itself prepended
         # so like:
         # self.multi_out.insert(0, self)
         # return self.multi_out
