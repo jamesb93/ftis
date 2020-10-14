@@ -97,23 +97,23 @@ class FluidLoudness(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
+        # hsh = create_hash(workable, self.identity)
+        # cache = self.process.cache / f"{hsh}.npy"
 
-        if not cache.exists():
-            loudness = get_buffer(
-                fluid.loudness(
-                    workable,
-                    windowsize=self.windowsize,
-                    hopsize=self.hopsize,
-                    kweighting=self.kweighting,
-                    truepeak=self.truepeak,
-                ),
-                "numpy",
-            )
-            np.save(cache, loudness)
-        else:
-            loudness = np.load(cache, allow_pickle=True)
+        # if not cache.exists():
+        loudness = get_buffer(
+            fluid.loudness(
+                workable,
+                windowsize=self.windowsize,
+                hopsize=self.hopsize,
+                kweighting=self.kweighting,
+                truepeak=self.truepeak,
+            ),
+            "numpy",
+        )
+        np.save(cache, loudness)
+        # else:
+            # loudness = np.load(cache, allow_pickle=True)
         self.buffer[str(workable)] = loudness.tolist()
 
     def run(self):
