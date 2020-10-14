@@ -25,24 +25,17 @@ class FTISAnalyser:
         self.post: Callable = post
         # Overloading Stuff
         self.scripting_enabled = False
-        self.multi_in = []
-        self.multi_out = []
+        self.chain = {}
 
     def __rshift__(self, right):
         self.scripting_enabled = True
-        right.input = self.output
-        return self
+        self.chain[right] = None
 
-    def __lshift__(self, right):
-        self.scripting_enabled = True
-        self.input = right.output
-        return right
-
-    def set_input(self):
-        pass
-
-    def enable_scripting_mode(self):
-        pass
+        return self # it might be possible to just return the multi-out partr with itself prepended
+        # so like:
+        # self.multi_out.insert(0, self)
+        # return self.multi_out
+        # and then you just have a list to traverse 
 
     def load_cache(self) -> None:
         """Implemented in the analyser"""

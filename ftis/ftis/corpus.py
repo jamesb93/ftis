@@ -17,6 +17,7 @@ class Corpus:
         self.file_type = file_type
         self.items: List = []
         self.is_filtering: bool = False
+        self.chain = {}
         self.get_items()
 
     def __add__(self, right):
@@ -24,6 +25,10 @@ class Corpus:
             self.items += right.items  # this is the fastest way to merge in place
         except AttributeError:
             raise
+        return self
+
+    def __rshift__(self, right):
+        self.chain[right] = None
         return self
 
     def get_items(self) -> None:
