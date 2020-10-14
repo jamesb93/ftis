@@ -22,16 +22,6 @@ class FTISAnalyser:
         self.order: int = -1
         self.cache: bool = cache
         self.cache_possible: bool = False
-        self.transform: Callable = transform
-        self.discard: Callable = discard
-
-    def _transform(self) -> None:
-        if self.transform:
-            self.output = list(map(self.transform, self.output))
-
-    def _discard(self) -> None:
-        if self.discard:
-            self.output = list(filter(self.discard, self.output))
 
     def load_cache(self) -> None:
         """Implemented in the analyser"""
@@ -141,6 +131,3 @@ class FTISAnalyser:
         else:
             self.log("Ouput was invalid")
             raise OutputNotFound(self.name)
-
-    def run(self) -> None:
-        """Method for running the processing chain from input to output"""
