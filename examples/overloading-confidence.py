@@ -13,29 +13,25 @@ from pathlib import Path
 corpus = Corpus("~/corpus-folder/corpus1")
 collapse = CollapseAudio()
 pitch = FluidPitch(fftsettings=[1024, 512, 1024])
-pitch_stats = Stats(spec=["median"])
-loudness = FluidLoudness(windowsize=1024, hopsize=512)
-loudness_stats = Stats(spec=["mean"])
+stats = Stats()
 
-
-def mask_with_loudness(self):
-    for k, v in loudness_stats.output.items():
-        mean = v[0]
-        for i, (x, y) in enumerate(loudness.output.items()):
-            dbfs = y[0]
-            if sum(dbfs) / len(dbfs) < mean:
+def mask_by_confidence(self):
+    for k, v in self.output.items():
+        freq = v[0] # list of frequencies
+        conf = v[1] # list of confidences
+        for i, c in enumerate(conf):
+            if c < 0.61:
                 del self.output[k][0][i]
                 del self.output[k][1][i]
 
-pitch.post = mask_with_loudness
+pitch.post = mask_by_confidence
 
 # script the connections
 corpus >> collapse
-collapse >> loudness >> loudness_stats
-collapse >> pitch >> pitch_stats
+collapse >> pitch >> stats
 
 # setup the world
-world = World(sink="~/corpus-folder/overloading")
+world = World(sink="~/corpus-folder/overloading2")
 
 if __name__ == "__main__":
     # add our corpus node to the world
