@@ -111,7 +111,7 @@ class FluidLoudness(FTISAnalyser):
             ),
             "numpy",
         )
-        np.save(cache, loudness)
+        # np.save(cache, loudness)
         # else:
             # loudness = np.load(cache, allow_pickle=True)
         self.buffer[str(workable)] = loudness.tolist()
@@ -127,7 +127,7 @@ class FluidPitch(FTISAnalyser):
     def __init__(self, 
         algorithm=2,
         minfreq=20,
-        maxfreq=10000,
+        maxfreq=10000.0,
         unit=0,
         fftsettings=[1024, -1, -1],
         cache=False,
@@ -135,9 +135,9 @@ class FluidPitch(FTISAnalyser):
         post=None):
         super().__init__(cache=cache, pre=pre, post=post)
         self.algorithm=algorithm
-        self.minfreq=minfreq,
-        self.maxfreq=maxfreq,
-        self.unit=unit,
+        self.minfreq=minfreq
+        self.maxfreq=maxfreq
+        self.unit=unit
         self.fftsettings=fftsettings
         self.dump_type = ".json"
 
@@ -148,30 +148,30 @@ class FluidPitch(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
+        # hsh = create_hash(workable, self.identity)
+        # cache = self.process.cache / f"{hsh}.npy"
 
-        if not cache.exists():
-            pitch = get_buffer(
-                fluid.pitch(
-                    workable,
-                    algorithm=self.algorithm,
-                    minfreq=self.minfreq,
-                    maxfreq=self.maxfreq,
-                    unit=self.unit,
-                    fftsettings=self.fftsettings
-                ),
-                "numpy",
-            )
-            np.save(cache, pitch)
-        else:
-            pitch = np.load(cache, allow_pickle=True)
+        # if not cache.exists():
+        pitch = get_buffer(
+            fluid.pitch(
+                workable,
+                algorithm=self.algorithm,
+                minfreq=self.minfreq,
+                maxfreq=self.maxfreq,
+                unit=self.unit,
+                fftsettings=self.fftsettings
+            ),
+            "numpy",
+        )
+            # np.save(cache, pitch)
+        # else:
+            # pitch = np.load(cache, allow_pickle=True)
         self.buffer[str(workable)] = pitch.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
         workables = self.input
-        multiproc(self.name, self.analyse, workables)
+        singleproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
 
