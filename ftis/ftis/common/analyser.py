@@ -4,6 +4,7 @@ from ftis.common.io import read_json, write_json
 from ftis.common.utils import ignored_keys, create_hash
 
 from collections.abc import Callable
+from collections import OrderedDict
 from pathlib import Path
 
 
@@ -25,26 +26,24 @@ class FTISAnalyser:
         self.post: Callable = post
         # Overloading Stuff
         self.scripting_enabled = False
-        self.chain = {}
+        self.chain = OrderedDict()
 
     def __rshift__(self, right):
-        # print('analyser:', self, right)
         self.scripting_enabled = True
         self.chain[right] = None
-        return right # it might be possible to just return the multi-out partr with itself prepended
-        # so like:
-        # self.multi_out.insert(0, self)
-        # return self.multi_out
-        # and then you just have a list to traverse 
+        return right
 
-    def load_cache(self) -> None:
-        """Implemented in the analyser"""
+    def walk_chain(self) -> None:
+        self.set_dump()
+        self.run()
+        if self.post:
+            self.post(self)
+        self.dump()
+        # Pass output to the input of all of connected things
+        for fwd_cnx in self.chain:
+            fwd_cnx.input = self.output
+            fwd_cnx.walk_chain()
 
-    def dump(self) -> None:
-        """Defined in the analyser that inherits this class"""
-
-    def run(self) -> None:
-        """Method for running the processing chain from input to output"""
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
@@ -145,3 +144,12 @@ class FTISAnalyser:
         else:
             self.log("Output was invalid")
             raise OutputNotFound(self.name)
+
+    def load_cache(self) -> None:
+        """Implemented in the analyser"""
+
+    def dump(self) -> None:
+        """Defined in the analyser that inherits this class"""
+
+    def run(self) -> None:
+        """Method for running the processing chain from input to output"""
