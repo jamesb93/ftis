@@ -32,6 +32,14 @@ class Corpus:
         self.chain[right] = None
         return right
 
+
+    def walk_chain(self) -> None:
+        # Pass output to the input of all of connected things
+        for fwd_cnx in self.chain:
+            fwd_cnx.input = self.items
+            fwd_cnx.walk_chain()
+
+
     def get_items(self) -> None:
         if self.path == "":
             raise NoCorpusSource("Please provide a valid path for the corpus")
