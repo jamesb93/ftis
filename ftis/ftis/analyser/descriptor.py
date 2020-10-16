@@ -202,23 +202,23 @@ class FluidMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
-        if cache.exists():
-            f = np.load(cache, allow_pickle=True)
-        else:
-            f = get_buffer(
-                fluid.mfcc(
-                    workable,
-                    fftsettings=self.fftsettings,
-                    numbands=self.numbands,
-                    numcoeffs=self.numcoeffs,
-                    minfreq=self.minfreq,
-                    maxfreq=self.maxfreq,
-                ),
-                "numpy",
-            )
-            np.save(cache, f)
+        # hsh = create_hash(workable, self.identity)
+        # cache = self.process.cache / f"{hsh}.npy"
+        # if cache.exists():
+            # f = np.load(cache, allow_pickle=True)
+        # else:
+        f = get_buffer(
+            fluid.mfcc(
+                workable,
+                fftsettings=self.fftsettings,
+                numbands=self.numbands,
+                numcoeffs=self.numcoeffs,
+                minfreq=self.minfreq,
+                maxfreq=self.maxfreq,
+            ),
+            "numpy",
+        )
+            # np.save(cache, f)
         if self.discard:
             self.buffer[str(workable)] = f.tolist()[1:]
         else:
@@ -230,7 +230,7 @@ class FluidMFCC(FTISAnalyser):
         self.output = dict(self.buffer)
 
 
-class LibroMFCC(FTISAnalyser):
+class LibroMFCC(FTISAnalysser):
     def __init__(
         self,
         numbands=40,
@@ -261,30 +261,30 @@ class LibroMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
-        if cache.exists():
-            feature = np.load(cache, allow_pickle=True)
-            print("loaded cache")
-        else:
-            y, sr = librosa.load(workable, sr=None, mono=True)
-            feature = librosa.feature.mfcc(
-                y=y,
-                sr=sr,
-                n_mfcc=self.numcoeffs,
-                dct_type=self.dct,
-                n_mels=self.numbands,
-                fmax=self.maxfreq,
-                fmin=self.minfreq,
-                hop_length=self.hop,
-                n_fft=self.window,
-            )
-            np.save(cache, feature)
+        # hsh = create_hash(workable, self.identity)
+        # cache = self.process.cache / f"{hsh}.npy"
+        # if cache.exists():
+        #     feature = np.load(cache, allow_pickle=True)
+        #     print("loaded cache")
+        # else:
+        y, sr = librosa.load(workable, sr=None, mono=True)
+        feature = librosa.feature.mfcc(
+            y=y,
+            sr=sr,
+            n_mfcc=self.numcoeffs,
+            dct_type=self.dct,
+            n_mels=self.numbands,
+            fmax=self.maxfreq,
+            fmin=self.minfreq,
+            hop_length=self.hop,
+            n_fft=self.window,
+        )
+        #     np.save(cache, feature)
 
-        if self.discard:
-            self.buffer[str(workable)] = feature.tolist()[1:]
-        else:
-            self.buffer[str(workable)] = feature.tolist()
+        # if self.discard:
+            # self.buffer[str(workable)] = feature.tolist()[1:]
+        # else:
+        self.buffer[str(workable)] = feature.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
