@@ -20,7 +20,7 @@ def mask_by_confidence(self):
         freq = v[0] # list of frequencies
         conf = v[1] # list of confidences
         for i, c in enumerate(conf):
-            if c < 0.61:
+            if c < 0.90:
                 del self.output[k][0][i]
                 del self.output[k][1][i]
 
