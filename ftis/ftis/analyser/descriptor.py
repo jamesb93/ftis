@@ -230,7 +230,7 @@ class FluidMFCC(FTISAnalyser):
         self.output = dict(self.buffer)
 
 
-class LibroMFCC(FTISAnalysser):
+class LibroMFCC(FTISAnalyser):
     def __init__(
         self,
         numbands=40,
