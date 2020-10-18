@@ -25,5 +25,6 @@ setup(
         "scipy",
         "rich",
         "librosa",
+        "jinja2",
     ],
 )
