@@ -24,6 +24,8 @@ class FTISAnalyser:
         self.cache_possible: bool = False
         self.pre: Callable = pre
         self.post: Callable = post
+        self.identity: str = ""
+        self.identity_hash: str = ""
         # Overloading Stuff
         self.scripting_enabled = False
         self.chain = OrderedDict()
