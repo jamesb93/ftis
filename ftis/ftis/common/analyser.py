@@ -2,7 +2,6 @@ from ftis.common.exceptions import OutputNotFound
 from ftis.common.types import ftypes
 from ftis.common.io import read_json, write_json
 from ftis.common.utils import ignored_keys, create_hash
-
 from collections.abc import Callable
 from collections import OrderedDict
 from pathlib import Path
@@ -24,8 +23,6 @@ class FTISAnalyser:
         self.cache_possible: bool = False
         self.pre: Callable = pre
         self.post: Callable = post
-        self.identity: dict = {}
-        self.identity_hash: str = ""
         # Overloading Stuff
         self.scripting = True
         self.suborder = 0
