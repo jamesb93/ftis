@@ -56,7 +56,6 @@ class FTISAnalyser:
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
-        # TODO account for batch mode
         previous_inputs = {}
         for obj in self.process.chain:
             previous_inputs[str(obj.name)] = {k: v for k, v in vars(obj).items() if k not in ignored_keys}
