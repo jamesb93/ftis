@@ -37,22 +37,6 @@ class FTISAnalyser:
         self.scripting = True
         self.chain[right] = None
         return right
-
-    def walk_chain(self) -> None:
-        self.set_dump()
-        if self.pre: # preprocess
-            self.pre(self)
-
-        self.run()
-
-        if self.post: # postprocess
-            self.post(self)
-
-        self.dump()
-        # Pass output to the input of all of connected things
-        for forward_connection in self.chain:
-            forward_connection.input = self.output
-            forward_connection.walk_chain()
     
     def traverse_parent_parameters(self):
         self.parent_parameters[self.parent.__class__.__name__] = ({
@@ -173,8 +157,37 @@ class FTISAnalyser:
             self.log("Output was invalid")
             raise OutputNotFound(self.name)
 
-    def _run(self) -> None:
-        pass
+    def walk_chain(self) -> None:
+        self.log("Initialising")
+        self.set_dump()
+        # Determine whether we caching is possible
+        if self.cache and self.cache_exists() and self.compare_meta() and self.process.metapath.exists():
+            self.cache_possible = True
+        
+        self.update_success(False)
+        if self.cache_possible:
+            self.load_cache()
+            self.process.fprint(f"{self.name} was cached")
+        else:
+            if self.pre: # preprocess
+                self.pre(self)
+            self.run()
+            if self.post: # postprocess
+                self.post(self)
+                self.dump()
+
+        if self.output != None:  # TODO comprehensive output checking
+            self.log("Ran Successfully")
+            self.update_success(True)
+        else:
+            self.log("Output was invalid")
+            raise OutputNotFound(self.name)
+
+        self.dump()
+        # Pass output to the input of all of connected things
+        for forward_connection in self.chain:
+            forward_connection.input = self.output
+            forward_connection.walk_chain()
 
     def load_cache(self) -> None:
         """Implemented in the analyser"""
