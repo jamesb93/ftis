@@ -57,8 +57,7 @@ class Stats(FTISAnalyser):
             for i in range(num_derivs):
                 deriv = np.diff(base_data, i + 1)
                 container.append(self.calc_stats(deriv, self.spec))
-
-        elif num_derivs <= 0:
+        else:
             container = self.calc_stats(base_data, self.spec)
         return container
 
