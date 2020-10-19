@@ -12,7 +12,7 @@ from pathlib import Path
 
 corpus = Corpus("~/corpus-folder/corpus1")
 collapse = CollapseAudio()
-pitch = FluidPitch(fftsettings=[1024, 512, 1024])
+pitch = FluidPitch(fftsettings=[1024, 512, 1024], cache=True)
 stats = Stats()
 
 def mask_by_confidence(self):
@@ -31,8 +31,9 @@ corpus >> collapse
 collapse >> pitch >> stats
 
 # setup the world
-world = World(sink="~/corpus-folder/overloading2")
+world = World(sink="~/corpus-folder/overloading2", quiet=True)
+world.build(corpus)
+
 
 if __name__ == "__main__":
-    # add our corpus node to the world
-    world.build(corpus)
+    world.run()
