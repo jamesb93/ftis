@@ -50,10 +50,9 @@ class FTISAnalyser:
 
         self.dump()
         # Pass output to the input of all of connected things
-        for fwd_cnx in self.chain:
-            fwd_cnx.input = self.output
-            fwd_cnx.walk_chain()
-
+        for forward_connection in self.chain:
+            forward_connection.input = self.output
+            forward_connection.walk_chain()
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
