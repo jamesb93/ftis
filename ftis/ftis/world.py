@@ -28,6 +28,8 @@ class World:
 
     def build_connections(self, node):
         node.process = self # set the process to the world
+        if not isinstance(node, Corpus) and not isinstance(node, World):
+            node.create_identity()
         for suborder, child in enumerate(node.chain):
             # Set the parent of the children to the node passed in
             child.parent = node
