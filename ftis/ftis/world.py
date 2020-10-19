@@ -83,6 +83,7 @@ class World:
         self.logger.debug("Logging initialised")
         
     def build(self, *corpora):
+        self.corpora = corpora
         self.setup()
 
         # This is a two stage process hence two loops.
