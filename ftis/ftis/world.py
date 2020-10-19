@@ -16,9 +16,7 @@ class World:
         self.sink = Path(sink).expanduser().resolve()
         self.node_depth = 0
         # Metadata
-        self.metadata = {
-            "analyser" : []
-        }
+        self.metadata = {"analyser" : {}}
         self.prev_meta = None
         # Console
         self.console = Console()
