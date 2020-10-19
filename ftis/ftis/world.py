@@ -91,7 +91,6 @@ class World:
         for c in corpora:
             self.build_connections(c)
 
-
     def run(self):
         if not self.quiet:
             version = "# **** FTIS v2.0.0a ****"
@@ -114,13 +113,13 @@ class World:
 
         for c in self.corpora:
             c.walk_chain()
-            # self.process_child_nodes(c)
 
         self.teardown()
-        # teardown
 
     def teardown(self):
         write_json(self.metapath, self.metadata)
+        if self.clear:
+            self.clear_cache()
 
         
         
