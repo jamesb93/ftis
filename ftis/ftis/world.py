@@ -40,13 +40,7 @@ class World:
             else:
                 child.order = child.parent.order + 1
                 child.suborder = suborder
-
-            # Create identities
-            
-            # Construct a big metadata file
-            # print(
-            #     f"Depth: {child.order} | {child.name} | Sub-depth: {suborder} | Parent: {child.parent}"
-            # )
+                
             self.build_connections(child)
         self.metadata["analyser"][node.__class__.__name__] = {
             k: str(v) 
@@ -91,7 +85,6 @@ class World:
     def build(self, *corpora):
         self.corpora = corpora
         self.setup()
-
         # This is a two stage process hence two loops.
         # 1: Build a graph (including depth) of connections
         for c in corpora:
@@ -108,7 +101,6 @@ class World:
             for c in self.corpora:
                 corpora_paths.add_row(str(c.path), str(len(c.items)))
         
-            
             print("\n")
             self.console.print(corpora_paths)
             sink_text = Text(f" Sink: {self.sink}")
