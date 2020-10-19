@@ -40,9 +40,14 @@ class FTISAnalyser:
 
     def walk_chain(self) -> None:
         self.set_dump()
+        if self.pre: # preprocess
+            self.pre(self)
+
         self.run()
-        if self.post:
+
+        if self.post: # postprocess
             self.post(self)
+
         self.dump()
         # Pass output to the input of all of connected things
         for fwd_cnx in self.chain:
