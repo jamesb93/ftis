@@ -53,6 +53,16 @@ class FTISAnalyser:
         for forward_connection in self.chain:
             forward_connection.input = self.output
             forward_connection.walk_chain()
+    
+    def traverse_parent_parameters(self):
+        self.parent_parameters[self.parent.__class__.__name__] = ({
+            k: v 
+            for k, v in vars(self).items() 
+            if k not in ignored_keys
+            })
+        if hasattr(self.parent, 'parent'): # if the parent has a parent
+            self.parent.traverse_parent_parameters()
+        
 
     def create_identity(self) -> None:
         self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
