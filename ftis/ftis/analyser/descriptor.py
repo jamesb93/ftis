@@ -97,23 +97,23 @@ class FluidLoudness(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        # hsh = create_hash(workable, self.identity)
-        # cache = self.process.cache / f"{hsh}.npy"
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
 
-        # if not cache.exists():
-        loudness = get_buffer(
-            fluid.loudness(
-                workable,
-                windowsize=self.windowsize,
-                hopsize=self.hopsize,
-                kweighting=self.kweighting,
-                truepeak=self.truepeak,
-            ),
-            "numpy",
-        )
-        # np.save(cache, loudness)
-        # else:
-            # loudness = np.load(cache, allow_pickle=True)
+        if not cache.exists():
+            loudness = get_buffer(
+                fluid.loudness(
+                    workable,
+                    windowsize=self.windowsize,
+                    hopsize=self.hopsize,
+                    kweighting=self.kweighting,
+                    truepeak=self.truepeak,
+                ),
+                "numpy",
+            )
+            np.save(cache, loudness)
+        else:
+            loudness = np.load(cache, allow_pickle=True)
         self.buffer[str(workable)] = loudness.tolist()
 
     def run(self):
@@ -148,24 +148,24 @@ class FluidPitch(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        # hsh = create_hash(workable, self.identity)
-        # cache = self.process.cache / f"{hsh}.npy"
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
 
-        # if not cache.exists():
-        pitch = get_buffer(
-            fluid.pitch(
-                workable,
-                algorithm=self.algorithm,
-                minfreq=self.minfreq,
-                maxfreq=self.maxfreq,
-                unit=self.unit,
-                fftsettings=self.fftsettings
-            ),
-            "numpy",
-        )
-            # np.save(cache, pitch)
-        # else:
-            # pitch = np.load(cache, allow_pickle=True)
+        if not cache.exists():
+            pitch = get_buffer(
+                fluid.pitch(
+                    workable,
+                    algorithm=self.algorithm,
+                    minfreq=self.minfreq,
+                    maxfreq=self.maxfreq,
+                    unit=self.unit,
+                    fftsettings=self.fftsettings
+                ),
+                "numpy",
+            )
+            np.save(cache, pitch)
+        else:
+            pitch = np.load(cache, allow_pickle=True)
         self.buffer[str(workable)] = pitch.tolist()
 
     def run(self):
@@ -202,23 +202,23 @@ class FluidMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        # hsh = create_hash(workable, self.identity)
-        # cache = self.process.cache / f"{hsh}.npy"
-        # if cache.exists():
-            # f = np.load(cache, allow_pickle=True)
-        # else:
-        f = get_buffer(
-            fluid.mfcc(
-                workable,
-                fftsettings=self.fftsettings,
-                numbands=self.numbands,
-                numcoeffs=self.numcoeffs,
-                minfreq=self.minfreq,
-                maxfreq=self.maxfreq,
-            ),
-            "numpy",
-        )
-            # np.save(cache, f)
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+        if cache.exists():
+            f = np.load(cache, allow_pickle=True)
+        else:
+            f = get_buffer(
+                fluid.mfcc(
+                    workable,
+                    fftsettings=self.fftsettings,
+                    numbands=self.numbands,
+                    numcoeffs=self.numcoeffs,
+                    minfreq=self.minfreq,
+                    maxfreq=self.maxfreq,
+                ),
+                "numpy",
+            )
+            np.save(cache, f)
         if self.discard:
             self.buffer[str(workable)] = f.tolist()[1:]
         else:
@@ -240,7 +240,6 @@ class LibroMFCC(FTISAnalyser):
         window=2048,
         hop=512,
         dct=2,
-        discard=False,
         cache=False,
     ):
         super().__init__(cache=cache)
@@ -261,30 +260,25 @@ class LibroMFCC(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        # hsh = create_hash(workable, self.identity)
-        # cache = self.process.cache / f"{hsh}.npy"
-        # if cache.exists():
-        #     feature = np.load(cache, allow_pickle=True)
-        #     print("loaded cache")
-        # else:
-        y, sr = librosa.load(workable, sr=None, mono=True)
-        feature = librosa.feature.mfcc(
-            y=y,
-            sr=sr,
-            n_mfcc=self.numcoeffs,
-            dct_type=self.dct,
-            n_mels=self.numbands,
-            fmax=self.maxfreq,
-            fmin=self.minfreq,
-            hop_length=self.hop,
-            n_fft=self.window,
-        )
-        #     np.save(cache, feature)
-
-        # if self.discard:
-            # self.buffer[str(workable)] = feature.tolist()[1:]
-        # else:
-        self.buffer[str(workable)] = feature.tolist()
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+        if cache.exists():
+            feature = np.load(cache, allow_pickle=True)
+            print("loaded cache")
+        else:
+            y, sr = librosa.load(workable, sr=None, mono=True)
+            feature = librosa.feature.mfcc(
+                y=y,
+                sr=sr,
+                n_mfcc=self.numcoeffs,
+                dct_type=self.dct,
+                n_mels=self.numbands,
+                fmax=self.maxfreq,
+                fmin=self.minfreq,
+                hop_length=self.hop,
+                n_fft=self.window,
+            )
+            np.save(cache, feature)
 
     def run(self):
         self.buffer = Manager().dict()
