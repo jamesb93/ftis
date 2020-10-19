@@ -6,6 +6,7 @@ from rich.markdown import Markdown
 from ftis.common.io import write_json, read_json
 from ftis.common.exceptions import InvalidSource
 from ftis.common.utils import ignored_keys, create_hash
+from ftis.corpus import Corpus
 from shutil import rmtree
 
 class World:
