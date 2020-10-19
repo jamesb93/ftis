@@ -38,5 +38,5 @@ ignored_keys = (  # keys to ignore from superclass
     "corpus_items",
     "buffer",
     "pre", "post",
-    "scripting", "chain", "parent"
+    "scripting", "chain", "parent", "parent_string"
 )
