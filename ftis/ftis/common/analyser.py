@@ -28,6 +28,7 @@ class FTISAnalyser:
         self.suborder = 0
         self.parent = None
         self.chain = OrderedDict()
+        self.parent_string = self.__class__.__name__
 
     def __str__(self):
         return f"{self.__class__.__name__}"
@@ -46,7 +47,6 @@ class FTISAnalyser:
             })
         if hasattr(self.parent, 'parent'): # if the parent has a parent
             self.parent.traverse_parent_parameters()
-        
 
     def create_identity(self) -> None:
         if not self.scripting:
@@ -73,15 +73,21 @@ class FTISAnalyser:
         except AttributeError:
             pass
 
+    def _get_parents(self) -> None:
+        self.parent_string = (
+            f"{self.parent.__class__.__name__}.{self.parent_string}"
+        )
+
     def set_dump(self) -> None:
+        self._get_parents()
         if self.scripting:
             self.dump_path  = (
                 self.process.sink / 
-                f"{self.order}.{self.suborder}_{self.name}{self.dump_type}"
+                f"{self.order}.{self.suborder}-{self.parent_string}{self.dump_type}"
             )
             self.model_dump = (
                 self.process.sink / 
-                f"{self.order}.{self.suborder}_{self.name}.joblib"
+                f"{self.order}.{self.suborder}-{self.parent_string}.joblib"
             )
         else:
             pass
@@ -169,7 +175,6 @@ class FTISAnalyser:
 
     def walk_chain(self) -> None:
         self.log("Initialising")
-        self.set_dump()
         # Determine whether we caching is possible
         if self.cache and self.cache_exists() and self.compare_meta() and self.process.metapath.exists():
             self.cache_possible = True
