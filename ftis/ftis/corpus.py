@@ -14,9 +14,11 @@ from typing import List
 class Corpus:
     def __init__(self, path: str = "", file_type: List[str] = [".wav", ".aiff", ".aif"]):
         self.path = path
+        self.name = self.__class__.__name__
         self.file_type = file_type
         self.items: List = []
         self.is_filtering: bool = False
+        self.chain = {}
         self.get_items()
 
     def __add__(self, right):
@@ -25,6 +27,19 @@ class Corpus:
         except AttributeError:
             raise
         return self
+
+    def __rshift__(self, right):
+        self.chain[right] = None
+        # right.order = 2
+        return right
+
+
+    def walk_chain(self) -> None:
+        # Pass output to the input of all of connected things
+        for forward_connection in self.chain:
+            forward_connection.input = self.items
+            forward_connection.walk_chain()
+
 
     def get_items(self) -> None:
         if self.path == "":

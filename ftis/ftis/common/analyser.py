@@ -2,15 +2,14 @@ from ftis.common.exceptions import OutputNotFound
 from ftis.common.types import ftypes
 from ftis.common.io import read_json, write_json
 from ftis.common.utils import ignored_keys, create_hash
-
 from collections.abc import Callable
+from collections import OrderedDict
 from pathlib import Path
 
 
 class FTISAnalyser:
     """Every analyser inherits from this class"""
-
-    def __init__(self, cache=False, transform=None, discard=None):
+    def __init__(self, cache=False, pre=None, post=None):
         self.process = None  # pass the parent process in
         self.input = None  # This can be anything
         self.output = None
@@ -22,26 +21,51 @@ class FTISAnalyser:
         self.order: int = -1
         self.cache: bool = cache
         self.cache_possible: bool = False
+        self.pre: Callable = pre
+        self.post: Callable = post
+        # Overloading Stuff
+        self.scripting = True
+        self.suborder = 0
+        self.parent = None
+        self.chain = OrderedDict()
+        self.parent_string = self.__class__.__name__
 
-    def load_cache(self) -> None:
-        """Implemented in the analyser"""
-        pass
+    def __str__(self):
+        return f"{self.__class__.__name__}"
 
-    def dump(self) -> None:
-        """Defined in the analyser that inherits this class"""
-
-    def run(self) -> None:
-        """Method for running the processing chain from input to output"""
+    def __rshift__(self, right):
+        # right.order = self.order + 1
+        self.scripting = True
+        self.chain[right] = None
+        return right
+    
+    def traverse_parent_parameters(self):
+        self.parent_parameters[self.parent.__class__.__name__] = ({
+            k: v 
+            for k, v in vars(self).items() 
+            if k not in ignored_keys
+            })
+        if hasattr(self.parent, 'parent'): # if the parent has a parent
+            self.parent.traverse_parent_parameters()
 
     def create_identity(self) -> None:
-        self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
-        # TODO account for batch mode
-        previous_inputs = {}
-        for obj in self.process.chain:
-            previous_inputs[str(obj.name)] = {k: v for k, v in vars(obj).items() if k not in ignored_keys}
+        if not self.scripting:
+            self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
+            previous_inputs = {}
+            for obj in self.process.chain:
+                previous_inputs[str(obj.name)] = {k: v for k, v in vars(obj).items() if k not in ignored_keys}
 
-        self.identity_hash = create_hash(previous_inputs)
-        self.identity["identity_hash"] = self.identity_hash
+            self.identity_hash = create_hash(previous_inputs)
+            self.identity["identity_hash"] = self.identity_hash
+        else:
+            self.identity = {
+                k: v 
+                for k, v in vars(self).items() 
+                if k not in ignored_keys
+            }
+            self.parent_parameters = {}
+            self.traverse_parent_parameters()
+            self.identity["hash"] = create_hash(self.parent_parameters)
 
     def log(self, log_text: str) -> None:
         try:
@@ -49,15 +73,28 @@ class FTISAnalyser:
         except AttributeError:
             pass
 
-    def set_dump(self) -> None:
-        self.dump_path = self.process.sink / f"{self.order}_{self.name}{self.dump_type}"
-        self.model_dump = self.process.sink / f"{self.order}_{self.name}.joblib"
+    def _get_parents(self) -> None:
+        self.parent_string = (
+            f"{self.parent.__class__.__name__}.{self.parent_string}"
+        )
 
-    def dump(self) -> None:
-        """Defined in the analyser that inherits this class"""
+    def set_dump(self) -> None:
+        self._get_parents()
+        if self.scripting:
+            self.dump_path  = (
+                self.process.sink / 
+                f"{self.order}.{self.suborder}-{self.parent_string}{self.dump_type}"
+            )
+            self.model_dump = (
+                self.process.sink / 
+                f"{self.order}.{self.suborder}-{self.parent_string}.joblib"
+            )
+        else:
+            pass
+
 
     def folder_integrity(self) -> bool:
-        # TODO: implement folder integirty checking for analysers like Explode/Collapse
+        # TODO: implement folder integrity checking for analysers like Explode/Collapse
         # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
         return True
 
@@ -122,12 +159,56 @@ class FTISAnalyser:
             self.load_cache()
             self.process.fprint(f"{self.name} was cached")
         else:
+            if self.pre:
+                self.pre(self)
             self.run()
+            if self.post:
+                self.post(self)
             self.dump()
 
         if self.output != None:  # TODO comprehensive output checking
             self.log("Ran Successfully")
             self.update_success(True)
         else:
-            self.log("Ouput was invalid")
+            self.log("Output was invalid")
             raise OutputNotFound(self.name)
+
+    def walk_chain(self) -> None:
+        self.log("Initialising")
+        # Determine whether we caching is possible
+        if self.cache and self.cache_exists() and self.compare_meta() and self.process.metapath.exists():
+            self.cache_possible = True
+        
+        self.update_success(False)
+        if self.cache_possible:
+            self.load_cache()
+            self.process.fprint(f"{self.name} was cached")
+        else:
+            if self.pre: # preprocess
+                self.pre(self)
+            self.run()
+            if self.post: # postprocess
+                self.post(self)
+                self.dump()
+
+        if self.output != None:  # TODO comprehensive output checking
+            self.log("Ran Successfully")
+            self.update_success(True)
+        else:
+            self.log("Output was invalid")
+            raise OutputNotFound(self.name)
+
+        self.dump()
+        # Pass output to the input of all of connected things
+        for forward_connection in self.chain:
+            forward_connection.input = self.output
+            forward_connection.walk_chain()
+
+    def load_cache(self) -> None:
+        """Implemented in the analyser"""
+
+    def dump(self) -> None:
+        """Defined in the analyser that inherits this class"""
+
+    def run(self) -> None:
+        """Method for running the processing chain from input to output"""

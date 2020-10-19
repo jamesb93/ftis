@@ -79,8 +79,11 @@ class Chroma(FTISAnalyser):
         self.output = dict(self.buffer)
 
 class FluidLoudness(FTISAnalyser):
-    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, cache=False):
-        super().__init__(cache=cache)
+    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, 
+        cache=False,
+        pre=None,
+        post=None):
+        super().__init__(cache=cache, pre=pre, post=post)
         self.windowsize = windowsize
         self.hopsize = hopsize
         self.kweighting = kweighting
@@ -117,6 +120,58 @@ class FluidLoudness(FTISAnalyser):
         self.buffer = Manager().dict()
         workables = self.input
         multiproc(self.name, self.analyse, workables)
+        self.output = dict(self.buffer)
+
+
+class FluidPitch(FTISAnalyser):
+    def __init__(self, 
+        algorithm=2,
+        minfreq=20,
+        maxfreq=10000.0,
+        unit=0,
+        fftsettings=[1024, -1, -1],
+        cache=False,
+        pre=None,
+        post=None):
+        super().__init__(cache=cache, pre=pre, post=post)
+        self.algorithm=algorithm
+        self.minfreq=minfreq
+        self.maxfreq=maxfreq
+        self.unit=unit
+        self.fftsettings=fftsettings
+        self.dump_type = ".json"
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def analyse(self, workable):
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+
+        if not cache.exists():
+            pitch = get_buffer(
+                fluid.pitch(
+                    workable,
+                    algorithm=self.algorithm,
+                    minfreq=self.minfreq,
+                    maxfreq=self.maxfreq,
+                    unit=self.unit,
+                    fftsettings=self.fftsettings
+                ),
+                "numpy",
+            )
+            np.save(cache, pitch)
+        else:
+            pitch = np.load(cache, allow_pickle=True)
+        self.buffer[str(workable)] = pitch.tolist()
+
+    def run(self):
+        self.buffer = Manager().dict()
+        workables = self.input
+        singleproc(self.name, self.analyse, workables)
         self.output = dict(self.buffer)
 
 
@@ -185,7 +240,6 @@ class LibroMFCC(FTISAnalyser):
         window=2048,
         hop=512,
         dct=2,
-        discard=False,
         cache=False,
     ):
         super().__init__(cache=cache)
@@ -225,11 +279,6 @@ class LibroMFCC(FTISAnalyser):
                 n_fft=self.window,
             )
             np.save(cache, feature)
-
-        if self.discard:
-            self.buffer[str(workable)] = feature.tolist()[1:]
-        else:
-            self.buffer[str(workable)] = feature.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
