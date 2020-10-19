@@ -164,6 +164,9 @@ class FTISAnalyser:
             self.log("Output was invalid")
             raise OutputNotFound(self.name)
 
+    def _run(self) -> None:
+        pass
+
     def load_cache(self) -> None:
         """Implemented in the analyser"""
 
