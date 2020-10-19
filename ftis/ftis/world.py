@@ -12,7 +12,7 @@ from ftis.corpus import Corpus
 from shutil import rmtree
 
 class World:
-    def __init__(self, source=None, sink=None, quiet=False):
+    def __init__(self, source=None, sink=None, quiet=False, clear=False):
         self.sink = Path(sink).expanduser().resolve()
         self.node_depth = 0
         # Input corpora objects
@@ -20,6 +20,7 @@ class World:
         # Metadata
         self.metadata = {"analyser" : {}}
         self.prev_meta = None
+        self.clear = clear
         # Console
         self.console = Console()
         self.quiet = quiet
