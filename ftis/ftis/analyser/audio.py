@@ -24,7 +24,10 @@ class CollapseAudio(FTISAnalyser):
         sf.write(out, audio, sr, "PCM_32")
 
     def run(self):
-        self.outfolder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
+        self.outfolder = (
+            self.process.sink / 
+            f"{self.order}.{self.suborder}-{self.parent_string}"
+        )
         self.outfolder.mkdir(exist_ok=True)
         singleproc(self.name, self.collapse, self.input)
         self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
@@ -35,32 +38,10 @@ class ExplodeAudio(FTISAnalyser):
         super().__init__(cache=cache)
         self.dump_type = ".json"
 
-    def segment(self, workable):
-        """Going to be deprecated"""
-        self.output_folder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
-        self.output_folder.mkdir(exist_ok=True)
-
-        slices = self.input[str(workable)]
-
-        if len(slices) == 1:
-            copyfile(workable, self.output_folder / f"{workable.stem}_0.wav")
-
-        src = AudioSegment.from_file(workable, format="wav")
-        sr = get_sr(workable)
-
-        for i, (start, end) in enumerate(zip(slices, slices[1:])):
-            start = samps2ms(start, sr)
-            end = samps2ms(end, sr)
-            segment = src[start:end]
-            segment.export(self.output_folder / f"{workable.stem}_{i}.wav", format="wav")
-
     def segment2(self, workable):
-        self.output_folder = self.process.sink / f"{self.order}_{self.__class__.__name__}"
-        self.output_folder.mkdir(exist_ok=True)
-
         slices = [int(x) for x in self.input[str(workable)]]
         if len(slices) == 1:
-            copyfile(workable, self.output_folder / f"{workable.stem}_0.wav")
+            copyfile(workable, self.outfolder / f"{workable.stem}_0.wav")
         else:
             data, sr = sf.read(workable, dtype="float32")
             # Append the right boundary if it isnt already there
@@ -69,8 +50,7 @@ class ExplodeAudio(FTISAnalyser):
 
             for i, (start, end) in enumerate(zip(slices, slices[1:])):
                 segment = data[start:end]
-
-                sf.write(self.output_folder / f"{workable.stem}_{i}.wav", segment, sr, "PCM_32")
+                sf.write(self.outfolder / f"{workable.stem}_{i}.wav", segment, sr, "PCM_32")
 
     def load_cache(self):
         d = read_json(self.dump_path)
@@ -81,6 +61,11 @@ class ExplodeAudio(FTISAnalyser):
         write_json(self.dump_path, d)
 
     def run(self):
+        self.outfolder = (
+            self.process.sink / 
+            f"{self.order}.{self.suborder}-{self.parent_string}"
+        )
+        self.outfolder.mkdir(exist_ok=True)
         workables = [Path(x) for x in self.input.keys()]
         singleproc(self.name, self.segment2, workables)
         self.output = [x for x in self.output_folder.iterdir() if x.suffix in [".wav", ".aiff", ".aif"]]
