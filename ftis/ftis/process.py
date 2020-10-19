@@ -20,7 +20,7 @@ class FTISProcess:
         self.console = Console()
         self.mode = mode
         self.metadata = {}
-        self.prev_meta = {}
+        self.prev_meta = None
 
     def setup(self):
         self.sink.mkdir(exist_ok=True, parents=True)
