@@ -35,4 +35,4 @@ world = World(sink="~/corpus-folder/overloading2")
 
 if __name__ == "__main__":
     # add our corpus node to the world
-    world.add(corpus)
+    world.build(corpus)
