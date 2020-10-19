@@ -3,6 +3,9 @@ import logging
 from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.table import Table
+from rich.text import Text
+from rich import box
 from ftis.common.io import write_json, read_json
 from ftis.common.utils import ignored_keys, create_hash
 from ftis.corpus import Corpus
@@ -86,8 +89,28 @@ class World:
         for c in corpora:
             self.build_connections(c)
 
-        # 2: Walk the chain and run analysers
-        for c in corpora:
+
+    def run(self):
+        if not self.quiet:
+            version = "# **** FTIS v2.0.0a ****"
+            self.console.print(Markdown(version))
+            # Construct information table
+            corpora_paths = Table(title="Corpora", box=box.HORIZONTALS, show_lines=True)
+            corpora_paths.add_column("Path")
+            corpora_paths.add_column("Items", style="cyan")
+            for c in self.corpora:
+                corpora_paths.add_row(str(c.path), str(len(c.items)))
+        
+            
+            print("\n")
+            self.console.print(corpora_paths)
+            sink_text = Text(f" Sink: {self.sink}")
+            print("\n")
+            self.console.print(sink_text)
+            self.console.print(Markdown("---"))
+            print("\n")
+
+        for c in self.corpora:
             c.walk_chain()
             # self.process_child_nodes(c)
 
