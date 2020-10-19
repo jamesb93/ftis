@@ -43,8 +43,7 @@ class World:
             #     f"Depth: {child.order} | {child.name} | Sub-depth: {suborder} | Parent: {child.parent}"
             # )
             self.build_connections(child)
-        # FIXME - parent doesnt show up in the metadata
-        self.metadata["analyser"].append({
+        self.metadata["analyser"][node.__class__.__name__] = {
             k: str(v) 
             for k, v in vars(node).items() 
             if k not in ignored_keys
