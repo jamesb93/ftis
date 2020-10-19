@@ -33,7 +33,8 @@ class FTISAnalyser:
         self.chain = OrderedDict()
 
     def __rshift__(self, right):
-        self.scripting_enabled = True
+        # right.order = self.order + 1
+        self.scripting = True
         self.chain[right] = None
         return right
 
