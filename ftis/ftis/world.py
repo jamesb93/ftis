@@ -116,7 +116,11 @@ class World:
             c.walk_chain()
             # self.process_child_nodes(c)
 
-        write_json(self.metapath, self.metadata)
+        self.teardown()
         # teardown
+
+    def teardown(self):
+        write_json(self.metapath, self.metadata)
+
         
         
