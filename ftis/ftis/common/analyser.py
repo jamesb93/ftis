@@ -27,7 +27,9 @@ class FTISAnalyser:
         self.identity: dict = {}
         self.identity_hash: str = ""
         # Overloading Stuff
-        self.scripting_enabled = False
+        self.scripting = True
+        self.suborder = 0
+        self.parent = None
         self.chain = OrderedDict()
 
     def __rshift__(self, right):
