@@ -28,16 +28,16 @@ class Corpus:
         return self
 
     def __rshift__(self, right):
-        # print('corpus:', self, right)
         self.chain[right] = None
+        # right.order = 2
         return right
 
 
     def walk_chain(self) -> None:
         # Pass output to the input of all of connected things
-        for fwd_cnx in self.chain:
-            fwd_cnx.input = self.items
-            fwd_cnx.walk_chain()
+        for forward_connection in self.chain:
+            forward_connection.input = self.items
+            forward_connection.walk_chain()
 
 
     def get_items(self) -> None:
