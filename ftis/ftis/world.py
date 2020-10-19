@@ -40,6 +40,8 @@ class World:
             else:
                 child.order = child.parent.order + 1
                 child.suborder = suborder
+
+            # Create identities
             
             # Construct a big metadata file
             # print(
@@ -50,7 +52,10 @@ class World:
             k: str(v) 
             for k, v in vars(node).items() 
             if k not in ignored_keys
-        })
+        }
+
+    def fprint(self, text):
+        self.console.print(text, style="yellow underline")
 
     def clear_cache(self) -> None:
         rmtree(str(self.cache))
