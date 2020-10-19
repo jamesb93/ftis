@@ -71,8 +71,18 @@ class FTISAnalyser:
             pass
 
     def set_dump(self) -> None:
-        self.dump_path = self.process.sink / f"{self.order}_{self.name}{self.dump_type}"
-        self.model_dump = self.process.sink / f"{self.order}_{self.name}.joblib"
+        if self.scripting:
+            self.dump_path  = (
+                self.process.sink / 
+                f"{self.order}.{self.suborder}_{self.name}{self.dump_type}"
+            )
+            self.model_dump = (
+                self.process.sink / 
+                f"{self.order}.{self.suborder}_{self.name}.joblib"
+            )
+        else:
+            pass
+
 
     def folder_integrity(self) -> bool:
         # TODO: implement folder integrity checking for analysers like Explode/Collapse
