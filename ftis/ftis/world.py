@@ -9,7 +9,7 @@ from ftis.corpus import Corpus
 from shutil import rmtree
 
 class World:
-    def __init__(self, source=None, sink=None):
+    def __init__(self, source=None, sink=None, quiet=False):
         self.sink = Path(sink).expanduser().resolve()
         self.node_depth = 0
         # Metadata
@@ -19,6 +19,7 @@ class World:
         self.prev_meta = None
         # Console
         self.console = Console()
+        self.quiet = quiet
         # Logging
         self.logger = logging.getLogger(__name__)
 
