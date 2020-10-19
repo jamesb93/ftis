@@ -15,6 +15,8 @@ class World:
     def __init__(self, source=None, sink=None, quiet=False):
         self.sink = Path(sink).expanduser().resolve()
         self.node_depth = 0
+        # Input corpora objects
+        self.corpora = []
         # Metadata
         self.metadata = {"analyser" : {}}
         self.prev_meta = None
