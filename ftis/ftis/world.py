@@ -27,33 +27,6 @@ class World:
         # Logging
         self.logger = logging.getLogger(__name__)
 
-    def build_connections(self, node):
-        node.process = self # set the process to the world
-        if not isinstance(node, Corpus) and not isinstance(node, World):
-            node.create_identity()
-        for suborder, child in enumerate(node.chain):
-            # Set the parent of the children to the node passed in
-            child.parent = node
-            # Establish the order
-            if isinstance(child.parent, Corpus):
-                child.order = 1
-            else:
-                child.order = child.parent.order + 1
-                child.suborder = suborder
-                
-            self.build_connections(child)
-        self.metadata["analyser"][node.__class__.__name__] = {
-            k: str(v) 
-            for k, v in vars(node).items() 
-            if k not in ignored_keys
-        }
-
-    def fprint(self, text):
-        self.console.print(text, style="yellow underline")
-
-    def clear_cache(self) -> None:
-        rmtree(str(self.cache))
-
     def setup(self) -> None:
         self.metadata["time"] = datetime.datetime.now().strftime("%H:%M:%S | %B %d, %Y")
         self.sink.mkdir(exist_ok=True, parents=True)
@@ -81,6 +54,28 @@ class World:
         logfile_handler.setFormatter(formatter)
         self.logger.addHandler(logfile_handler)
         self.logger.debug("Logging initialised")
+
+    def build_connections(self, node):
+        node.process = self # set the process to the world
+        if not isinstance(node, Corpus) and not isinstance(node, World):
+            node.create_identity()
+            node.set_dump()
+        for suborder, child in enumerate(node.chain):
+            # Set the parent of the children to the node passed in
+            child.parent = node
+            # Establish the order
+            if isinstance(child.parent, Corpus):
+                child.order = 1
+            else:
+                child.order = child.parent.order + 1
+                child.suborder = suborder
+
+            self.build_connections(child)
+        self.metadata["analyser"][node.__class__.__name__] = {
+            k: str(v) 
+            for k, v in vars(node).items() 
+            if k not in ignored_keys
+        }
         
     def build(self, *corpora):
         self.corpora = corpora
@@ -119,5 +114,8 @@ class World:
         if self.clear:
             self.clear_cache()
 
-        
-        
+    def fprint(self, text):
+        self.console.print(text, style="yellow underline")
+
+    def clear_cache(self) -> None:
+        rmtree(str(self.cache))
