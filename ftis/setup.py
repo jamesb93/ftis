@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="ftis",
-    version="1.1.1",
+    version="2.0.0a",
     author="James Bradbury",
     url="https://github.com/jamesb93/ftis",
     license="GLPv3+",
@@ -21,7 +21,6 @@ setup(
         "umap-learn",
         "sklearn",
         "python-flucoma",
-        "pydub",
         "scipy",
         "rich",
         "librosa",
