@@ -38,6 +38,14 @@ class ExplodeAudio(FTISAnalyser):
         super().__init__(cache=cache)
         self.dump_type = ".json"
 
+    def load_cache(self):
+        d = read_json(self.dump_path)
+        self.output = [Path(x) for x in d["corpus_items"]]
+
+    def dump(self):
+        d = {"corpus_items": [str(x) for x in self.output]}
+        write_json(self.dump_path, d)
+
     def segment2(self, workable):
         slices = [int(x) for x in self.input[str(workable)]]
         if len(slices) == 1:
