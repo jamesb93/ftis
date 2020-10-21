@@ -43,7 +43,7 @@ class ExplodeAudio(FTISAnalyser):
         d = {"corpus_items": [str(x) for x in self.output]}
         write_json(self.dump_path, d)
 
-    def segment2(self, workable):
+    def segment(self, workable):
         slices = [int(x) for x in self.input[str(workable)]]
         if len(slices) == 1:
             copyfile(workable, self.outfolder / f"{workable.stem}_0.wav")
