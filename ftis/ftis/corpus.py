@@ -53,7 +53,7 @@ class Corpus:
         if self.path.is_dir():
             self.items = [x for x in self.path.iterdir() if x.suffix in self.file_type]
         else:
-            self.items = [str(self.path)]
+            self.items = [self.path]
 
     def startswith(self, prefix: str):
         with Progress() as progress:
