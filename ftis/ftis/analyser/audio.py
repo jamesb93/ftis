@@ -57,14 +57,6 @@ class ExplodeAudio(FTISAnalyser):
                 segment = data[start:end]
                 sf.write(self.outfolder / f"{workable.stem}_{i}.wav", segment, sr, "PCM_32")
 
-    def load_cache(self):
-        d = read_json(self.dump_path)
-        self.output = [Path(x) for x in d["corpus_items"]]
-
-    def dump(self):
-        d = {"corpus_items": [str(x) for x in self.output]}
-        write_json(self.dump_path, d)
-
     def run(self):
         self.outfolder = (
             self.process.sink / 
