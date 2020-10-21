@@ -26,24 +26,23 @@ There are some good examples of scripts in the examples directory of this reposi
 
 # import ftis modules that we need
 from ftis.analyser.slicing import FluidNoveltyslice # novelty slicing
-from ftis.process import FTISProcess # a ftis 'process'
+from ftis.world import World # a ftis 'world'
 from ftis.corpus import Corpus # a corpus object
 
 src = Corpus("~/corpus-folder/corpus1") # corpus object collects audio files at this directory
 out = "~/corpus-folder/slicing" # set an output folder
 
-process = FTISProcess( # instantiate an instance of the process
-    source=src, # provide the source and the output to the process
-    folder=out
-)
+# instantiate an instance of the process
+world = World(sink=out)
 
-process.add( # now add different 'analysers' to the process
-    FluidNoveltyslice(threshold=0.35, feature=1),
-    ExplodeAudio()
-)
+# Connect together processes using >>
+src >> FluidNoveltySlice(threshold=0.35, feature=1) >> ExplodeAudio()
+
+# now add a Corpus node to our world
+world.build(src)
 
 if __name__ == "__main__":
-    process.run() # and run (inside this block for multiprocessing to work)
+    world.run() # finally run the chain of connected analysers
 ```
 
 and thats it! For more information read the full documentation.
