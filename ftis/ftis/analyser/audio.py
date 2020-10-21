@@ -3,11 +3,8 @@ from ftis.common.io import write_json, read_json, peek, get_sr
 from ftis.common.proc import singleproc
 from ftis.common.conversion import samps2ms
 from shutil import copyfile
-from pydub import AudioSegment
 from pathlib import Path
-from scipy.io import wavfile
 import soundfile as sf
-
 
 class CollapseAudio(FTISAnalyser):
     def __init__(self):
