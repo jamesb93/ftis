@@ -33,13 +33,11 @@ class Corpus:
         # right.order = 2
         return right
 
-
     def walk_chain(self) -> None:
         # Pass output to the input of all of connected things
         for forward_connection in self.chain:
             forward_connection.input = self.items
             forward_connection.walk_chain()
-
 
     def get_items(self) -> None:
         if self.path == "":
