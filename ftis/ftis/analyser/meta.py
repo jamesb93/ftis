@@ -5,6 +5,9 @@ from multiprocessing import Manager
 from scipy.signal import savgol_filter
 from scipy.io import wavfile
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import StandardScaler
+from flucoma import fluid
+from flucoma.utils import get_buffer
 import numpy as np
 
 
@@ -94,7 +97,7 @@ class ClusteredSegmentation(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        slices = self.input[workable]
+        slices = self.input[str(workable)]
         slices = [int(x) for x in slices]
         if len(slices) == 1:
             self.buffer[workable] = slices
@@ -108,14 +111,14 @@ class ClusteredSegmentation(FTISAnalyser):
             data = []
             for i, (start, end) in enumerate(zip(indices, indices[1:])):
 
-                mfcc = mfcc(
+                mfccs = fluid.mfcc(
                     workable,
                     fftsettings=[2048, -1, -1],
                     startframe=start,
                     numframes=end - start,
                 )
 
-                stats = get_buffer(stats(mfcc, numderivs=1), "numpy")
+                stats = get_buffer(fluid.stats(mfccs, numderivs=1), "numpy")
 
                 data.append(stats.flatten())
 
@@ -136,6 +139,5 @@ class ClusteredSegmentation(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = [x for x in self.input]
-        singleproc(self.name, self.analyse, workables)
+        singleproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
