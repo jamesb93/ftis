@@ -29,6 +29,7 @@ class FTISAnalyser:
         self.parent = None
         self.chain = OrderedDict()
         self.parent_string = self.__class__.__name__
+        self.identity = {}
 
     def __str__(self):
         return f"{self.__class__.__name__}"
@@ -40,59 +41,31 @@ class FTISAnalyser:
         return right
     
     def traverse_parent_parameters(self):
-        self.parent_parameters[self.parent.__class__.__name__] = ({
-            k: v 
-            for k, v in vars(self).items() 
-            if k not in ignored_keys
-            })
+        # self.parent_parameters[self.parent.__class__.__name__] = ({
+        #     k: str(v) 
+        #     for k, v in vars(self).items() 
+        #     if k not in ignored_keys
+        # })
+        self.parent_parameters[self.parent.__class__.__name__] = self.parent.identity["hash"]
         if hasattr(self.parent, 'parent'): # if the parent has a parent
             self.parent.traverse_parent_parameters()
 
     def create_identity(self) -> None:
-        self.identity = {
-            k: v 
+        p = {
+            k: str(v) 
             for k, v in vars(self).items() 
             if k not in ignored_keys
         }
         self.parent_parameters = {}
         self.traverse_parent_parameters()
-        self.identity["hash"] = create_hash(self.parent_parameters)
-
-
-    def log(self, log_text: str) -> None:
-        try:
-            self.process.logger.debug(f"{self.name}: {log_text}")
-        except AttributeError:
-            pass
-
-    def _get_parents(self) -> None:
-        self.parent_string = (
-            f"{self.parent.__class__.__name__}.{self.parent_string}"
-        )
-
-    def set_dump(self) -> None:
-        self._get_parents()
-        if self.scripting:
-            self.dump_path  = (
-                self.process.sink / 
-                f"{self.order}.{self.suborder}-{self.parent_string}{self.dump_type}"
-            )
-            self.model_dump = (
-                self.process.sink / 
-                f"{self.order}.{self.suborder}-{self.parent_string}.joblib"
-            )
-        else:
-            pass
-
-    def folder_integrity(self) -> bool:
-        # TODO: implement folder integrity checking for analysers like Explode/Collapse
-        # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
-        return True
+        self.identity["hash"] = create_hash(self.parent_parameters, p)
 
     def compare_meta(self) -> bool:
         # TODO You could use a hashing function here to determine the similarity of the metadata
         # TODO You should use a hashing function because adding things to the front of the chain makes it not equal between runs
-
+        print(self.process.metadata["time"])
+        print(self.process.prev_meta["time"])
+        print(self.identity["hash"])
         try:
             new_params = self.process.metadata["analyser"][self.identity["hash"]]["identity"]
         except KeyError:
@@ -104,10 +77,10 @@ class FTISAnalyser:
             old_params = False
 
         try:
-            success = self.process.prev_meta["success"][ident]
+            success = self.process.prev_meta["success"][self.identity["hash"]]
         except KeyError:
             success = False
-
+        print(old_params, new_params, success)
         return old_params == new_params and success
 
     def cache_exists(self) -> bool:
@@ -130,7 +103,7 @@ class FTISAnalyser:
         except KeyError:
             success = {}  # progress doesnt exist yet
 
-        success[f"{self.order}_{self.name}"] = status  # update the status of this analyser
+        success[self.identity["hash"]] = status  # update the status of this analyser
         # join any existing data into the metadata
         self.process.metadata["success"] = success  # modify the original
         write_json(self.process.metapath, self.process.metadata)
@@ -192,6 +165,37 @@ class FTISAnalyser:
         for forward_connection in self.chain:
             forward_connection.input = self.output
             forward_connection.walk_chain()
+
+    def _get_parents(self) -> None:
+        self.parent_string = (
+            f"{self.parent.__class__.__name__}.{self.parent_string}"
+        )
+
+    def set_dump(self) -> None:
+        self._get_parents()
+        if self.scripting:
+            self.dump_path  = (
+                self.process.sink / 
+                f"{self.order}.{self.suborder}-{self.parent_string}{self.dump_type}"
+            )
+            self.model_dump = (
+                self.process.sink / 
+                f"{self.order}.{self.suborder}-{self.parent_string}.joblib"
+            )
+        else:
+            pass
+
+
+    def log(self, log_text: str) -> None:
+        try:
+            self.process.logger.debug(f"{self.name}: {log_text}")
+        except AttributeError:
+            pass
+
+    def folder_integrity(self) -> bool:
+        # TODO: implement folder integrity checking for analysers like Explode/Collapse
+        # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
+        return True
 
     def load_cache(self) -> None:
         """Implemented in the analyser"""
