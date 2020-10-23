@@ -49,23 +49,15 @@ class FTISAnalyser:
             self.parent.traverse_parent_parameters()
 
     def create_identity(self) -> None:
-        if not self.scripting:
-            self.identity = {k: v for k, v in vars(self).items() if k not in ignored_keys}
-            previous_inputs = {}
-            for obj in self.process.chain:
-                previous_inputs[str(obj.name)] = {k: v for k, v in vars(obj).items() if k not in ignored_keys}
+        self.identity = {
+            k: v 
+            for k, v in vars(self).items() 
+            if k not in ignored_keys
+        }
+        self.parent_parameters = {}
+        self.traverse_parent_parameters()
+        self.identity["hash"] = create_hash(self.parent_parameters)
 
-            self.identity_hash = create_hash(previous_inputs)
-            self.identity["identity_hash"] = self.identity_hash
-        else:
-            self.identity = {
-                k: v 
-                for k, v in vars(self).items() 
-                if k not in ignored_keys
-            }
-            self.parent_parameters = {}
-            self.traverse_parent_parameters()
-            self.identity["hash"] = create_hash(self.parent_parameters)
 
     def log(self, log_text: str) -> None:
         try:
