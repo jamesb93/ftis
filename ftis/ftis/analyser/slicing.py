@@ -69,6 +69,7 @@ class FluidNoveltyslice(FTISAnalyser):
         filtersize=1,
         minslicelength=2,
         threshold=0.5,
+        kernelsize=3,
         cache=False,
     ):
         super().__init__(cache=cache)
@@ -77,6 +78,7 @@ class FluidNoveltyslice(FTISAnalyser):
         self.filtersize = filtersize
         self.minslicelength = minslicelength
         self.threshold = threshold
+        self.kernelsize = 3
         self.dump_type = ".json"
 
     def load_cache(self):
