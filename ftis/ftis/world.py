@@ -71,11 +71,12 @@ class World:
                 child.suborder = suborder
 
             self.build_connections(child)
-        self.metadata["analyser"][node.__class__.__name__] = {
-            k: str(v) 
-            for k, v in vars(node).items() 
-            if k not in ignored_keys
-        }
+        if not isinstance(node, World):
+            self.metadata["analyser"][node.identity["hash"]] = {
+                k: str(v) 
+                for k, v in vars(node).items() 
+                if k not in ignored_keys
+            }
         
     def build(self, *corpora):
         self.corpora = corpora
