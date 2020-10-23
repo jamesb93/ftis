@@ -1,5 +1,5 @@
-from pathlib import Path
 import numpy as np
+from pathlib import Path
 from ftis.common.exceptions import NoCorpusSource, InvalidSource
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.proc import singleproc
@@ -19,7 +19,15 @@ class Corpus:
         self.items: List = []
         self.is_filtering: bool = False
         self.chain = {}
+        self.identity = {}
         self.get_items()
+
+    def create_identity(self):
+        self.identity["hash"] = create_hash(self.items, self.is_filtering, self.path, self.file_type)
+
+    def set_dump(self):
+        # FIXME this is called in build_connections but we dont need it
+        pass
 
     def __add__(self, right):
         try:
@@ -30,7 +38,6 @@ class Corpus:
 
     def __rshift__(self, right):
         self.chain[right] = None
-        # right.order = 2
         return right
 
     def walk_chain(self) -> None:
