@@ -92,7 +92,6 @@ class FTISAnalyser:
         else:
             pass
 
-
     def folder_integrity(self) -> bool:
         # TODO: implement folder integrity checking for analysers like Explode/Collapse
         # TODO: Implement a method for knowing about folder-y outputs before they're made (workables!)
@@ -101,16 +100,14 @@ class FTISAnalyser:
     def compare_meta(self) -> bool:
         # TODO You could use a hashing function here to determine the similarity of the metadata
         # TODO You should use a hashing function because adding things to the front of the chain makes it not equal between runs
-        self.process.metadata = self.process.metadata
-        self.process.prev_meta = self.process.prev_meta
-        ident = f"{self.order}_{self.name}"
+
         try:
-            new_params = self.process.metadata["analyser"][ident]
+            new_params = self.process.metadata["analyser"][self.identity["hash"]]["identity"]
         except KeyError:
             new_params = False
 
         try:
-            old_params = self.process.prev_meta["analyser"][ident]
+            old_params = self.process.prev_meta["analyser"][self.identity["hash"]]["identity"]
         except KeyError:
             old_params = False
 
