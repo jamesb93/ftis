@@ -57,7 +57,7 @@ class World:
 
     def build_connections(self, node):
         node.process = self # set the process to the world
-        if not isinstance(node, Corpus) and not isinstance(node, World):
+        if not isinstance(node, World):
             node.create_identity()
             node.set_dump()
         for suborder, child in enumerate(node.chain):
