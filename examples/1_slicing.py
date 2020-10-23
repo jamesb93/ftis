@@ -1,4 +1,4 @@
-from ftis.process import FTISProcess
+from ftis.world import World
 from ftis.corpus import Corpus
 from ftis.analyser.audio import ExplodeAudio, CollapseAudio
 from ftis.analyser.slicing import FluidNoveltyslice
@@ -34,7 +34,7 @@ out = args.output  # we also set an output path, in FTIS speak a 'sink'.
 
 # Now we make an instance of a FTIS process.
 # This is where we set up the inputs and outputs of that FTISProcess, known as a 'source' and a 'sink'
-process = FTISProcess(source=src, sink=out)
+world = World(sink=out)
 
 # Once we have a FTISProcess (process is the variable name here) we add 'analysers' to that process
 # You can see the various analysers imported at the top of the page under the module space...
@@ -44,9 +44,10 @@ process = FTISProcess(source=src, sink=out)
 
 # To add analysers, we simply pass the class along with its parameters to the process.add() function.
 # This will connect those process in series, passing their outputs to the next analyser in the chain.
-process.add(FluidNoveltyslice(), ExplodeAudio())
+src >> FluidNoveltyslice() >> ExplodeAudio()
+world.build(src)
 
 # Lastly we call process.run(). We should always call it inside the __name__ == "__main__" block
 # Why? We use multiprocessing to speed things up under the hood and running outside this results in errors.
 if __name__ == "__main__":
-    process.run()
+    world.run()

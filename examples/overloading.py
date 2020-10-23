@@ -1,6 +1,6 @@
 from ftis.corpus import Corpus
 from ftis.world import World
-from ftis.process import FTISProcess
+from ftis.world import World
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.descriptor import (
     FluidLoudness, 

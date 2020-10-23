@@ -8,7 +8,7 @@ print("Sorry, this example is currently a bit broken!")
 # )
 # from ftis.corpus import Corpus
 # from ftis.visualisation import Visualiser
-# from ftis.process import FTISProcess as Chain
+# from ftis.world import World as Chain
 
 # src = Corpus("~/Documents/Max 8/Packages/TB2-Alpha04c-Max/media")
 # folder = "~/visualiser"

@@ -2,7 +2,7 @@ from ftis.analyser.descriptor import FluidLoudness
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.stats import Stats
 from ftis.corpus import Corpus
-from ftis.process import FTISProcess
+from ftis.world import World
 from ftis.common.io import write_json
 from pathlib import Path
 
@@ -21,24 +21,16 @@ In this example, I simply reset the values in the output of the FluidLoudness() 
 """
 
 out = args.output
-process = FTISProcess(
-    source = Corpus(args.input),
-    sink = out
-)
-
+world = World(sink=out)
 def remove_truepeak(self):
     self.output = {
         k: v[0]
         for k, v in self.output.items()
     }
 
-
-process.add(
-    CollapseAudio(),
-    FluidLoudness(
-        post = remove_truepeak
-    )
-)
+corpus = Corpus(args.input)
+corpus >> CollapseAudio() >> FluidLoudness(post=remove_truepeak)
+world.build(corpus)
 
 if __name__ == "__main__":
-    process.run()
+    world.run()

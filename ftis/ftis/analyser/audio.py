@@ -65,4 +65,4 @@ class ExplodeAudio(FTISAnalyser):
         self.outfolder.mkdir(exist_ok=True)
         workables = [Path(x) for x in self.input.keys()]
         singleproc(self.name, self.segment, workables)
-        self.output = [x for x in self.output_folder.iterdir() if x.suffix in [".wav", ".aiff", ".aif"]]
+        self.output = [x for x in self.outfolder.iterdir() if x.suffix in [".wav", ".aiff", ".aif"]]

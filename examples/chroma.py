@@ -1,6 +1,6 @@
 from ftis.analyser.descriptor import Chroma
 from ftis.analyser.audio import CollapseAudio
-from ftis.process import FTISProcess
+from ftis.world import World
 from ftis.corpus import Corpus
 import argparse
 
@@ -25,7 +25,7 @@ args = parser.parse_args()
 src = Corpus(args.input)
 out = args.output
 
-process = FTISProcess(source=src, sink=out)
+process = World(source=src, sink=out)
 
 process.add(CollapseAudio(), Chroma())
 

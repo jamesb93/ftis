@@ -2,7 +2,7 @@ from ftis.analyser.descriptor import FluidMFCC
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.stats import Stats
 from ftis.corpus import Corpus
-from ftis.process import FTISProcess
+from ftis.world import World
 from ftis.common.io import write_json
 from pathlib import Path
 
@@ -37,13 +37,14 @@ After the FTISProcess has run we then extract the output from that instance.
 src = Corpus(args.input)
 out = args.output
 
-process = FTISProcess(source=src, sink=out)
+world = World(sink=out)
 
 stats = Stats(numderivs=2, spec=["stddev", "mean"])  # create an instance of the stats class
-process.add(CollapseAudio(), FluidMFCC(), stats)
+src >> CollapseAudio() >> FluidMFCC() >> stats
+world.build(src)
 
 if __name__ == "__main__":
-    process.run()
+    world.run()
 
     # Now that ftis has completed lets pack the data into a fluid dataset
     dataset = dataset.pack(stats.output)  # use the pack function to marshall it to the right format

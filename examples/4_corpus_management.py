@@ -1,6 +1,6 @@
 from ftis.analyser.descriptor import FluidMFCC
 from ftis.corpus import Corpus
-from ftis.process import FTISProcess
+from ftis.world import World
 import argparse
 
 
@@ -41,9 +41,9 @@ corpus = em + db  # compose a corpus of both sub-corpora
 # ```em + db```
 # and use em as the 'source' for the FTISProcess
 
-process = FTISProcess(source=corpus, sink=args.output)
-
-process.add(FluidMFCC(numcoeffs=3, fftsettings=[128, 64, 128]))
+world = World(sink=args.output)
+corpus >> FluidMFCC()
+world.build(corpus)
 
 if __name__ == "__main__":
-    process.run()
+    world.run()

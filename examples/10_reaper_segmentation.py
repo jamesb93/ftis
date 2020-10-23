@@ -12,9 +12,10 @@ slicing = FluidNoveltyslice()
 
 # script connection
 c >> slicing
-
+w = World(sink=sink)
+w.build(c)
 if __name__ == "__main__":
-    w = World(sink = sink).add(c)
+    w.run()
 
     #---------- Data for render_tracks would look something like this ----------#
     # data = {

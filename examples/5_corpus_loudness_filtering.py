@@ -1,5 +1,5 @@
 from ftis.corpus import Corpus
-from ftis.process import FTISProcess
+from ftis.world import World
 import argparse
 
 

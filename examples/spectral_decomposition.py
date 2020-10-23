@@ -1,5 +1,5 @@
 from ftis.analyser.meta import ClusteredNMF
-from ftis.process import FTISProcess as Chain
+from ftis.world import World as Chain
 from ftis.corpus import Corpus
 import argparse
 

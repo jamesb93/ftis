@@ -1,6 +1,6 @@
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.utils import import_analyser
-from ftis.process import FTISProcess
+from ftis.world import World
 from pathlib import Path
 
 
