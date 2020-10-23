@@ -84,10 +84,12 @@ class ClusteredNMF(FTISAnalyser):
 
 
 class ClusteredSegmentation(FTISAnalyser):
-    def __init__(self, numclusters=2, windowsize=4, cache=False):
+    def __init__(self, numclusters=2, windowsize=4, numderivs=0, fftsettings=[1024, -1 -1], cache=False):
         super().__init__(cache=cache)
         self.numclusters = numclusters
         self.windowsize = windowsize
+        self.derivates = numderivs
+        self.fftsettings = fftsettings 
         self.dump_type = ".json"
 
     def load_cache(self):
@@ -113,12 +115,12 @@ class ClusteredSegmentation(FTISAnalyser):
 
                 mfccs = fluid.mfcc(
                     workable,
-                    fftsettings=[2048, -1, -1],
+                    fftsettings=self.fftsettings,
                     startframe=start,
                     numframes=end - start,
                 )
 
-                stats = get_buffer(fluid.stats(mfccs, numderivs=1), "numpy")
+                stats = get_buffer(fluid.stats(mfccs, numderivs=self.numderivs), "numpy")
 
                 data.append(stats.flatten())
 
