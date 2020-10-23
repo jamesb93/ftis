@@ -1,7 +1,7 @@
 from ftis.analyser.descriptor import Flux
 from ftis.analyser.stats import Stats
 from ftis.corpus import Corpus
-from ftis.process import FTISProcess
+from ftis.world import World
 import argparse
 
 
@@ -35,17 +35,19 @@ Try running this script twice in your terminal to watch the speed increase.
 src = Corpus(args.input)
 out = args.output
 
-process = FTISProcess(source=src, sink=out)
+process = World(sink=out)
 
 # we can also instantiate analysers as instances of their classes
 # In this scenario using an anonymous class isn't very different but we might want to access the outputs of each analyser after the process has finished
 
 flux = Flux(
-    cache=1, windowsize=1024
+    cache=1, windowsize=2048
 )  # rerunning the script will load flux from cache where the parameters are the same between runs
-stats = Stats(numderivs=2)
+stats = Stats(numderivs=1, cache=True)
 
-process.add(flux, stats)
+src >> flux >> stats 
+
+process.build(src)
 
 if __name__ == "__main__":
     process.run()
