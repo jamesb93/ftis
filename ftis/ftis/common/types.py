@@ -1,12 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
-class FTISTypes:
-    json: str = ".json"
-    text: str = ".txt"
-    folder: str = ""
-    python: str = ".py"
+class Indices:
+    data:dict = field(default_factory=dict)
+    ext:str = ".json"
 
+@dataclass
+class AudioFiles:
+    data:dict = field(default_factory=dict)
 
-ftypes = FTISTypes()
+@dataclass
+class Analysis:
+    data:dict = field(default_factory=dict)
+    ext:str = ".json"
