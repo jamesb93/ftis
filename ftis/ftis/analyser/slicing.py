@@ -4,6 +4,7 @@ from ftis.common.proc import multiproc, singleproc
 from ftis.common.utils import create_hash
 from multiprocessing import Manager
 from flucoma.utils import get_buffer
+from ftis.common.types import Indices, AudioFiles
 from flucoma import fluid
 
 
@@ -101,4 +102,4 @@ class FluidNoveltyslice(FTISAnalyser):
     def run(self):
         self.buffer = Manager().dict()
         multiproc(self.name, self.analyse, self.input)
-        self.output = dict(self.buffer)
+        self.output = Indices(dict(self.buffer))
