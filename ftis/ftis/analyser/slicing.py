@@ -78,7 +78,8 @@ class FluidNoveltyslice(FTISAnalyser):
         self.filtersize = filtersize
         self.minslicelength = minslicelength
         self.threshold = threshold
-        self.kernelsize = 3
+        self.kernelsize = kernelsize
+        self.input_type = AudioFiles
         self.dump_type = ".json"
 
     def load_cache(self):
@@ -93,6 +94,7 @@ class FluidNoveltyslice(FTISAnalyser):
             feature=self.feature,
             fftsettings=self.fftsettings,
             filtersize=self.filtersize,
+            kernelsize=self.kernelsize,
             minslicelength=self.minslicelength,
             threshold=self.threshold,
         )
