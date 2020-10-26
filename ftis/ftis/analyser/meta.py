@@ -88,7 +88,7 @@ class ClusteredSegmentation(FTISAnalyser):
         super().__init__(cache=cache)
         self.numclusters = numclusters
         self.windowsize = windowsize
-        self.derivates = numderivs
+        self.numderivs = numderivs
         self.fftsettings = fftsettings 
         self.dump_type = ".json"
 
