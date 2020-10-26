@@ -84,7 +84,7 @@ class ClusteredNMF(FTISAnalyser):
 
 
 class ClusteredSegmentation(FTISAnalyser):
-    def __init__(self, numclusters=2, windowsize=4, numderivs=0, fftsettings=[1024, -1 -1], cache=False):
+    def __init__(self, numclusters=2, windowsize=4, numderivs=0, fftsettings=[1024, -1, -1], cache=False):
         super().__init__(cache=cache)
         self.numclusters = numclusters
         self.windowsize = windowsize
