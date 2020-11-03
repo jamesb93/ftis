@@ -48,11 +48,10 @@ class FluidOnsetslice(FTISAnalyser):
                     metric=self.metric,
                     minslicelength=self.minslicelength,
                     threshold=self.threshold,
-                ),
-                "numpy",
+                ), "numpy",
             )
         else:
-            slice_output = get_buffer(cache, "numpy")
+            slice_output = get_buffer(cache)
 
         self.buffer[str(workable)] = slice_output.tolist()
 
@@ -86,18 +85,18 @@ class FluidNoveltyslice(FTISAnalyser):
         self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output)
+        write_json(self.dump_path, self.output.data)
 
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
-            workable,
+            workable,   
             feature=self.feature,
             fftsettings=self.fftsettings,
             filtersize=self.filtersize,
             minslicelength=self.minslicelength,
             threshold=self.threshold,
         )
-        self.buffer[str(workable)] = get_buffer(noveltyslice)
+        self.buffer[str(workable)] = [int(x) for x in get_buffer(noveltyslice)]
 
     def run(self):
         self.buffer = Manager().dict()

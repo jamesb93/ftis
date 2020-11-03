@@ -11,6 +11,6 @@ class AudioFiles:
     data:dict = field(default_factory=dict)
 
 @dataclass
-class Analysis:
+class Data:
     data:dict = field(default_factory=dict)
     ext:str = ".json"

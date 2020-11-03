@@ -2,6 +2,7 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.proc import staticproc, multiproc, singleproc
 from ftis.common.io import write_json, read_json
 from ftis.common.utils import create_hash
+from ftis.common.types import AudioFiles, Indices, Data
 from flucoma.utils import get_buffer
 from flucoma import fluid
 from multiprocessing import Manager
@@ -38,6 +39,7 @@ class Flux(FTISAnalyser):
         self.buffer = Manager().dict()
         multiproc(self.name, self.flux, self.input)
         self.output = dict(self.buffer)
+
 
 class Chroma(FTISAnalyser):
     def __init__(self, 
@@ -77,6 +79,7 @@ class Chroma(FTISAnalyser):
         self.buffer = Manager().dict()
         multiproc(self.name, self.chroma, self.input)
         self.output = dict(self.buffer)
+
 
 class FluidLoudness(FTISAnalyser):
     def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, 
@@ -192,14 +195,15 @@ class FluidMFCC(FTISAnalyser):
         self.numcoeffs = numcoeffs
         self.minfreq = minfreq
         self.maxfreq = maxfreq
-        self.discard = discard
+        self.workables = []
+        self.input_type = (AudioFiles, Indices)
         self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output)
+        write_json(self.dump_path, self.output.data)
 
     def analyse(self, workable):
         hsh = create_hash(workable, self.identity)
@@ -209,25 +213,44 @@ class FluidMFCC(FTISAnalyser):
         else:
             f = get_buffer(
                 fluid.mfcc(
-                    workable,
+                    workable["file"],
                     fftsettings=self.fftsettings,
                     numbands=self.numbands,
                     numcoeffs=self.numcoeffs,
                     minfreq=self.minfreq,
                     maxfreq=self.maxfreq,
-                ),
-                "numpy",
+                    numframes=workable["numframes"],
+                    startframe=workable["startframe"]
+                ), "numpy",
             )
             np.save(cache, f)
-        if self.discard:
-            self.buffer[str(workable)] = f.tolist()[1:]
-        else:
-            self.buffer[str(workable)] = f.tolist()
+        workable["features"] = f.tolist()
+        self.buffer[workable["id"]] = workable
+
+    def adapt_input(self):
+        if isinstance(self.input, AudioFiles):
+            for x in self.input.data:
+                self.workables.append({
+                    "file" : x,
+                    "id" : x,
+                    "startframe" : 0,
+                    "numframes" : -1
+                })
+        if isinstance(self.input, Indices):
+            for k, v in self.input.data.items():
+                for i, (start, end) in enumerate(zip(v, v[1:])):
+                    self.workables.append({
+                        "file" : k,
+                        "id" : f'{k}_{i}',
+                        "startframe" : start,
+                        "numframes" : end
+                    })
 
     def run(self):
+        self.adapt_input()
         self.buffer = Manager().dict()
-        multiproc(self.name, self.analyse, self.input)
-        self.output = dict(self.buffer)
+        multiproc(self.name, self.analyse, self.workables)
+        self.output = Data(dict(self.buffer))
 
 
 class LibroMFCC(FTISAnalyser):
