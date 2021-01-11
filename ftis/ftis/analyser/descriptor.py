@@ -6,6 +6,7 @@ from ftis.common.types import AudioFiles, Indices, Data
 from multiprocessing import Manager
 from ftis.common.io import get_sr
 import numpy as np
+import librosa
 
 class Flux(FTISAnalyser):
     def __init__(self, windowsize=1024, hopsize=512, cache=False):
