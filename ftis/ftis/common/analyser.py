@@ -40,11 +40,6 @@ class FTISAnalyser:
         return right
     
     def traverse_parent_parameters(self):
-        # self.parent_parameters[self.parent.__class__.__name__] = ({
-        #     k: str(v) 
-        #     for k, v in vars(self).items() 
-        #     if k not in ignored_keys
-        # })
         self.parent_parameters[self.parent.__class__.__name__] = self.parent.identity["hash"]
         if hasattr(self.parent, 'parent'): # if the parent has a parent
             self.parent.traverse_parent_parameters()
