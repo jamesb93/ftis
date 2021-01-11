@@ -1,5 +1,4 @@
-from ftis.common.exceptions import OutputNotFound
-from ftis.common.types import ftypes
+from ftis.common.exceptions import OutputNotFound, ChainIOError
 from ftis.common.io import read_json, write_json
 from ftis.common.utils import ignored_keys, create_hash
 from collections.abc import Callable
