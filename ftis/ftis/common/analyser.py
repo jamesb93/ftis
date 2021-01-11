@@ -94,33 +94,6 @@ class FTISAnalyser:
         self.process.metadata["success"] = success  # modify the original
         write_json(self.process.metapath, self.process.metadata)
 
-    def do(self) -> None:
-        self.log("Initiating")
-
-        # Determine whether we caching is possible
-        if self.cache and self.cache_exists() and self.compare_meta() and self.process.metapath.exists():
-            self.cache_possible = True
-
-        # Set the status to failure and only update to success if it all ends correctly
-        self.update_success(False)
-        if self.cache_possible:
-            self.load_cache()
-            self.process.fprint(f"{self.name} was cached")
-        else:
-            if self.pre:
-                self.pre(self)
-            self.run()
-            if self.post:
-                self.post(self)
-            self.dump()
-
-        if self.output != None:  # TODO comprehensive output checking
-            self.log("Ran Successfully")
-            self.update_success(True)
-        else:
-            self.log("Output was invalid")
-            raise OutputNotFound(self.name)
-
     def walk_chain(self) -> None:
         self.log("Initialising")
         # Determine whether we caching is possible
