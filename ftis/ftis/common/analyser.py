@@ -70,15 +70,11 @@ class FTISAnalyser:
             success = self.process.prev_meta["success"][self.identity["hash"]]
         except KeyError:
             success = False
-        print(old_params, new_params, success)
         return old_params == new_params and success
 
     def cache_exists(self) -> bool:
         if self.dump_path.exists():
-            if self.dump_type == ftypes.folder:
-                return self.folder_integrity()
-            else:
-                return True
+            return True
         else:
             return False
 
