@@ -56,9 +56,6 @@ class FTISAnalyser:
     def compare_meta(self) -> bool:
         # TODO You could use a hashing function here to determine the similarity of the metadata
         # TODO You should use a hashing function because adding things to the front of the chain makes it not equal between runs
-        print(self.process.metadata["time"])
-        print(self.process.prev_meta["time"])
-        print(self.identity["hash"])
         try:
             new_params = self.process.metadata["analyser"][self.identity["hash"]]["identity"]
         except KeyError:
