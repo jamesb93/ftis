@@ -107,10 +107,10 @@ class FTISAnalyser:
         else:
             if self.pre: # preprocess
                 self.pre(self)
+            self.adapt_input()
             self.run()
             if self.post: # postprocess
                 self.post(self)
-                self.dump()
 
         if self.output != None:  # TODO comprehensive output checking
             self.log("Ran Successfully")
