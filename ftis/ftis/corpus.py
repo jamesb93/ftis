@@ -5,10 +5,12 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.proc import singleproc
 from ftis.common.io import write_json, read_json, get_duration
 from ftis.common.utils import create_hash
+from ftis.common.types import AudioFiles
 from flucoma.utils import get_buffer
 from flucoma.fluid import stats, loudness
 from rich.progress import Progress
 from typing import List
+
 
 
 class Corpus:
@@ -56,9 +58,9 @@ class Corpus:
             raise InvalidSource(self.path)
 
         if self.path.is_dir():
-            self.items = [x for x in self.path.iterdir() if x.suffix in self.file_type]
+            self.items = AudioFiles([x for x in self.path.iterdir() if x.suffix in self.file_type])
         else:
-            self.items = [self.path]
+            self.items = AudioFiles([self.path])
 
     def startswith(self, prefix: str):
         with Progress() as progress:
