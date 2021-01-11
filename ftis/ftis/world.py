@@ -71,6 +71,7 @@ class World:
                 child.suborder = suborder
 
             self.build_connections(child)
+            
         if not isinstance(node, World):
             self.metadata["analyser"][node.identity["hash"]] = {
                 k: str(v) 
@@ -95,7 +96,7 @@ class World:
             corpora_paths.add_column("Path")
             corpora_paths.add_column("Items", style="cyan")
             for c in self.corpora:
-                corpora_paths.add_row(str(c.path), str(len(c.items)))
+                corpora_paths.add_row(str(c.path), str(len(c.items.data)))
         
             print("\n")
             self.console.print(corpora_paths)
