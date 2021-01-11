@@ -3,6 +3,7 @@ from ftis.common.io import write_json, read_json
 from ftis.common.proc import singleproc
 from multiprocessing import Manager
 from scipy.stats import describe
+from ftis.common.types import Data
 from math import sqrt
 import numpy as np
 
@@ -19,10 +20,11 @@ class Stats(FTISAnalyser):
     ):
 
         super().__init__(cache=cache)
+        self.input_type = (Data, )
+        self.output_type = Data
         self.numderivs = numderivs
         self.flatten = flatten
         self.spec = spec
-        self.dump_type = ".json"
 
     def dump(self):
         write_json(self.dump_path, self.output)
@@ -64,7 +66,7 @@ class Stats(FTISAnalyser):
     def analyse(self, workable):
         # TODO: any dimensionality input
         element_container = []
-        values = np.array(self.input[workable])
+        values = np.array(self.input.data[workable]["features"])
         if len(values.shape) < 2:  # single row we run the stats on that
             element_container.append(self.get_stats(values, self.numderivs))
         else:
@@ -75,10 +77,10 @@ class Stats(FTISAnalyser):
             element_container = np.array(element_container)
             element_container = element_container.flatten()
             element_container = element_container.tolist()
-        self.buffer[workable] = element_container
+        self.buffer[workable["file"]] = element_container
+
 
     def run(self):
         self.buffer = Manager().dict()
-        workables = [x for x in self.input.keys()]
-        singleproc(self.name, self.analyse, workables)
-        self.output = dict(self.buffer)
+        singleproc(self.name, self.analyse, self.input)
+        self.output = Data(dict(self.buffer))
