@@ -11,10 +11,8 @@ class FTISAnalyser:
     """Every analyser inherits from this class"""
     def __init__(self, cache=False, pre=None, post=None):
         self.process = None  # pass the parent process in
-        self.input = None  # This can be anything
+        self.input = None  
         self.output = None
-        self.input_type: str = ""
-        self.dump_type: str = ""
         self.dump_path: Path = None
         self.model_dump: Path = None  #
         self.name = self.__class__.__name__
