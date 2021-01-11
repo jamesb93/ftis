@@ -135,14 +135,12 @@ class FTISAnalyser:
         if self.scripting:
             self.dump_path  = (
                 self.process.sink / 
-                f"{self.order}.{self.suborder}-{self.parent_string}{self.dump_type}"
+                f"{self.order}.{self.suborder}-{self.parent_string}.json"
             )
             self.model_dump = (
                 self.process.sink / 
                 f"{self.order}.{self.suborder}-{self.parent_string}.joblib"
             )
-        else:
-            pass
 
 
     def log(self, log_text: str) -> None:
