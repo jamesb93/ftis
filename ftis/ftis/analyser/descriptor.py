@@ -3,42 +3,69 @@ from ftis.common.proc import staticproc, multiproc, singleproc
 from ftis.common.io import write_json, read_json
 from ftis.common.utils import create_hash
 from ftis.common.types import AudioFiles, Indices, Data
-from flucoma.utils import get_buffer
-from flucoma import fluid
 from multiprocessing import Manager
+from ftis.common.io import get_sr
 import numpy as np
-import librosa
 
 class Flux(FTISAnalyser):
     def __init__(self, windowsize=1024, hopsize=512, cache=False):
         super().__init__(cache=cache)
         self.windowsize = windowsize
         self.hopsize = hopsize
+        self.input_type = (AudioFiles, Indices)
         self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output)
+        write_json(self.dump_path, self.output.data)
 
     def flux(self, workable):
         hsh = create_hash(workable, self.identity)
         cache = self.process.cache / f"{hsh}.npy"
 
-        if not cache.exists():   
-            y, _= librosa.load(workable)
+        if not cache.exists():
+            sr = get_sr(workable)   
+            y, _= librosa.load(
+                workable["file"],
+                duration=workable["duration"],
+                offset=workable["offset"]
+            )
             fft = librosa.stft(y, win_length=self.windowsize, hop_length=self.hopsize)
             flux = np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
             np.save(cache, flux)
         else:
             flux = np.load(cache)
-        self.buffer[str(workable)] = flux.tolist()
+        workable["features"] = flux.tolist()
+        self.buffer[[workable["id"]]] = workable
+
+    def adapt_input(self):
+        if isinstance(self.input, AudioFiles):
+            for x in self.input:
+                self.workables.append({
+                    "file" : x,
+                    "id" : x,
+                    "offset" : 0.0,
+                    "duration" : None
+                })
+        if isinstance(self.input, Indices):
+            for k, v in self.input:
+                sr = get_sr(k)
+                for i, (start, end) in enumerate(zip(v, v[1:])):
+                    start /= sr
+                    end /= sr
+                    self.workables.append({
+                        "file" : k,
+                        "id" : f'{k}_{i}',
+                        "offset" : start,
+                        "duration" : end
+                    })
     
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.flux, self.input)
-        self.output = dict(self.buffer)
+        multiproc(self.name, self.flux, self.workables)
+        self.output = Data(dict(self.buffer))
 
 
 class Chroma(FTISAnalyser):

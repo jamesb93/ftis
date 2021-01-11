@@ -1,6 +1,7 @@
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json
 from ftis.common.proc import staticproc
+from ftis.common.types import Data
 from umap import UMAP as umapdr
 from joblib import dump as jdump
 import numpy as np
@@ -11,22 +12,24 @@ class UMAP(FTISAnalyser):
 
     def __init__(self, mindist=0.01, neighbours=7, components=2, cache=False):
         super().__init__(cache=cache)
+        self.input_type = (Data, )
+        self.output_type = Data
         self.mindist = mindist
         self.neighbours = neighbours
         self.components = components
         self.output = {}
-        self.dump_type = ".json"
 
     def load_cache(self):
-        self.output = read_json(self.dump_path)
+        self.output = Data(read_json(self.dump_path))
 
     def dump(self):
         jdump(self.model, self.model_dump)
-        write_json(self.dump_path, self.output)
+        write_json(self.dump_path, self.output.data)
 
     def analyse(self):
-        data = [v for v in self.input.values()]
-        keys = [k for k in self.input.keys()]
+        for x in self.input:
+            data.append(self.input[v]["features"])
+        keys = [k for k in self.input]
 
         data = np.array(data)
 
@@ -35,7 +38,9 @@ class UMAP(FTISAnalyser):
         )
         self.model.fit(data)
         transformed_data = self.model.transform(data)
-        self.output = {k: v.tolist() for k, v in zip(keys, transformed_data)}
+        self.output = Data(
+            {k: v.tolist() for k, v in zip(keys, transformed_data)}
+        )
 
     def run(self):
         staticproc(self.name, self.analyse)
