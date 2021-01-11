@@ -4,6 +4,7 @@ from ftis.common.proc import singleproc
 from ftis.common.conversion import samps2ms
 from shutil import copyfile
 from pathlib import Path
+from ftis.common.types import AudioFiles
 import soundfile as sf
 
 class CollapseAudio(FTISAnalyser):
@@ -27,7 +28,7 @@ class CollapseAudio(FTISAnalyser):
         )
         self.outfolder.mkdir(exist_ok=True)
         singleproc(self.name, self.collapse, self.input)
-        self.output = [x for x in self.outfolder.iterdir() if x.suffix == ".wav"]
+        self.output = AudioFiles([x for x in self.outfolder.iterdir()])
 
 
 class ExplodeAudio(FTISAnalyser):
@@ -65,4 +66,4 @@ class ExplodeAudio(FTISAnalyser):
         self.outfolder.mkdir(exist_ok=True)
         workables = [Path(x) for x in self.input.keys()]
         singleproc(self.name, self.segment, workables)
-        self.output = [x for x in self.outfolder.iterdir() if x.suffix in [".wav", ".aiff", ".aif"]]
+        self.output = AudioFiles([x for x in self.outfolder.iterdir()])
