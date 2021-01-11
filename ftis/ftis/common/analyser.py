@@ -160,5 +160,8 @@ class FTISAnalyser:
     def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
 
+    def adapt_input(self):
+        """Adapters are made on a per object basis"""
+
     def run(self) -> None:
         """Method for running the processing chain from input to output"""
