@@ -28,6 +28,7 @@ class FTISAnalyser:
         self.chain = OrderedDict()
         self.parent_string = self.__class__.__name__
         self.identity = {}
+        self.workables = []
 
     def __str__(self):
         return f"{self.__class__.__name__}"
