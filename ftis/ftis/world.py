@@ -96,7 +96,7 @@ class World:
             corpora_paths.add_column("Path")
             corpora_paths.add_column("Items", style="cyan")
             for c in self.corpora:
-                corpora_paths.add_row(str(c.path), str(len(c.items.data)))
+                corpora_paths.add_row(str(c.path), str(len(c.items)))
         
             print("\n")
             self.console.print(corpora_paths)
