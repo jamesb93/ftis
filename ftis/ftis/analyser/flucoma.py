@@ -236,8 +236,6 @@ class Onsetslice(FTISAnalyser):
         cache=False,
     ):
         super().__init__(cache=cache)
-        self.input_type = (AudioFiles,)
-        self.output_type = Indices
         self.fftsettings = fftsettings
         self.filtersize = filtersize
         self.framedelta = framedelta
@@ -246,7 +244,7 @@ class Onsetslice(FTISAnalyser):
         self.threshold = threshold
 
     def load_cache(self):
-        self.output = Indices(read_json(self.dump_path))
+        self.output = read_json(self.dump_path)
 
     def dump(self):
         write_json(self.dump_path, self.output)
@@ -275,7 +273,7 @@ class Onsetslice(FTISAnalyser):
     def run(self):
         self.buffer = Manager().dict()
         singleproc(self.name, self.analyse, self.input)
-        self.output = Indices(dict(self.buffer))
+        self.output = dict(self.buffer)
 
 
 class Noveltyslice(FTISAnalyser):
@@ -290,8 +288,6 @@ class Noveltyslice(FTISAnalyser):
         cache=False,
     ):
         super().__init__(cache=cache)
-        self.input_type = (AudioFiles,)
-        self.output_type = Indices
         self.feature = feature
         self.fftsettings = fftsettings
         self.filtersize = filtersize
@@ -300,10 +296,10 @@ class Noveltyslice(FTISAnalyser):
         self.kernelsize = 3
 
     def load_cache(self):
-        self.output = Indices(read_json(self.dump_path))
+        self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output.data)
+        write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
@@ -314,11 +310,11 @@ class Noveltyslice(FTISAnalyser):
             minslicelength=self.minslicelength,
             threshold=self.threshold,
         )
-        self.buffer[str(workable)] = [int(x) for x in get_buffer(noveltyslice)]
+        self.buffer[workable] = [int(x) for x in get_buffer(noveltyslice)]
 
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.analyse, self.input.data)
-        self.output = Indices(dict(self.buffer))
+        multiproc(self.name, self.analyse, self.input)
+        self.output = dict(self.buffer)
 
 
