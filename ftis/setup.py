@@ -20,7 +20,7 @@ setup(
         "hdbscan",
         "umap-learn",
         "sklearn",
-        "python-flucoma",
+        "python-flucoma>=1.2.0",
         "scipy",
         "rich",
         "librosa",

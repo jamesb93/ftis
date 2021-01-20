@@ -2,9 +2,9 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.proc import staticproc, multiproc, singleproc
 from ftis.common.io import write_json, read_json
 from ftis.common.utils import create_hash
-from flucoma.utils import get_buffer
-from flucoma import fluid
+from ftis.common.types import AudioFiles, Indices, Data
 from multiprocessing import Manager
+from ftis.common.io import get_sr
 import numpy as np
 import librosa
 
@@ -13,7 +13,6 @@ class Flux(FTISAnalyser):
         super().__init__(cache=cache)
         self.windowsize = windowsize
         self.hopsize = hopsize
-        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
@@ -25,19 +24,21 @@ class Flux(FTISAnalyser):
         hsh = create_hash(workable, self.identity)
         cache = self.process.cache / f"{hsh}.npy"
 
-        if not cache.exists():   
-            y, _= librosa.load(workable)
+        if not cache.exists():
+            sr = get_sr(workable)
+            y, _ = librosa.load(workable, sr=sr)
             fft = librosa.stft(y, win_length=self.windowsize, hop_length=self.hopsize)
             flux = np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
             np.save(cache, flux)
         else:
             flux = np.load(cache)
-        self.buffer[str(workable)] = flux.tolist()
+        self.buffer[workable] = flux.tolist()
     
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.flux, self.input)
+        singleproc(self.name, self.flux, self.input)
         self.output = dict(self.buffer)
+
 
 class Chroma(FTISAnalyser):
     def __init__(self, 
@@ -76,157 +77,6 @@ class Chroma(FTISAnalyser):
     def run(self):
         self.buffer = Manager().dict()
         multiproc(self.name, self.chroma, self.input)
-        self.output = dict(self.buffer)
-
-class FluidLoudness(FTISAnalyser):
-    def __init__(self, windowsize=17640, hopsize=4410, kweighting=1, truepeak=1, 
-        cache=False,
-        pre=None,
-        post=None):
-        super().__init__(cache=cache, pre=pre, post=post)
-        self.windowsize = windowsize
-        self.hopsize = hopsize
-        self.kweighting = kweighting
-        self.truepeak = truepeak
-        self.dump_type = ".json"
-
-    def load_cache(self):
-        self.output = read_json(self.dump_path)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
-
-    def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
-
-        if not cache.exists():
-            loudness = get_buffer(
-                fluid.loudness(
-                    workable,
-                    windowsize=self.windowsize,
-                    hopsize=self.hopsize,
-                    kweighting=self.kweighting,
-                    truepeak=self.truepeak,
-                ),
-                "numpy",
-            )
-            np.save(cache, loudness)
-        else:
-            loudness = np.load(cache, allow_pickle=True)
-        self.buffer[str(workable)] = loudness.tolist()
-
-    def run(self):
-        self.buffer = Manager().dict()
-        workables = self.input
-        multiproc(self.name, self.analyse, workables)
-        self.output = dict(self.buffer)
-
-
-class FluidPitch(FTISAnalyser):
-    def __init__(self, 
-        algorithm=2,
-        minfreq=20,
-        maxfreq=10000.0,
-        unit=0,
-        fftsettings=[1024, -1, -1],
-        cache=False,
-        pre=None,
-        post=None):
-        super().__init__(cache=cache, pre=pre, post=post)
-        self.algorithm=algorithm
-        self.minfreq=minfreq
-        self.maxfreq=maxfreq
-        self.unit=unit
-        self.fftsettings=fftsettings
-        self.dump_type = ".json"
-
-    def load_cache(self):
-        self.output = read_json(self.dump_path)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
-
-    def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
-
-        if not cache.exists():
-            pitch = get_buffer(
-                fluid.pitch(
-                    workable,
-                    algorithm=self.algorithm,
-                    minfreq=self.minfreq,
-                    maxfreq=self.maxfreq,
-                    unit=self.unit,
-                    fftsettings=self.fftsettings
-                ),
-                "numpy",
-            )
-            np.save(cache, pitch)
-        else:
-            pitch = np.load(cache, allow_pickle=True)
-        self.buffer[str(workable)] = pitch.tolist()
-
-    def run(self):
-        self.buffer = Manager().dict()
-        workables = self.input
-        singleproc(self.name, self.analyse, workables)
-        self.output = dict(self.buffer)
-
-
-class FluidMFCC(FTISAnalyser):
-    def __init__(
-        self,
-        fftsettings=[1024, 512, 1024],
-        numbands=40,
-        numcoeffs=13,
-        minfreq=80,
-        maxfreq=20000,
-        discard=False,
-        cache=False,
-    ):
-        super().__init__(cache=cache)
-        self.fftsettings = fftsettings
-        self.numbands = numbands
-        self.numcoeffs = numcoeffs
-        self.minfreq = minfreq
-        self.maxfreq = maxfreq
-        self.discard = discard
-        self.dump_type = ".json"
-
-    def load_cache(self):
-        self.output = read_json(self.dump_path)
-
-    def dump(self):
-        write_json(self.dump_path, self.output)
-
-    def analyse(self, workable):
-        hsh = create_hash(workable, self.identity)
-        cache = self.process.cache / f"{hsh}.npy"
-        if cache.exists():
-            f = np.load(cache, allow_pickle=True)
-        else:
-            f = get_buffer(
-                fluid.mfcc(
-                    workable,
-                    fftsettings=self.fftsettings,
-                    numbands=self.numbands,
-                    numcoeffs=self.numcoeffs,
-                    minfreq=self.minfreq,
-                    maxfreq=self.maxfreq,
-                ),
-                "numpy",
-            )
-            np.save(cache, f)
-        if self.discard:
-            self.buffer[str(workable)] = f.tolist()[1:]
-        else:
-            self.buffer[str(workable)] = f.tolist()
-
-    def run(self):
-        self.buffer = Manager().dict()
-        multiproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
 
 

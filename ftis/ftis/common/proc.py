@@ -3,9 +3,8 @@ from rich.progress import Progress, BarColumn
 from ftis.common.exceptions import EmptyWorkables
 
 
-def multiproc(name: str, process, workables):
+def multiproc(name: str, process, workables:list):
     """This function wraps up a multithreaded worker and progress bar"""
-
     if len(workables) == 0:
         raise EmptyWorkables
 

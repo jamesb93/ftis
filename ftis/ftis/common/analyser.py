@@ -1,5 +1,4 @@
-from ftis.common.exceptions import OutputNotFound
-from ftis.common.types import ftypes
+from ftis.common.exceptions import OutputNotFound, ChainIOError
 from ftis.common.io import read_json, write_json
 from ftis.common.utils import ignored_keys, create_hash
 from collections.abc import Callable
@@ -11,10 +10,8 @@ class FTISAnalyser:
     """Every analyser inherits from this class"""
     def __init__(self, cache=False, pre=None, post=None):
         self.process = None  # pass the parent process in
-        self.input = None  # This can be anything
+        self.input = None  
         self.output = None
-        self.input_type: str = ""
-        self.dump_type: str = ""
         self.dump_path: Path = None
         self.model_dump: Path = None  #
         self.name = self.__class__.__name__
@@ -30,6 +27,7 @@ class FTISAnalyser:
         self.chain = OrderedDict()
         self.parent_string = self.__class__.__name__
         self.identity = {}
+        self.workables = []
 
     def __str__(self):
         return f"{self.__class__.__name__}"
@@ -41,11 +39,6 @@ class FTISAnalyser:
         return right
     
     def traverse_parent_parameters(self):
-        # self.parent_parameters[self.parent.__class__.__name__] = ({
-        #     k: str(v) 
-        #     for k, v in vars(self).items() 
-        #     if k not in ignored_keys
-        # })
         self.parent_parameters[self.parent.__class__.__name__] = self.parent.identity["hash"]
         if hasattr(self.parent, 'parent'): # if the parent has a parent
             self.parent.traverse_parent_parameters()
@@ -63,9 +56,6 @@ class FTISAnalyser:
     def compare_meta(self) -> bool:
         # TODO You could use a hashing function here to determine the similarity of the metadata
         # TODO You should use a hashing function because adding things to the front of the chain makes it not equal between runs
-        print(self.process.metadata["time"])
-        print(self.process.prev_meta["time"])
-        print(self.identity["hash"])
         try:
             new_params = self.process.metadata["analyser"][self.identity["hash"]]["identity"]
         except KeyError:
@@ -80,15 +70,11 @@ class FTISAnalyser:
             success = self.process.prev_meta["success"][self.identity["hash"]]
         except KeyError:
             success = False
-        print(old_params, new_params, success)
         return old_params == new_params and success
 
     def cache_exists(self) -> bool:
         if self.dump_path.exists():
-            if self.dump_type == ftypes.folder:
-                return self.folder_integrity()
-            else:
-                return True
+            return True
         else:
             return False
 
@@ -108,33 +94,6 @@ class FTISAnalyser:
         self.process.metadata["success"] = success  # modify the original
         write_json(self.process.metapath, self.process.metadata)
 
-    def do(self) -> None:
-        self.log("Initiating")
-
-        # Determine whether we caching is possible
-        if self.cache and self.cache_exists() and self.compare_meta() and self.process.metapath.exists():
-            self.cache_possible = True
-
-        # Set the status to failure and only update to success if it all ends correctly
-        self.update_success(False)
-        if self.cache_possible:
-            self.load_cache()
-            self.process.fprint(f"{self.name} was cached")
-        else:
-            if self.pre:
-                self.pre(self)
-            self.run()
-            if self.post:
-                self.post(self)
-            self.dump()
-
-        if self.output != None:  # TODO comprehensive output checking
-            self.log("Ran Successfully")
-            self.update_success(True)
-        else:
-            self.log("Output was invalid")
-            raise OutputNotFound(self.name)
-
     def walk_chain(self) -> None:
         self.log("Initialising")
         # Determine whether we caching is possible
@@ -148,10 +107,10 @@ class FTISAnalyser:
         else:
             if self.pre: # preprocess
                 self.pre(self)
+            # self.adapt_input() #TODO: remove this if necessary
             self.run()
             if self.post: # postprocess
                 self.post(self)
-                self.dump()
 
         if self.output != None:  # TODO comprehensive output checking
             self.log("Ran Successfully")
@@ -162,9 +121,13 @@ class FTISAnalyser:
 
         self.dump()
         # Pass output to the input of all of connected things
+        # TODO: redo type checking
         for forward_connection in self.chain:
+        #     if self.output_type in forward_connection.input_type:
             forward_connection.input = self.output
             forward_connection.walk_chain()
+        #     else:
+        #         raise ChainIOError(self, forward_connection)
 
     def _get_parents(self) -> None:
         self.parent_string = (
@@ -176,14 +139,12 @@ class FTISAnalyser:
         if self.scripting:
             self.dump_path  = (
                 self.process.sink / 
-                f"{self.order}.{self.suborder}-{self.parent_string}{self.dump_type}"
+                f"{self.order}.{self.suborder}-{self.parent_string}.json"
             )
             self.model_dump = (
                 self.process.sink / 
                 f"{self.order}.{self.suborder}-{self.parent_string}.joblib"
             )
-        else:
-            pass
 
 
     def log(self, log_text: str) -> None:
@@ -202,6 +163,9 @@ class FTISAnalyser:
 
     def dump(self) -> None:
         """Defined in the analyser that inherits this class"""
+
+    def adapt_input(self):
+        """Adapters are made on a per object basis"""
 
     def run(self) -> None:
         """Method for running the processing chain from input to output"""

@@ -43,8 +43,8 @@ class ChainIOError(Exception):
         super().__init__(
             f"""
         Incompatible types
-        {analyser1.name} input: {analyser1.input_type}
-        {analyser2.name} output: {analyser2.output_type}
+        {analyser1.name} output: {analyser1.output_type}
+        {analyser2.name} input: {analyser2.input_type}
         """
         )
 

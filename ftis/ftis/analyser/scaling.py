@@ -11,7 +11,6 @@ class Normalise(FTISAnalyser):
         super().__init__(cache=cache)
         self.min = minimum
         self.max = maximum
-        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
