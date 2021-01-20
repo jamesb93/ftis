@@ -1,6 +1,6 @@
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json
-from ftis.common.proc import singleproc
+from ftis.common.proc import singleproc, multiproc
 from multiprocessing import Manager
 from scipy.signal import savgol_filter
 from scipy.io import wavfile
@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from flucoma import fluid
 from flucoma.utils import get_buffer
 import numpy as np
+from ftis.common.types import Indices
 
 
 class ClusteredNMF(FTISAnalyser):
@@ -100,8 +101,7 @@ class ClusteredSegmentation(FTISAnalyser):
         write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
-        slices = self.input[str(workable)]
-        slices = [int(x) for x in slices]
+        slices = self.input[workable]
         if len(slices) == 1:
             self.buffer[workable] = slices
             return
@@ -117,8 +117,8 @@ class ClusteredSegmentation(FTISAnalyser):
                 mfccs = fluid.mfcc(
                     workable,
                     fftsettings=self.fftsettings,
-                    startframe=start,
-                    numframes=end - start,
+                    startframe=int(start),
+                    numframes=int(end - start),
                 )
 
                 stats = get_buffer(fluid.stats(mfccs, numderivs=self.numderivs), "numpy")
@@ -142,5 +142,5 @@ class ClusteredSegmentation(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        singleproc(self.name, self.analyse, self.input)
+        multiproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
