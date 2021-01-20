@@ -107,7 +107,7 @@ class FTISAnalyser:
         else:
             if self.pre: # preprocess
                 self.pre(self)
-            self.adapt_input()
+            # self.adapt_input() #TODO: remove this if necessary
             self.run()
             if self.post: # postprocess
                 self.post(self)
@@ -121,12 +121,13 @@ class FTISAnalyser:
 
         self.dump()
         # Pass output to the input of all of connected things
-        for forward_connection in self.chain:
-            if self.output_type in forward_connection.input_type:
-                forward_connection.input = self.output
-                forward_connection.walk_chain()
-            else:
-                raise ChainIOError(self, forward_connection)
+        # TODO: redo type checking
+        # for forward_connection in self.chain:
+        #     if self.output_type in forward_connection.input_type:
+        #         forward_connection.input = self.output
+        #         forward_connection.walk_chain()
+        #     else:
+        #         raise ChainIOError(self, forward_connection)
 
     def _get_parents(self) -> None:
         self.parent_string = (
