@@ -11,7 +11,6 @@ class AgglomerativeClustering(FTISAnalyser):
     def __init__(self, numclusters=3, cache=False):
         super().__init__(cache=cache)
         self.numclusters = numclusters
-        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
