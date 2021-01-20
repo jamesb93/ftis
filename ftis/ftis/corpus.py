@@ -16,7 +16,7 @@ class Corpus:
     def __init__(self, path: str = "", file_type: List[str] = [".wav", ".aiff", ".aif"]):
         self.path = path
         self.name = self.__class__.__name__
-        self.file_type = file_type
+        self.file_type: List[str] = file_type
         self.items: List = []
         self.is_filtering: bool = False
         self.chain = {}
