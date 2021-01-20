@@ -84,13 +84,14 @@ class ClusteredNMF(FTISAnalyser):
 
 
 class ClusteredSegmentation(FTISAnalyser):
-    def __init__(self, numclusters=2, windowsize=4, numderivs=0, fftsettings=[1024, -1 -1], cache=False):
+    def __init__(self, numclusters=2, windowsize=4, numderivs=0, fftsettings=[1024, -1, -1], cache=False):
         super().__init__(cache=cache)
+        self.input_type = (Indices, )
+        self.output_type = Indices
         self.numclusters = numclusters
         self.windowsize = windowsize
-        self.derivates = numderivs
+        self.numderivs = numderivs
         self.fftsettings = fftsettings 
-        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
