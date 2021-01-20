@@ -30,6 +30,9 @@ class Corpus:
         # FIXME this is called in build_connections but we dont need it
         pass
 
+    def __len__(self):
+        return len(self.items)
+
     def __add__(self, right):
         try:
             self.items += right.items  # this is the fastest way to merge in place
