@@ -60,7 +60,7 @@ class Corpus:
             raise InvalidSource(self.path)
 
         if self.path.is_dir():
-            self.items = [x for x in self.path.iterdir() if x.suffix in self.file_type]
+            self.items = [str(x) for x in self.path.iterdir() if x.suffix in self.file_type]
         else:
             self.items = [self.path]
 
