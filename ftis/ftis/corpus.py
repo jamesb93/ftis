@@ -12,7 +12,6 @@ from rich.progress import Progress
 from typing import List
 
 
-
 class Corpus:
     def __init__(self, path: str = "", file_type: List[str] = [".wav", ".aiff", ".aif"]):
         self.path = path
@@ -58,9 +57,9 @@ class Corpus:
             raise InvalidSource(self.path)
 
         if self.path.is_dir():
-            self.items = AudioFiles([x for x in self.path.iterdir() if x.suffix in self.file_type])
+            self.items = [x for x in self.path.iterdir() if x.suffix in self.file_type]
         else:
-            self.items = AudioFiles([self.path])
+            self.items = [self.path]
 
     def startswith(self, prefix: str):
         with Progress() as progress:
