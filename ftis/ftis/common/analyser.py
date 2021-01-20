@@ -122,10 +122,10 @@ class FTISAnalyser:
         self.dump()
         # Pass output to the input of all of connected things
         # TODO: redo type checking
-        # for forward_connection in self.chain:
+        for forward_connection in self.chain:
         #     if self.output_type in forward_connection.input_type:
-        #         forward_connection.input = self.output
-        #         forward_connection.walk_chain()
+            forward_connection.input = self.output
+            forward_connection.walk_chain()
         #     else:
         #         raise ChainIOError(self, forward_connection)
 
