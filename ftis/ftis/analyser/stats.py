@@ -66,7 +66,7 @@ class Stats(FTISAnalyser):
     def analyse(self, workable):
         # TODO: any dimensionality input
         element_container = []
-        values = np.array(self.input.data[workable]["features"])
+        values = np.array(self.input[workable])
         if len(values.shape) < 2:  # single row we run the stats on that
             element_container.append(self.get_stats(values, self.numderivs))
         else:
@@ -77,10 +77,10 @@ class Stats(FTISAnalyser):
             element_container = np.array(element_container)
             element_container = element_container.flatten()
             element_container = element_container.tolist()
-        self.buffer[workable["file"]] = element_container
 
+        self.buffer[workable] = element_container
 
     def run(self):
         self.buffer = Manager().dict()
         singleproc(self.name, self.analyse, self.input)
-        self.output = Data(dict(self.buffer))
+        self.output = dict(self.buffer)
