@@ -8,3 +8,4 @@ ftis/ftis/web_assets/js/node_modules
 .venv
 dist
 ftis/build
+foo.py
