@@ -12,8 +12,6 @@ class UMAP(FTISAnalyser):
 
     def __init__(self, mindist=0.01, neighbours=7, components=2, cache=False):
         super().__init__(cache=cache)
-        self.input_type = (Data, )
-        self.output_type = Data
         self.mindist = mindist
         self.neighbours = neighbours
         self.components = components
@@ -27,20 +25,24 @@ class UMAP(FTISAnalyser):
         write_json(self.dump_path, self.output.data)
 
     def analyse(self):
-        for x in self.input:
-            data.append(self.input[v]["features"])
-        keys = [k for k in self.input]
-
+        data = [v for v in self.input.values()]
         data = np.array(data)
 
         self.model = umapdr(
-            n_components=self.components, n_neighbors=self.neighbours, min_dist=self.mindist, random_state=42
+            n_components=self.components, 
+            n_neighbors=self.neighbours, 
+            min_dist=self.mindist, 
+            random_state=42
         )
         self.model.fit(data)
         transformed_data = self.model.transform(data)
-        self.output = Data(
-            {k: v.tolist() for k, v in zip(keys, transformed_data)}
-        )
+        self.output = {
+            k: v.tolist() 
+            for k, v in zip(
+                self.input.keys(), 
+                transformed_data
+            )
+        }
 
     def run(self):
         staticproc(self.name, self.analyse)
