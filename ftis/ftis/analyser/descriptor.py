@@ -11,61 +11,64 @@ import librosa
 class Flux(FTISAnalyser):
     def __init__(self, windowsize=1024, hopsize=512, cache=False):
         super().__init__(cache=cache)
+        self.input_type = (AudioFiles, Indices)
+        self.output_type = Data
         self.windowsize = windowsize
         self.hopsize = hopsize
-        self.input_type = (AudioFiles, Indices)
-        self.dump_type = ".json"
 
     def load_cache(self):
-        self.output = read_json(self.dump_path)
+        self.output = Data(read_json(self.dump_path))
 
     def dump(self):
         write_json(self.dump_path, self.output.data)
 
     def flux(self, workable):
+        file_to_load = workable['file']
         hsh = create_hash(workable, self.identity)
         cache = self.process.cache / f"{hsh}.npy"
 
         if not cache.exists():
-            sr = get_sr(workable)   
+            sr = get_sr(file_to_load)
             y, _= librosa.load(
-                workable["file"],
+                file_to_load,
                 duration=workable["duration"],
-                offset=workable["offset"]
+                offset=workable["offset"],
+                sr=sr
             )
             fft = librosa.stft(y, win_length=self.windowsize, hop_length=self.hopsize)
             flux = np.sum(np.abs(np.diff(np.abs(fft))), axis=0)
             np.save(cache, flux)
         else:
             flux = np.load(cache)
-        workable["features"] = flux.tolist()
-        self.buffer[[workable["id"]]] = workable
+        workable_id = workable["id"]
+        workable['features'] = flux.tolist()
+        self.buffer[workable_id] = workable
 
     def adapt_input(self):
         if isinstance(self.input, AudioFiles):
-            for x in self.input:
+            for x in self.input.data:
                 self.workables.append({
-                    "file" : x,
-                    "id" : x,
+                    "file" : str(x),
+                    "id" : str(x),
                     "offset" : 0.0,
                     "duration" : None
                 })
         if isinstance(self.input, Indices):
-            for k, v in self.input:
+            for k, v in self.input.data:
                 sr = get_sr(k)
                 for i, (start, end) in enumerate(zip(v, v[1:])):
                     start /= sr
                     end /= sr
                     self.workables.append({
-                        "file" : k,
-                        "id" : f'{k}_{i}',
+                        "file" : str(k),
+                        "id" : f'{str(k)}_{i}',
                         "offset" : start,
                         "duration" : end
                     })
     
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.flux, self.workables)
+        singleproc(self.name, self.flux, self.workables)
         self.output = Data(dict(self.buffer))
 
 
