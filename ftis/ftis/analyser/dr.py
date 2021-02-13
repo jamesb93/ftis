@@ -18,11 +18,11 @@ class UMAP(FTISAnalyser):
         self.output = {}
 
     def load_cache(self):
-        self.output = Data(read_json(self.dump_path))
+        self.output = read_json(self.dump_path)
 
     def dump(self):
         jdump(self.model, self.model_dump)
-        write_json(self.dump_path, self.output.data)
+        write_json(self.dump_path, self.output)
 
     def analyse(self):
         data = [v for v in self.input.values()]

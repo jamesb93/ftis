@@ -169,10 +169,10 @@ class MFCC(FTISAnalyser):
         self.maxfreq = maxfreq
 
     def load_cache(self):
-        self.output = Data(read_json(self.dump_path))
+        self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output.data)
+        write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
         hsh = create_hash(workable, self.identity)
@@ -182,43 +182,21 @@ class MFCC(FTISAnalyser):
         else:
             mfcc = get_buffer(
                 fluid.mfcc(
-                    workable["file"],
+                    str(workable),
                     fftsettings=self.fftsettings,
                     numbands=self.numbands,
                     numcoeffs=self.numcoeffs,
                     minfreq=self.minfreq,
                     maxfreq=self.maxfreq,
-                    numframes=workable["numframes"],
-                    startframe=workable["startframe"]
                 ), "numpy",
             )
             np.save(cache, mfcc)
-        workable["features"] = mfcc.tolist()
-        self.buffer[workable["id"]] = workable
-
-    def adapt_input(self):
-        if isinstance(self.input, AudioFiles):
-            for x in self.input:
-                self.workables.append({
-                    "file" : x,
-                    "id" : x,
-                    "startframe" : 0,
-                    "numframes" : -1
-                })
-        if isinstance(self.input, Indices):
-            for k, v in self.input:
-                for i, (start, end) in enumerate(zip(v, v[1:])):
-                    self.workables.append({
-                        "file" : k,
-                        "id" : f'{k}_{i}',
-                        "startframe" : start,
-                        "numframes" : end
-                    })
+        self.buffer[str(workable)] = mfcc.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
-        singleproc(self.name, self.analyse, self.workables)
-        self.output = Data(dict(self.buffer))
+        singleproc(self.name, self.analyse, self.input)
+        self.output = dict(self.buffer)
 
 
 
