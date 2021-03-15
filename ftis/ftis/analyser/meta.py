@@ -10,6 +10,8 @@ from flucoma import fluid
 from flucoma.utils import get_buffer
 import numpy as np
 from ftis.common.types import Indices
+import hdbscan
+from pathlib import Path
 
 
 class ClusteredNMF(FTISAnalyser):
@@ -68,7 +70,7 @@ class ClusteredNMF(FTISAnalyser):
 
         for x in unique_clusters:
             summed = np.zeros_like(sound[0])  # make an empty numpy array of same size
-            base = workable.name
+            base = Path(workable).name
             output = self.output / f"{base}_{x}.wav"
             for idx, cluster in enumerate(cluster_labels):
                 if cluster == x:
@@ -78,10 +80,7 @@ class ClusteredNMF(FTISAnalyser):
     def run(self):
         self.output = self.process.sink / f"{self.order}_{self.__class__.__name__}"
         self.output.mkdir(exist_ok=True)
-        workables = [
-            k for k in self.input.iterdir() if k.name != ".DS_Store" and k.is_file() and k.suffix == ".wav"
-        ]
-        singleproc(self.name, self.analyse, workables)
+        singleproc(self.name, self.analyse, self.input)
 
 
 class ClusteredSegmentation(FTISAnalyser):
@@ -112,7 +111,7 @@ class ClusteredSegmentation(FTISAnalyser):
         while (count + self.windowsize) <= len(slices):
             indices = slices[count : count + self.windowsize]  # create a section of the indices in question
             data = []
-            for i, (start, end) in enumerate(zip(indices, indices[1:])):
+            for _, (start, end) in enumerate(zip(indices, indices[1:])):
 
                 mfccs = fluid.mfcc(
                     workable,
