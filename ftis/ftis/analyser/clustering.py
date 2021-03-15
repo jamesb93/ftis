@@ -5,6 +5,7 @@ from sklearn.neighbors import KDTree as SKKDTree
 from sklearn.cluster import AgglomerativeClustering as AggCluster
 from joblib import dump as jdump
 import numpy as np
+import hdbscan
 
 
 class AgglomerativeClustering(FTISAnalyser):
@@ -57,7 +58,7 @@ class HDBSCAN(FTISAnalyser):
 
         data = np.array(values)
 
-        db = HdbscanClustering(
+        db = hdbscan.HDBSCAN(
             min_cluster_size=self.minclustersize,
             min_samples=self.minsamples,
         ).fit(data)
