@@ -156,7 +156,6 @@ class MFCC(FTISAnalyser):
         numcoeffs=13,
         minfreq=80,
         maxfreq=20000,
-        discard=False,
         cache=False,
     ):
         super().__init__(cache=cache)
