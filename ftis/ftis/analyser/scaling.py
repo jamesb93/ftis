@@ -34,7 +34,6 @@ class Normalise(FTISAnalyser):
 class Standardise(FTISAnalyser):
     def __init__(self, cache=False):
         super().__init__(cache=cache)
-        self.dump_type = ".json"
 
     def load_cache(self):
         self.output = read_json(self.dump_path)
