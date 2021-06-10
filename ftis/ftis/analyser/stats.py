@@ -20,8 +20,6 @@ class Stats(FTISAnalyser):
     ):
 
         super().__init__(cache=cache)
-        self.input_type = (Data, )
-        self.output_type = Data
         self.numderivs = numderivs
         self.flatten = flatten
         self.spec = spec
@@ -64,7 +62,6 @@ class Stats(FTISAnalyser):
         return container
 
     def analyse(self, workable):
-        # TODO: any dimensionality input
         element_container = []
         values = np.array(self.input[workable])
         if len(values.shape) < 2:  # single row we run the stats on that
