@@ -20,10 +20,10 @@ setup(
         "hdbscan",
         "umap-learn",
         "sklearn",
-        "python-flucoma>=1.2.0",
+        "python-flucoma==1.3.1",
         "scipy",
         "rich",
         "librosa",
-        "jinja2",
+        "kymatio"
     ],
 )
