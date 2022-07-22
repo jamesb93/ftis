@@ -1,7 +1,7 @@
 from ftis.world import World
 from ftis.corpus import Corpus
 from ftis.analyser.audio import ExplodeAudio, CollapseAudio
-from ftis.analyser.slicing import FluidNoveltyslice
+from ftis.analyser.flucoma import Noveltyslice
 import argparse
 
 parser = argparse.ArgumentParser(description="Process input and output location")
@@ -44,7 +44,7 @@ world = World(sink=out)
 
 # To add analysers, we simply pass the class along with its parameters to the process.add() function.
 # This will connect those process in series, passing their outputs to the next analyser in the chain.
-src >> FluidNoveltyslice(kernelsize=5) >> ExplodeAudio()
+src >> Noveltyslice(kernelsize=5) >> ExplodeAudio()
 world.build(src)
 
 # Lastly we call process.run(). We should always call it inside the __name__ == "__main__" block

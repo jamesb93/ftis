@@ -1,5 +1,4 @@
-from ftis.analyser.descriptor import FluidLoudness
-from ftis.analyser.audio import CollapseAudio
+from ftis.analyser.flucoma import Loudness
 from ftis.analyser.stats import Stats
 from ftis.corpus import Corpus
 from ftis.world import World
@@ -29,7 +28,7 @@ def remove_truepeak(self):
     }
 
 corpus = Corpus(args.input)
-corpus >> CollapseAudio() >> FluidLoudness(post=remove_truepeak)
+corpus >> Loudness(post=remove_truepeak)
 world.build(corpus)
 
 if __name__ == "__main__":

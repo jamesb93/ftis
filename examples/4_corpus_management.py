@@ -1,4 +1,4 @@
-from ftis.analyser.descriptor import FluidMFCC
+from ftis.analyser.flucoma import MFCC
 from ftis.corpus import Corpus
 from ftis.world import World
 import argparse
@@ -42,7 +42,7 @@ corpus = em + db  # compose a corpus of both sub-corpora
 # and use em as the 'source' for the FTISProcess
 
 world = World(sink=args.output)
-corpus >> FluidMFCC()
+corpus >> MFCC()
 world.build(corpus)
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from ftis.analyser.descriptor import FluidMFCC
+from ftis.analyser.flucoma import MFCC
 from ftis.analyser.audio import CollapseAudio
 from ftis.analyser.stats import Stats
 from ftis.corpus import Corpus
@@ -40,7 +40,7 @@ out = args.output
 world = World(sink=out)
 
 stats = Stats(numderivs=2, spec=["stddev", "mean"])  # create an instance of the stats class
-src >> CollapseAudio() >> FluidMFCC() >> stats
+src >> CollapseAudio() >> MFCC() >> stats
 world.build(src)
 
 if __name__ == "__main__":
