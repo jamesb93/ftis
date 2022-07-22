@@ -8,6 +8,42 @@ from ftis.common.io import get_sr
 import numpy as np
 import librosa
 
+class ScatterWavelet(FTISAnalyser):
+    def __init__(
+        self, 
+        j = 6,
+        q = 16,
+        cache=False
+    ):
+        super().__init__(cache=cache)
+        self.j = j
+        self.q = q
+        self.dump_type = ".json"
+
+    def load_cache(self):
+        self.output = read_json(self.dump_path)
+    def dump(self):
+        write_json(self.dump_path, self.output)
+
+    def chroma(self, workable):
+        hsh = create_hash(workable, self.identity)
+        cache = self.process.cache / f"{hsh}.npy"
+
+        if not cache.exists():
+            y, sr = librosa.load(workable)
+            chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+            np.save(cache, chroma)
+        else:
+            chroma = np.load(cache)
+        self.buffer[str(workable)] = chroma.tolist()
+
+    def run(self):
+        self.buffer = Manager().dict()
+        multiproc(self.name, self.chroma, self.input)
+        self.output = dict(self.buffer)
+
+
+
 class Flux(FTISAnalyser):
     def __init__(self, windowsize=1024, hopsize=512, cache=False):
         super().__init__(cache=cache)

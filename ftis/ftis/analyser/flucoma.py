@@ -23,12 +23,13 @@ class Loudness(FTISAnalyser):
         self.truepeak = truepeak
 
     def load_cache(self):
-        self.output = Data(read_json(self.dump_path))
+        self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output.data)
+        write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
+        print(workable)
         hsh = create_hash(workable, self.identity)
         cache = self.process.cache / f"{hsh}.npy"
 
@@ -37,42 +38,20 @@ class Loudness(FTISAnalyser):
         else:
             loudness = get_buffer(
                 fluid.loudness(
-                    workable["file"],
+                    str(workable),
                     windowsize=self.windowsize,
                     hopsize=self.hopsize,
                     kweighting=self.kweighting,
                     truepeak=self.truepeak,
-                    numframes=workable["numframes"],
-                    startframe=workable["startframe"]
                 ), "numpy",
             )
             np.save(cache, loudness)
-        workable["feature"] = loudness.tolist()
-        self.buffer[workable["id"]] = workable
-
-    def adapt_input(self):
-        if isinstance(self.input, AudioFiles):
-            for x in self.input:
-                self.workables.append({
-                    "file" : x,
-                    "id" : x,
-                    "startframe" : 0,
-                    "numframes" : -1
-                })
-        if isinstance(self.input, Indices):
-            for k, v in self.input:
-                for i, (start, end) in enumerate(zip(v, v[1:])):
-                    self.workables.append({
-                        "file" : k,
-                        "id" : f'{k}_{i}',
-                        "startframe" : start,
-                        "numframes" : end
-                    })
+        self.buffer[str(workable)] = loudness.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.analyse, self.workables)
-        self.output = Data(dict(self.buffer))
+        singleproc(self.name, self.analyse, self.input)
+        self.output = dict(self.buffer)
 
 
 class Pitch(FTISAnalyser):
@@ -96,10 +75,10 @@ class Pitch(FTISAnalyser):
         self.fftsettings=fftsettings
 
     def load_cache(self):
-        self.output = Data(read_json(self.dump_path))
+        self.output = read_json(self.dump_path)
 
     def dump(self):
-        write_json(self.dump_path, self.output.data)
+        write_json(self.dump_path, self.output)
 
     def analyse(self, workable):
         hsh = create_hash(workable, self.identity)
@@ -110,43 +89,21 @@ class Pitch(FTISAnalyser):
         else:
             pitch = get_buffer(
                 fluid.pitch(
-                    workable["file"],
+                    str(workable),
                     algorithm=self.algorithm,
                     minfreq=self.minfreq,
                     maxfreq=self.maxfreq,
                     unit=self.unit,
-                    fftsettings=self.fftsettings,
-                    numframes=workable["numframes"],
-                    startframe=workable["startframe"]
+                    fftsettings=self.fftsettings
                 ), "numpy",
             )
             np.save(cache, pitch)
-        workable["features"] = pitch.tolist()
-        self.buffer[workable["id"]] = workable
-
-    def adapt_input(self):
-        if isinstance(self.input, AudioFiles):
-            for x in self.input:
-                self.workables.append({
-                    "file" : x,
-                    "id" : x,
-                    "startframe" : 0,
-                    "numframes" : -1
-                })
-        if isinstance(self.input, Indices):
-            for k, v in self.input:
-                for i, (start, end) in enumerate(zip(v, v[1:])):
-                    self.workables.append({
-                        "file" : k,
-                        "id" : f'{k}_{i}',
-                        "startframe" : start,
-                        "numframes" : end
-                    })
+        self.buffer[str(workable)] = pitch.tolist()
 
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.analyse, self.workables)
-        self.output = Data(dict(self.buffer))
+        singleproc(self.name, self.analyse, self.input)
+        self.output = dict(self.buffer)
 
 
 class MFCC(FTISAnalyser):
@@ -256,7 +213,7 @@ class Onsetslice(FTISAnalyser):
 class Noveltyslice(FTISAnalyser):
     def __init__(
         self,
-        feature=0,
+        algorithm=0,
         fftsettings=[1024, 512, 1024],
         filtersize=1,
         minslicelength=2,
@@ -265,7 +222,7 @@ class Noveltyslice(FTISAnalyser):
         cache=False,
     ):
         super().__init__(cache=cache)
-        self.feature = feature
+        self.algorithm = algorithm
         self.fftsettings = fftsettings
         self.filtersize = filtersize
         self.minslicelength = minslicelength
@@ -281,7 +238,7 @@ class Noveltyslice(FTISAnalyser):
     def analyse(self, workable):
         noveltyslice = fluid.noveltyslice(
             workable,   
-            feature=self.feature,
+            algorithm=self.algorithm,
             fftsettings=self.fftsettings,
             filtersize=self.filtersize,
             minslicelength=self.minslicelength,

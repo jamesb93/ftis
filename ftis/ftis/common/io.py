@@ -34,9 +34,11 @@ def peek(audio_file_path: Union[str, Path], output: str = "np"):
 def get_duration(path:Union[str, Path], units:str='ms') -> float:
     data, sr = peek(path)
     if units == 'ms':
-        return len(data) / sr
+        return len(data) / sr * 1000
     if units == 'samples':
         return len(data)
+    if units == 'seconds':
+        return len(data) / sr
 
 
 def get_sr(path: Union[str, Path]) -> int:

@@ -21,7 +21,8 @@ class Corpus:
         self.is_filtering: bool = False
         self.chain = {}
         self.identity = {}
-        self.get_items()
+        if path != "":
+            self.get_items()
 
     def create_identity(self):
         self.identity["hash"] = create_hash(self.items, self.is_filtering, self.path, self.file_type)
@@ -60,9 +61,17 @@ class Corpus:
             raise InvalidSource(self.path)
 
         if self.path.is_dir():
-            self.items = [str(x) for x in self.path.iterdir() if x.suffix in self.file_type]
+            # self.items = [str(x) for x in self.path.iterdir() if x.suffix in self.file_type]
+            self.items = [str(x) for x in self.path.rglob('*.wav')]
         else:
             self.items = [self.path]
+
+    def load_items(self, items:List[Path]) -> None: 
+        # Manually load items into FTIS when you're a baller
+        for item in items:
+            if not item.exists():
+                raise InvalidSource(str.item)
+        self.items = [str(x) for x in items if x.suffix in self.file_type]    
 
     def startswith(self, prefix: str):
         with Progress() as progress:
@@ -131,43 +140,41 @@ class Corpus:
         return self
 
     @staticmethod
-    def filter_duration(x, low: float, high: float) -> bool:
+    def filter_duration(x, low, high, units:str) -> bool:
         hsh = create_hash(x, low, high)
         tmp = Path("/tmp") / "ftis_cache"
         tmp.mkdir(exist_ok=True)
 
         cache = tmp / f"{hsh}.npy"
         if not cache.exists():
-            dur = get_duration(x)
+            dur = get_duration(x, units)
             np.save(cache, dur)
         else:
             dur = np.load(cache)
-        return dur < high and dur > low
 
-    def duration(self, min_duration: int = 0, max_duration: int = 36000):
-        # TODO handle min/max types that can come in so you can do percentages
+        # Logic for returning the truth
+        if low != None and high != None:
+            return dur <= high and dur >= low
+        if low == None:
+            return dur <= high
+        if high == None:
+            return dur >= low
+        if low == None and high == None:
+            return False
+
+    def duration(self, 
+        min_duration = None, 
+        max_duration = None, 
+        units: str = 'samples'
+    ):
         self.is_filtering = True
-        self.items = [x for x in self.items if self.filter_duration(x, min_duration, max_duration)]
+        self.items = [
+            x 
+            for x in self.items 
+            if self.filter_duration(
+                x, 
+                min_duration, 
+                max_duration,
+                units
+            )]
         return self
-
-
-class Analysis:
-    # TODO This could be merged directly into the corpus class where it would
-    # directly determine the type from the extension
-    """This class lets you directly use analysis as an entry point to FTIS"""
-
-    def __init__(self, path=""):
-        self.path = path
-        self.items = None
-        self.get_items()
-
-    def get_items(self):
-        if self.path == "":
-            raise NoCorpusSource("Please provide a valid path for the analysis")
-
-        self.path = Path(self.path).expanduser().resolve()
-
-        if not self.path.exists():
-            raise InvalidSource(self.path)
-
-        self.items = path

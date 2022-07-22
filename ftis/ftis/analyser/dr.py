@@ -2,8 +2,8 @@ from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json
 from ftis.common.proc import staticproc
 from ftis.common.types import Data
-from umap import UMAP as umapdr
 from joblib import dump as jdump
+from umap import UMAP as umapdr
 import numpy as np
 
 

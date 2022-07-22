@@ -1,6 +1,6 @@
 from ftis.common.analyser import FTISAnalyser
 from ftis.common.io import write_json, read_json, peek, get_sr
-from ftis.common.proc import singleproc
+from ftis.common.proc import multiproc, singleproc
 from ftis.common.conversion import samps2ms
 from shutil import copyfile
 from pathlib import Path
@@ -27,7 +27,7 @@ class CollapseAudio(FTISAnalyser):
             f"{self.order}.{self.suborder}-{self.parent_string}"
         )
         self.outfolder.mkdir(exist_ok=True)
-        singleproc(self.name, self.collapse, self.input)
+        multiproc(self.name, self.collapse, self.input)
         self.output = AudioFiles([x for x in self.outfolder.iterdir()])
 
 
@@ -45,10 +45,6 @@ class ExplodeAudio(FTISAnalyser):
         write_json(self.dump_path, d)
 
     def segment(self, workable):
-        """
-        Each workable is a key for an audiofile that is sliced.
-        The first line of this extracts the slices
-        """
         slices = [int(x) for x in self.input[workable]] # explicitly convert to integers
         stem = Path(workable).stem
         if len(slices) == 1:

@@ -89,7 +89,7 @@ class World:
 
     def run(self):
         if not self.quiet:
-            version = "# **** FTIS v2.1.0a ****"
+            version = "# **** FTIS ****"
             self.console.print(Markdown(version))
             # Construct information table
             corpora_paths = Table(title="Corpora", box=box.HORIZONTALS, show_lines=True)
