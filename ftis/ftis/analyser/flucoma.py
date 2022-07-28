@@ -248,7 +248,6 @@ class Noveltyslice(FTISAnalyser):
 
     def run(self):
         self.buffer = Manager().dict()
-        multiproc(self.name, self.analyse, self.input)
+        singleproc(self.name, self.analyse, self.input)
         self.output = dict(self.buffer)
-
 
